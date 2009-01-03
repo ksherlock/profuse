@@ -2,7 +2,7 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeArchitecturePreference = i386;
-		activeBuildConfigurationName = "Debug Universal";
+		activeBuildConfigurationName = Debug;
 		activeExecutable = B60E914A0EFB3612000E4348 /* profuse */;
 		activeTarget = 8DD76F620486A84900D96B5E /* profuse */;
 		addToTargets = (
@@ -87,8 +87,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 252472219;
-			PBXWorkspaceStateSaveDate = 252472219;
+			PBXPerProjectTemplateStateSaveDate = 252705002;
+			PBXWorkspaceStateSaveDate = 252705002;
 		};
 		perUserProjectItems = {
 			B60E917F0EFD7E1E000E4348 = B60E917F0EFD7E1E000E4348 /* PBXTextBookmark */;
@@ -108,13 +108,22 @@
 			B679E4BB0F02EFA200FB3F0C = B679E4BB0F02EFA200FB3F0C /* PBXTextBookmark */;
 			B6A271C50F040B8E00646F02 = B6A271C50F040B8E00646F02 /* PBXTextBookmark */;
 			B6A271C70F040B8E00646F02 = B6A271C70F040B8E00646F02 /* PBXTextBookmark */;
-			B6DBB4DE0F0C6BB400F385F2 /* PBXTextBookmark */ = B6DBB4DE0F0C6BB400F385F2 /* PBXTextBookmark */;
-			B6DBB4F10F0C6CD800F385F2 /* PBXTextBookmark */ = B6DBB4F10F0C6CD800F385F2 /* PBXTextBookmark */;
-			B6DBB4F20F0C6CD800F385F2 /* PBXBookmark */ = B6DBB4F20F0C6CD800F385F2 /* PBXBookmark */;
-			B6DBB4F30F0C6CD800F385F2 /* PBXTextBookmark */ = B6DBB4F30F0C6CD800F385F2 /* PBXTextBookmark */;
-			B6DBB4F40F0C6CD800F385F2 /* PBXTextBookmark */ = B6DBB4F40F0C6CD800F385F2 /* PBXTextBookmark */;
-			B6DBB4F90F0C6DA600F385F2 /* PBXTextBookmark */ = B6DBB4F90F0C6DA600F385F2 /* PBXTextBookmark */;
-			B6DBB4FC0F0C6DE600F385F2 /* PBXTextBookmark */ = B6DBB4FC0F0C6DE600F385F2 /* PBXTextBookmark */;
+			B6B767C80F0FFA3900D819C9 /* PBXTextBookmark */ = B6B767C80F0FFA3900D819C9 /* PBXTextBookmark */;
+			B6B767C90F0FFA3900D819C9 /* PBXTextBookmark */ = B6B767C90F0FFA3900D819C9 /* PBXTextBookmark */;
+			B6B767CB0F0FFA3900D819C9 /* PBXTextBookmark */ = B6B767CB0F0FFA3900D819C9 /* PBXTextBookmark */;
+			B6B767CC0F0FFA3900D819C9 /* PBXTextBookmark */ = B6B767CC0F0FFA3900D819C9 /* PBXTextBookmark */;
+			B6B767D00F0FFCAF00D819C9 /* PBXTextBookmark */ = B6B767D00F0FFCAF00D819C9 /* PBXTextBookmark */;
+			B6B767D20F0FFD1A00D819C9 /* PBXTextBookmark */ = B6B767D20F0FFD1A00D819C9 /* PBXTextBookmark */;
+			B6B767D40F0FFD3F00D819C9 /* PBXTextBookmark */ = B6B767D40F0FFD3F00D819C9 /* PBXTextBookmark */;
+			B6B767D80F0FFDD800D819C9 /* PBXTextBookmark */ = B6B767D80F0FFDD800D819C9 /* PBXTextBookmark */;
+			B6B767E50F0FFE9500D819C9 /* PBXTextBookmark */ = B6B767E50F0FFE9500D819C9 /* PBXTextBookmark */;
+			B6DBB4DE0F0C6BB400F385F2 = B6DBB4DE0F0C6BB400F385F2 /* PBXTextBookmark */;
+			B6DBB4F10F0C6CD800F385F2 = B6DBB4F10F0C6CD800F385F2 /* PBXTextBookmark */;
+			B6DBB4F20F0C6CD800F385F2 = B6DBB4F20F0C6CD800F385F2 /* PBXBookmark */;
+			B6DBB4F30F0C6CD800F385F2 = B6DBB4F30F0C6CD800F385F2 /* PBXTextBookmark */;
+			B6DBB4F40F0C6CD800F385F2 = B6DBB4F40F0C6CD800F385F2 /* PBXTextBookmark */;
+			B6DBB4F90F0C6DA600F385F2 = B6DBB4F90F0C6DA600F385F2 /* PBXTextBookmark */;
+			B6DBB4FC0F0C6DE600F385F2 = B6DBB4FC0F0C6DE600F385F2 /* PBXTextBookmark */;
 		};
 		sourceControlManager = B60E91500EFB3628000E4348 /* Source Control */;
 		userBuildSettings = {
@@ -186,7 +195,7 @@
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
 		scmConfiguration = {
-			repositoryName = "";
+			repositoryName = profuse.googlecode.com;
 		};
 	};
 	B60E91510EFB3628000E4348 /* Code sense */ = {
@@ -448,6 +457,119 @@
 		path = "/Users/kelvin/Projects/ProDOS-Fuse/pool.h";
 		sourceTree = "<absolute>";
 	};
+	B6B767C50F0FF9F500D819C9 /* fuse_common.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = fuse_common.h;
+		path = /usr/local/include/fuse/fuse_common.h;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {883, 4214}}";
+			sepNavSelRange = "{818, 64}";
+			sepNavVisRange = "{535, 579}";
+			sepNavWindowFrame = "{{15, 249}, {1412, 924}}";
+		};
+	};
+	B6B767C80F0FFA3900D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */;
+		name = "profuse.1: 10";
+		rLen = 0;
+		rLoc = 429;
+		rType = 0;
+		vrLen = 722;
+		vrLoc = 2400;
+	};
+	B6B767C90F0FFA3900D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "error: #error Please add -D_FILE_OFFSET_BITS=64 to your compile flags!";
+		fRef = B6B767CA0F0FFA3900D819C9 /* fuse_common.h */;
+		rLen = 1;
+		rLoc = 31;
+		rType = 1;
+	};
+	B6B767CA0F0FFA3900D819C9 /* fuse_common.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = fuse_common.h;
+		path = /usr/local/include/fuse/fuse_common.h;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {883, 4214}}";
+			sepNavSelRange = "{818, 64}";
+			sepNavVisRange = "{535, 579}";
+		};
+	};
+	B6B767CB0F0FFA3900D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */;
+		name = "profuse.1: 10";
+		rLen = 0;
+		rLoc = 429;
+		rType = 0;
+		vrLen = 722;
+		vrLoc = 2400;
+	};
+	B6B767CC0F0FFA3900D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6B767C50F0FF9F500D819C9 /* fuse_common.h */;
+		name = "fuse_common.h: 32";
+		rLen = 64;
+		rLoc = 818;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 535;
+	};
+	B6B767D00F0FFCAF00D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6B767CA0F0FFA3900D819C9 /* fuse_common.h */;
+		name = "fuse_common.h: 32";
+		rLen = 64;
+		rLoc = 818;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 535;
+	};
+	B6B767D20F0FFD1A00D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6B767CA0F0FFA3900D819C9 /* fuse_common.h */;
+		name = "fuse_common.h: 32";
+		rLen = 64;
+		rLoc = 818;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 535;
+	};
+	B6B767D40F0FFD3F00D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6B767CA0F0FFA3900D819C9 /* fuse_common.h */;
+		name = "fuse_common.h: 32";
+		rLen = 64;
+		rLoc = 818;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 535;
+	};
+	B6B767D80F0FFDD800D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6B767CA0F0FFA3900D819C9 /* fuse_common.h */;
+		name = "fuse_common.h: 32";
+		rLen = 64;
+		rLoc = 818;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 535;
+	};
+	B6B767E50F0FFE9500D819C9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6B767CA0F0FFA3900D819C9 /* fuse_common.h */;
+		name = "fuse_common.h: 32";
+		rLen = 64;
+		rLoc = 818;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 535;
+	};
 	B6D81E5B0EFDE859000219B7 /* xmain.cpp:163 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
@@ -477,7 +599,7 @@
 	};
 	B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {883, 1190}}";
+			sepNavIntBoundsRect = "{{0, 0}, {883, 1162}}";
 			sepNavSelRange = "{429, 0}";
 			sepNavVisRange = "{2400, 722}";
 			sepNavWindowFrame = "{{15, 249}, {1412, 924}}";

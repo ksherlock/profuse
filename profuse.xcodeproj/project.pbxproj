@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		B60E914F0EFB3628000E4348 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E914E0EFB3628000E4348 /* File.cpp */; };
 		B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E91540EFB51FE000E4348 /* Disk.cpp */; };
-		B679E49B0F02E71400FB3F0C /* libfuse_ino64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B679E49A0F02E71400FB3F0C /* libfuse_ino64.2.dylib */; };
 		B679E4A80F02E79300FB3F0C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B679E4A70F02E79300FB3F0C /* main.cpp */; };
 		B6AE1D530F033B5E00D36ADB /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AE1D520F033B5E00D36ADB /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
@@ -33,7 +32,6 @@
 		B60E91530EFB51FE000E4348 /* Disk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Disk.h; sourceTree = "<group>"; };
 		B60E91540EFB51FE000E4348 /* Disk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disk.cpp; sourceTree = "<group>"; };
 		B60E91580EFD77E3000E4348 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
-		B679E49A0F02E71400FB3F0C /* libfuse_ino64.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfuse_ino64.2.dylib; path = /usr/local/lib/libfuse_ino64.2.dylib; sourceTree = "<absolute>"; };
 		B679E4A70F02E79300FB3F0C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		B6AE1D520F033B5E00D36ADB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = profuse.1; sourceTree = "<group>"; };
@@ -44,7 +42,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B679E49B0F02E71400FB3F0C /* libfuse_ino64.2.dylib in Frameworks */,
 				B6AE1D530F033B5E00D36ADB /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,7 +85,6 @@
 			isa = PBXGroup;
 			children = (
 				B6AE1D520F033B5E00D36ADB /* CoreFoundation.framework */,
-				B679E49A0F02E71400FB3F0C /* libfuse_ino64.2.dylib */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -167,7 +163,7 @@
 					"_GLIBCXX_DEBUG_PEDANTIC=1",
 				);
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = "ProDOS-Fuse";
+				PRODUCT_NAME = profuse;
 			};
 			name = Debug;
 		};
@@ -197,6 +193,10 @@
 					"-D__FreeBSD__=10",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__DARWIN_64_BIT_INO_T=1",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib/",
+					"-lfuse_ino64",
 				);
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
@@ -231,6 +231,10 @@
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__DARWIN_64_BIT_INO_T=1",
 				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib/",
+					"-lfuse_ino64",
+				);
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 			};
@@ -254,6 +258,48 @@
 			};
 			name = "Debug Universal";
 		};
+		B6B767C10F0FF90400D819C9 /* Debug Universal 10.4 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include/fuse;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-D__FreeBSD__=10",
+					"-D_FILE_OFFSET_BITS=64",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib/",
+					"-lfuse",
+				);
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = "Debug Universal 10.4";
+		};
+		B6B767C20F0FF90400D819C9 /* Debug Universal 10.4 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_GLIBCXX_DEBUG=1",
+					"_GLIBCXX_DEBUG_PEDANTIC=1",
+				);
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = profuse;
+			};
+			name = "Debug Universal 10.4";
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -262,6 +308,7 @@
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
 				B618461B0F0AF6CC0045CCF7 /* Debug Universal */,
+				B6B767C20F0FF90400D819C9 /* Debug Universal 10.4 */,
 				1DEB923308733DC60010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -272,6 +319,7 @@
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
 				B618461A0F0AF6CC0045CCF7 /* Debug Universal */,
+				B6B767C10F0FF90400D819C9 /* Debug Universal 10.4 */,
 				1DEB923708733DC60010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
