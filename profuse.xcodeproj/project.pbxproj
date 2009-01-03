@@ -10,7 +10,6 @@
 		B60E914F0EFB3628000E4348 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E914E0EFB3628000E4348 /* File.cpp */; };
 		B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E91540EFB51FE000E4348 /* Disk.cpp */; };
 		B679E4A80F02E79300FB3F0C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B679E4A70F02E79300FB3F0C /* main.cpp */; };
-		B6AE1D530F033B5E00D36ADB /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AE1D520F033B5E00D36ADB /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,7 +32,6 @@
 		B60E91540EFB51FE000E4348 /* Disk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disk.cpp; sourceTree = "<group>"; };
 		B60E91580EFD77E3000E4348 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B679E4A70F02E79300FB3F0C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		B6AE1D520F033B5E00D36ADB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = profuse.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -42,7 +40,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6AE1D530F033B5E00D36ADB /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,7 +81,6 @@
 		B679E49D0F02E71D00FB3F0C /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				B6AE1D520F033B5E00D36ADB /* CoreFoundation.framework */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -278,7 +274,7 @@
 					"-lfuse",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.4;
 			};
 			name = "Debug Universal 10.4";
 		};
