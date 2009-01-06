@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		B60E914F0EFB3628000E4348 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E914E0EFB3628000E4348 /* File.cpp */; };
 		B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E91540EFB51FE000E4348 /* Disk.cpp */; };
+		B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */; };
 		B679E4A80F02E79300FB3F0C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B679E4A70F02E79300FB3F0C /* main.cpp */; };
+		B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,7 +33,11 @@
 		B60E91530EFB51FE000E4348 /* Disk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Disk.h; sourceTree = "<group>"; };
 		B60E91540EFB51FE000E4348 /* Disk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disk.cpp; sourceTree = "<group>"; };
 		B60E91580EFD77E3000E4348 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		B642F1290F132FA3001F7696 /* UniversalDiskImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniversalDiskImage.h; sourceTree = "<group>"; };
+		B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UniversalDiskImage.cpp; sourceTree = "<group>"; };
 		B679E4A70F02E79300FB3F0C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B6B17FA00F1138830060F7AA /* DiskCopy42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskCopy42.h; sourceTree = "<group>"; };
+		B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DiskCopy42.cpp; sourceTree = "<group>"; };
 		B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = profuse.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,12 +66,16 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				B642F1290F132FA3001F7696 /* UniversalDiskImage.h */,
+				B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */,
 				B60E91580EFD77E3000E4348 /* common.h */,
 				B60E91530EFB51FE000E4348 /* Disk.h */,
 				B60E91540EFB51FE000E4348 /* Disk.cpp */,
 				B60E914D0EFB3627000E4348 /* File.h */,
 				B60E914E0EFB3628000E4348 /* File.cpp */,
 				B679E4A70F02E79300FB3F0C /* main.cpp */,
+				B6B17FA00F1138830060F7AA /* DiskCopy42.h */,
+				B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -139,6 +149,8 @@
 				B60E914F0EFB3628000E4348 /* File.cpp in Sources */,
 				B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */,
 				B679E4A80F02E79300FB3F0C /* main.cpp in Sources */,
+				B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */,
+				B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,7 +269,7 @@
 		B6B767C10F0FF90400D819C9 /* Debug Universal 10.4 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "";

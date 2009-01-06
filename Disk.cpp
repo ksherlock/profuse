@@ -7,6 +7,9 @@
  */
 
 #include "Disk.h"
+#include "DiskCopy42.h"
+#include "UniversalDiskImage.h"
+
 #include "common.h"
 
 #include <fcntl.h>
@@ -78,13 +81,8 @@ Disk *Disk::OpenFile(const char *file)
                 offset = 0;
             }
             else {
-                // check for disk copy 4.2:
-                // 800k disk, but there's a 84-byte header 
-                // and possible tag data (???)
-                // +80 = 0x01 (800K Disk)
-                // +81 = 0x24 (800K ProDOS disk)
-                // +82 = 0x01
-                // +83 = 0x00
+
+                // check for disk copy4.2 / universal disk image.
                 uint8_t buffer[1024];
                 
                 if (read(fd, buffer, 1024) != 1024)
@@ -92,31 +90,39 @@ Disk *Disk::OpenFile(const char *file)
                     close(fd);
                     return NULL;
                 }
+
+                bool ok = false;
+                for(;;)
+                {
+                    
+                    DiskCopy42 dc;
+                    
+                    if (dc.Load(buffer)
+                        && size == 84 + dc.data_size + dc.tag_size 
+                        && (dc.data_size & 0x1ff) == 0)
+                    {
+                        offset = 84;
+                        blocks = dc.data_size >> 9;
+                        ok = true;
+                        break;
+                    }
+                    
+                    UniversalDiskImage udi;
+                    
+                    if (udi.Load(buffer) 
+                        && udi.version == 1 
+                        && udi.image_format == UDI_FORMAT_PRODOS_ORDER)
+                    {
+                        
+                        blocks = udi.data_blocks;
+                        offset = udi.data_offset;
+                        ok = true;
+                        break;
+                    }
+
+                }
                 
-                if (size ==  819284
-                    && buffer[80] == 0x01
-                    && buffer[81] == 0x24
-                    && buffer[82] == 0x01
-                    && buffer[83] == 0x00)
-                {
-                    // Disk Copy.
-                    // currently ignoring the checksum.
-                    blocks = 819284 >> 9;
-                    offset = 84;
-                }
-                // check 2mg.
-                else if (buffer[0] == '2' 
-                         && buffer[1] == 'I'
-                         && buffer[2] == 'M'
-                         && buffer[3] == 'G'
-                         && buffer[0x0c] == 0x01 // ProDOS order
-                    )
-                {
-                    //
-                    blocks = load32(&buffer[0x14]);
-                    offset = load32(&buffer[0x18]);
-                }
-                else
+                if (!ok)
                 {
                     close(fd);
                     return NULL;
