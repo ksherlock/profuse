@@ -9,7 +9,7 @@
 #include "File.h"
 
 #include "common.h"
-#include <strings.h>
+#include <string.h>
 #include <stdint.h>
 #include <ctype.h>
 
