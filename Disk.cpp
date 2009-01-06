@@ -92,8 +92,7 @@ Disk *Disk::OpenFile(const char *file)
                 }
 
                 bool ok = false;
-                for(;;)
-                {
+                do {
                     
                     DiskCopy42 dc;
                     
@@ -110,8 +109,9 @@ Disk *Disk::OpenFile(const char *file)
                     UniversalDiskImage udi;
                     
                     if (udi.Load(buffer) 
-                        && udi.version == 1 
-                        && udi.image_format == UDI_FORMAT_PRODOS_ORDER)
+                        //&& udi.version == 1 
+                        //&& udi.image_format == UDI_FORMAT_PRODOS_ORDER
+                    )
                     {
                         
                         blocks = udi.data_blocks;
@@ -120,7 +120,7 @@ Disk *Disk::OpenFile(const char *file)
                         break;
                     }
 
-                }
+                        } while (false);
                 
                 if (!ok)
                 {
