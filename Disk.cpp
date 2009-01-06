@@ -110,8 +110,7 @@ Disk *Disk::OpenFile(const char *file)
                     
                     if (udi.Load(buffer) 
                         //&& udi.version == 1 
-                        //&& udi.image_format == UDI_FORMAT_PRODOS_ORDER
-                    )
+                        && udi.image_format == UDI_FORMAT_PRODOS_ORDER)
                     {
                         
                         blocks = udi.data_blocks;
