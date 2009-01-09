@@ -201,6 +201,7 @@
 					"-D__FreeBSD__=10",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__DARWIN_64_BIT_INO_T=1",
+					"-DHAVE_STAT_BIRTHTIME",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib/",
@@ -238,6 +239,7 @@
 					"-D__FreeBSD__=10",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__DARWIN_64_BIT_INO_T=1",
+					"-DHAVE_STAT_BIRTHTIME",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib/",
