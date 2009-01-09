@@ -48,3 +48,4 @@ bool UniversalDiskImage::Load(const uint8_t *buffer)
 
     return true;
 }
+

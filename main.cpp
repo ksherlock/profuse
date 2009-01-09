@@ -330,8 +330,7 @@ static void prodos_listxattr(fuse_req_t req, fuse_ino_t ino, size_t size)
     return;
 }
 
-// position not needed/valid for linux.
-// position ignored, for now.
+// TODO -- more consistent position support.
 static void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t size, uint32_t off)
 {
     
@@ -396,6 +395,14 @@ static void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, si
     fuse_reply_err(req, ENOENT);
 
 }
+/*
+ * Linux, et alia do not have an offset parameter.
+ */
+static void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t size)
+{
+    prodos_getxattr(req, ino, name, size, 0);
+}
+
 
 #pragma mark Directory Functions
 
