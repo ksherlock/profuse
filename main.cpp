@@ -44,7 +44,7 @@ using std::string;
 
 Disk *disk = NULL;
 char *dfile = NULL;
-
+VolumeEntry volume;
 
 
 #undef ERROR
@@ -521,8 +521,8 @@ int prodos_stat(FileEntry& e, struct stat *st)
     st->st_blksize = BLOCK_SIZE;
     
     st->st_ctime = e.creation;
-#ifdef STAT_BIRTHTIME
-    //st->st_birthtime = e.creation;
+#ifdef HAVE_STAT_BIRTHTIME
+    st->st_birthtime = e.creation;
 #endif
     
     st->st_mtime = e.last_mod;
@@ -573,7 +573,10 @@ int prodos_stat(const VolumeEntry &v, struct stat *st)
     
     st->st_mode = S_IFDIR | 0555;
     st->st_ctime = v.creation;
-    //st->st_birthtime = v.creation;    
+
+#ifdef HAVE_STAT_BIRTHTIME
+    st->st_birthtime = v.creation;
+#endif
     st->st_mtime = v.creation;
     st->st_atime = v.creation;
     
@@ -867,6 +870,39 @@ static int prodos_opt_proc(void *data, const char *arg, int key, struct fuse_arg
 }
 
 
+#ifdef __APPLE__
+
+// create a dir in /Volumes/diskname.
+bool make_mount_dir(string name, string &path)
+{
+    path = "";
+    
+    if (name.find('/') != string::npos) return false;
+    if (name.find('\\') != string::npos) return false;
+    
+    path = "";
+    path = "/Volumes/" + name;
+    rmdir(path.c_str());
+    if (mkdir(path.c_str(), 0777) == 0) return true;
+    
+    for (unsigned i = 0; i < 26; i++)
+    {
+        path = "/Volumes/" + name + "_" + (char)('a' + i);
+        
+        rmdir(path.c_str());
+        if (mkdir(path.c_str(), 0777) == 0) return true;
+        
+        
+        
+    }
+    
+    path = "";
+    return false;
+    
+}
+
+#endif
+
 int main(int argc, char *argv[])
 {
     
@@ -874,6 +910,11 @@ int main(int argc, char *argv[])
 	struct fuse_chan *ch;
 	char *mountpoint = NULL;
 	int err = -1;
+    
+#if __APPLE__
+    string mountpath;
+#endif
+    
     
     disk = NULL;
     
@@ -893,7 +934,7 @@ int main(int argc, char *argv[])
     prodos_oper.release = prodos_release;
     prodos_oper.read = prodos_read;
     
-    
+
     // scan the argument list, looking for the name of the disk image.
     if (fuse_opt_parse(&args, NULL , prodos_opts, prodos_opt_proc) == -1)
         exit(1);
@@ -904,8 +945,6 @@ int main(int argc, char *argv[])
         exit(0);
     }
     
-    // TODO -- check file size, volume header 
-    // check for 2mg or disk copy 4.2 header.
     disk = Disk::OpenFile(dfile);
     
     if (!disk)
@@ -913,12 +952,38 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unable to mount disk %s\n", dfile);
         exit(1);
     }    
+
+
     
-    // tODO -- add blocksize, volume name 
+    disk->ReadVolume(&volume, NULL);
+    
+#ifdef __APPLE__
+    {
+        // Macfuse supports custom volume names (displayed in Finder)
+        string str="-ovolname=";
+        str += volume.volume_name;
+        fuse_opt_add_arg(&args, str.c_str());
+    }
+#endif
+    
+
+    // use 512byte blocks.
+    fuse_opt_add_arg(&args, "-oiosize=512");
     
     do {
 
         if (fuse_parse_cmdline(&args, &mountpoint, NULL, NULL) == -1) break;
+        
+#ifdef __APPLE__
+      
+        if (mountpoint == NULL || *mountpoint == 0)
+        {
+            if (make_mount_dir(volume.volume_name, mountpath))
+                mountpoint = (char *)mountpath.c_str();
+        }
+        
+#endif
+        
         
         
         if (mountpoint == NULL || *mountpoint == 0)
@@ -955,13 +1020,13 @@ int main(int argc, char *argv[])
     
     fuse_opt_free_args(&args);
     
-    if (disk)
-    {
-        delete disk;
-        disk = NULL;
-    }
+    if (disk) delete disk;
     
     if (dfile) free(dfile);
+    
+#ifdef __APPLE__
+    if (mountpath.size()) rmdir(mountpath.c_str());
+#endif
     
 	return err ? 1 : 0;
 }
