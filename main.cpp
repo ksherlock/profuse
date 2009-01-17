@@ -122,8 +122,11 @@ static void xattr_textencoding(FileEntry& e, fuse_req_t req, size_t size, off_t 
     const char attr[] = "MACINTOSH;0";
     unsigned attr_size = sizeof(attr) - 1;
     
-    // currently only valid for Teach Files.
-    if (e.file_type != 0x50 || e.aux_type != 0x5445)
+    // currently only valid for Teach Files, "ASCII" Text
+    
+    if (e.file_type == 0x04 || (e.file_type == 0x50 && e.aux_type == 0x5445)) 
+    /* do nothing */ ;
+    else 
     {
         ERROR(true, ENOENT)
     }
@@ -304,7 +307,9 @@ static void prodos_listxattr(fuse_req_t req, fuse_ino_t ino, size_t size)
             break;
     }
     
-    if (e.file_type == 0x50 && e.aux_type == 0x5445) // teach text
+    if (
+        e.file_type == 0x04 
+        || (e.file_type == 0x50 && e.aux_type == 0x5445)) // teach text
     {
         attr += "com.apple.TextEncoding";
         attr.append(1, 0);
@@ -975,7 +980,9 @@ int main(int argc, char *argv[])
     
 
     // use 512byte blocks.
+    #if __APPLE__
     fuse_opt_add_arg(&args, "-oiosize=512");
+    #endif
     
     do {
 
