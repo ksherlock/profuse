@@ -338,13 +338,19 @@ static void prodos_listxattr(fuse_req_t req, fuse_ino_t ino, size_t size)
 // TODO -- more consistent position support.
 static void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t size, uint32_t off)
 {
-    
+#ifdef __APPLE__ 
+#define NO_ATTRIBUTE ENOENT
+#else
+#define NO_ATTRIBUTE EOPNOTSUPP 
+#endif
+
     fprintf(stderr, "getxattr: %u %s %u %u \n", ino, name, (int)size, (int)off);
         
     uint8_t buffer[BLOCK_SIZE];
     
 
-    ERROR(ino == 1, ENOENT) // finder can't handle EISDIR.
+    ERROR(ino == 1, NO_ATTRIBUTE) // finder can't handle EISDIR.
+
 
     int ok = disk->Read(ino >> 9, buffer);
     
@@ -361,9 +367,9 @@ static void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, si
         case EXTENDED_FILE:
             break;
         case DIRECTORY_FILE:
-            ERROR(true, ENOENT) // Finder can't handle EISDIR.
+            ERROR(true, NO_ATTRIBUTE) // Finder can't handle EISDIR.
         default:
-            ERROR(true, ENOENT);
+            ERROR(true, NO_ATTRIBUTE);
     }
     
     if (strcmp("prodos.FileType", name) == 0)
@@ -397,7 +403,7 @@ static void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, si
     }
     
     
-    fuse_reply_err(req, ENOENT);
+    fuse_reply_err(req, NO_ATTRIBUTE);
 
 }
 /*
@@ -757,7 +763,7 @@ static void prodos_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *f
             ERROR(true, EIO)
     }
     
-    if (fi->flags != O_RDONLY)
+    if ( (fi->flags & O_ACCMODE) != O_RDONLY)
     {
         delete e;
         ERROR(true, EACCES);
