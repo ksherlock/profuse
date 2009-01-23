@@ -2,7 +2,7 @@
 CC=g++
 CFLAGS=-c  $(shell pkg-config fuse --cflags)
 LDFLAGS=$(shell pkg-config fuse --libs)
-SOURCES=main.cpp File.cpp Disk.cpp DiskCopy42.cpp UniversalDiskImage.cpp
+SOURCES=main.cpp File.cpp Disk.cpp DiskCopy42.cpp UniversalDiskImage.cpp profuse_dirent.cpp profuse_file.cpp profuse_stat.cpp  profuse_xattr.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=profuse
 
@@ -22,4 +22,12 @@ File.o: File.cpp File.h
 
 Disk.o: Disk.cpp Disk.h File.h DiskCopy42.h UniversalDiskImage.h
 
-main.o: main.cpp Disk.h File.h
+main.o: main.cpp Disk.h File.h profuse.h
+
+profuse_dirent.o: profuse_dirent.cpp profuse.h
+
+profuse_file.o: profuse_file.cpp profuse.h
+
+profuse_stat.o: profuse_stat.cpp profuse.h
+
+profuse_xattr.o: profuse_xattr.cpp profuse.h

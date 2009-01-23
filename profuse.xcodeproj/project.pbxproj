@@ -12,6 +12,10 @@
 		B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */; };
 		B679E4A80F02E79300FB3F0C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B679E4A70F02E79300FB3F0C /* main.cpp */; };
 		B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */; };
+		B6C786B50F2A59FF00053681 /* profuse_xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786B40F2A59FE00053681 /* profuse_xattr.cpp */; };
+		B6C786BC0F2A5C0800053681 /* profuse_dirent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */; };
+		B6C786C00F2A5CC000053681 /* profuse_stat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786BF0F2A5CC000053681 /* profuse_stat.cpp */; };
+		B6C786C40F2A5DCE00053681 /* profuse_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786C30F2A5DCE00053681 /* profuse_file.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +42,11 @@
 		B679E4A70F02E79300FB3F0C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		B6B17FA00F1138830060F7AA /* DiskCopy42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskCopy42.h; sourceTree = "<group>"; };
 		B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DiskCopy42.cpp; sourceTree = "<group>"; };
+		B6C786B30F2A59AF00053681 /* profuse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = profuse.h; sourceTree = "<group>"; };
+		B6C786B40F2A59FE00053681 /* profuse_xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_xattr.cpp; sourceTree = "<group>"; };
+		B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_dirent.cpp; sourceTree = "<group>"; };
+		B6C786BF0F2A5CC000053681 /* profuse_stat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_stat.cpp; sourceTree = "<group>"; };
+		B6C786C30F2A5DCE00053681 /* profuse_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_file.cpp; sourceTree = "<group>"; };
 		B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = profuse.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -76,6 +85,11 @@
 				B679E4A70F02E79300FB3F0C /* main.cpp */,
 				B6B17FA00F1138830060F7AA /* DiskCopy42.h */,
 				B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */,
+				B6C786B30F2A59AF00053681 /* profuse.h */,
+				B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */,
+				B6C786C30F2A5DCE00053681 /* profuse_file.cpp */,
+				B6C786BF0F2A5CC000053681 /* profuse_stat.cpp */,
+				B6C786B40F2A59FE00053681 /* profuse_xattr.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -151,6 +165,10 @@
 				B679E4A80F02E79300FB3F0C /* main.cpp in Sources */,
 				B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */,
 				B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */,
+				B6C786B50F2A59FF00053681 /* profuse_xattr.cpp in Sources */,
+				B6C786BC0F2A5C0800053681 /* profuse_dirent.cpp in Sources */,
+				B6C786C00F2A5CC000053681 /* profuse_stat.cpp in Sources */,
+				B6C786C40F2A5DCE00053681 /* profuse_file.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
