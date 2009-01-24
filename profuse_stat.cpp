@@ -89,8 +89,8 @@ int prodos_stat(const VolumeEntry &v, struct stat *st)
 #ifdef HAVE_STAT_BIRTHTIME
     st->st_birthtime = v.creation;
 #endif
-    st->st_mtime = v.creation;
-    st->st_atime = v.creation;
+    st->st_mtime = v.last_mod;
+    st->st_atime = v.last_mod;
     
     st->st_nlink = v.file_count + 1;
     st->st_size = BLOCK_SIZE;

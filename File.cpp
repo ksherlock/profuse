@@ -184,8 +184,11 @@ VolumeEntry::VolumeEntry(const void *data)
 
     // 0x14--0x1b reserved
     
-    //creation = timeToUnix(load16(&cp[0x18]), load16(&cp[0x1a]));
+    creation = timeToUnix(load16(&cp[0x18]), load16(&cp[0x1a]));
+    last_mod = timeToUnix(load16(&cp[0x12]), load16(&cp[0x14]));
 
+    if (last_mod == 0) last_mod = creation;
+    
     //version = cp[0x1c];
     //min_version = cp[0x1d];
     

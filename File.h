@@ -106,6 +106,7 @@ public:
     unsigned name_length;
     char volume_name[15+1];
     time_t creation;
+    time_t last_mod;
     //unsigned version;
     //unsigned min_version;
     unsigned access;
