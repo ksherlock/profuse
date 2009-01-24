@@ -39,7 +39,7 @@ public:
     ~Disk();
     
     //static Disk *Open2MG(const char *file);
-    static Disk *OpenFile(const char *file);
+    static Disk *OpenFile(const char *file, bool dos_order);
     
 
     int Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee = NULL);
@@ -61,6 +61,8 @@ private:
     unsigned _offset;
     unsigned _blocks;
     size_t _size;
+    
+    bool _dosorder;
 };
 
 #endif

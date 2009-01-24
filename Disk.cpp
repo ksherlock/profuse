@@ -50,7 +50,7 @@ Disk::~Disk()
 }
 
 
-Disk *Disk::OpenFile(const char *file)
+Disk *Disk::OpenFile(const char *file, bool dos_order)
 {
     int fd;
     struct stat st;
@@ -59,8 +59,11 @@ Disk *Disk::OpenFile(const char *file)
     
     unsigned offset;
     
+    
     void *map;
     Disk *d = NULL;
+
+
     
     fd = open(file, O_RDONLY);
     if (fd >= 0)
@@ -119,7 +122,7 @@ Disk *Disk::OpenFile(const char *file)
                         break;
                     }
 
-                        } while (false);
+                } while (false);
                 
                 if (!ok)
                 {
@@ -138,6 +141,7 @@ Disk *Disk::OpenFile(const char *file)
                 d->_data = (uint8_t *)map;
                 d->_blocks = blocks;
                 d->_offset = offset;
+                d->_dosorder = dos_order;
             }
 
         }
@@ -191,6 +195,29 @@ int Disk::Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee)
 int Disk::Read(unsigned block, void *buffer)
 {
     if (block > _blocks) return -P8_INVALID_BLOCK;
+    
+    
+    if (_dosorder)
+    {
+        static unsigned do_map[] = {0x00, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x0f };
+                
+        unsigned track = (block & ~0x07) << 9;
+        unsigned sector = (block & 0x07) << 1;
+        
+        for (unsigned i = 0; i < 2; i++)
+        {
+            unsigned offset = track | (do_map[sector+i] << 8); 
+            
+            memcpy(buffer, _data + _offset + offset, 256);
+            
+            buffer = (char *)buffer + 256;
+            
+        }
+        return 1;
+    }
+    
+
+    
     memcpy(buffer, _data + _offset + (block << 9), BLOCK_SIZE);
     return 1;
 }

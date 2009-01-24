@@ -33,6 +33,8 @@ Disk *disk = NULL;
 char *dfile = NULL;
 VolumeEntry volume;
 
+bool dos_order = false;
+
 
 
 bool validProdosName(const char *name)
@@ -67,7 +69,8 @@ static struct fuse_lowlevel_ops prodos_oper;
 
 enum {
     PRODOS_OPT_HELP,
-    PRODOS_OPT_VERSION
+    PRODOS_OPT_VERSION,
+    PRODOS_OPT_DOS_ORDER
 };
 
 static struct fuse_opt prodos_opts[] = {
@@ -75,6 +78,7 @@ static struct fuse_opt prodos_opts[] = {
     FUSE_OPT_KEY("--help",         PRODOS_OPT_HELP),
     FUSE_OPT_KEY("-V",             PRODOS_OPT_VERSION),
     FUSE_OPT_KEY("--version",      PRODOS_OPT_VERSION),
+    FUSE_OPT_KEY("--dos-order",    PRODOS_OPT_DOS_ORDER),
     {0, 0, 0}
 };
 
@@ -96,6 +100,10 @@ static int prodos_opt_proc(void *data, const char *arg, int key, struct fuse_arg
         case PRODOS_OPT_VERSION:
             // TODO
             exit(1);
+            break;
+        case PRODOS_OPT_DOS_ORDER:
+            dos_order = true;
+            return 0;
             break;
             
         case FUSE_OPT_KEY_NONOPT:
@@ -186,7 +194,7 @@ int main(int argc, char *argv[])
         exit(0);
     }
     
-    disk = Disk::OpenFile(dfile);
+    disk = Disk::OpenFile(dfile, dos_order);
     
     if (!disk)
     {
