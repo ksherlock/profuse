@@ -27,7 +27,8 @@ void prodos_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
     ok = disk->Read(ino >> 9, buffer);
     ERROR(ok < 0, EIO)
     
-    e = new FileEntry(buffer + (ino & 0x1ff));
+    e = new FileEntry();
+    e->Load(buffer + (ino & 0x1ff));
     
     if (e->storage_type == EXTENDED_FILE)
     {

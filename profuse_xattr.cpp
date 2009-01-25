@@ -180,6 +180,7 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 static bool isTextFile(unsigned ftype, unsigned auxtype)
 {
     if (ftype == 0x04) return true; // ascii text
+    if (ftype == 0x80) return true; // source code.
     if (ftype == 0x50 && auxtype == 0x5445) return true; // teach text
     
     return false;
@@ -214,7 +215,8 @@ return; \
     ERROR(ok < 0, EIO)
     
     
-    FileEntry e(buffer + (ino & 0x1ff));
+    FileEntry e;
+    e.Load(buffer + (ino & 0x1ff));
     
     
     attr += "prodos.FileType";
@@ -306,7 +308,8 @@ void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t si
     ERROR(ok < 0, EIO)
     
     
-    FileEntry e(buffer + (ino & 0x1ff));
+    FileEntry e;
+    e.Load(buffer + (ino & 0x1ff));
     
     switch(e.storage_type)
     {

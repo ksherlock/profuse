@@ -51,7 +51,8 @@ int prodos_stat(FileEntry& e, struct stat *st)
         ok = disk->Read(e.key_pointer, buffer);
         if (ok < 0) return -1;
         
-        SubdirEntry se(buffer + 0x04);            
+        SubdirEntry se;
+        se.Load(buffer + 0x04);            
         
         if (se.storage_type != SUBDIR_HEADER) return -1;
         
@@ -123,7 +124,8 @@ void prodos_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
     // ino 1 is the volume header.
     if (ino == 1)
     {
-        VolumeEntry v(buffer + 0x04);
+        VolumeEntry v;
+        v.Load(buffer + 0x04);
         ok = prodos_stat(v, &st);
         ERROR(ok < 0, EIO);
         
@@ -136,7 +138,8 @@ void prodos_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
     {
         
         
-        FileEntry e(buffer + (ino & 0x1ff));
+        FileEntry e;
+        e.Load(buffer + (ino & 0x1ff));
         ok = prodos_stat(e, &st);
         
         ERROR(ok < 0, EIO);
@@ -180,7 +183,8 @@ void prodos_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
     }
     else
     {
-        FileEntry e(buffer + (parent & 0x1ff));
+        FileEntry e;
+        e.Load(buffer + (parent & 0x1ff));
         ERROR(e.storage_type != DIRECTORY_FILE, ENOENT);
         
         ok = disk->ReadDirectory(e.key_pointer, NULL, &files);

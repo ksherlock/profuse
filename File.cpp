@@ -25,7 +25,7 @@
  * o  Year values from 40 to 99 represent 1940 through 1999
  * o  Year values from 0 to 39 represent 2000 through 2039
  */
-inline time_t timeToUnix(unsigned yymmdd, unsigned hhmm)
+static time_t timeToUnix(unsigned yymmdd, unsigned hhmm)
 {
     if (yymmdd == 0) return 0;
     
@@ -46,21 +46,7 @@ inline time_t timeToUnix(unsigned yymmdd, unsigned hhmm)
 
 
 
-FileEntry::FileEntry()
-{
-    bzero(this, sizeof(FileEntry));
-}
-FileEntry::FileEntry(const FileEntry& f)
-{
-    *this = f;
-}
-FileEntry::FileEntry(const FileEntry *f)
-{
-    if (f) *this = *f;
-    else bzero(this, sizeof(FileEntry));
-}
-
-FileEntry::FileEntry(const void *data)
+bool FileEntry::Load(const void *data)
 {
     const uint8_t *cp = (const uint8_t *)data;
     
@@ -107,15 +93,14 @@ FileEntry::FileEntry(const void *data)
     last_mod = timeToUnix(load16(&cp[0x21]), load16(&cp[0x23]));
     
     header_pointer = load16(&cp[0x25]);
+    
+    return true;
 }
 
 
-ExtendedEntry::ExtendedEntry()
-{
-    bzero(this, sizeof(ExtendedEntry));
-}
 
-ExtendedEntry::ExtendedEntry(const void *data)
+
+bool ExtendedEntry::Load(const void *data)
 {
     const uint8_t *cp = (const uint8_t *)data;
     
@@ -159,17 +144,12 @@ ExtendedEntry::ExtendedEntry(const void *data)
         }
     }
     //
+    return true;
 }
 
 
 
-VolumeEntry::VolumeEntry()
-{
-    bzero(this, sizeof(VolumeEntry));
-}
-
-
-VolumeEntry::VolumeEntry(const void *data)
+bool VolumeEntry::Load(const void *data)
 {
     const uint8_t *cp = (const uint8_t *)data;
 
@@ -216,17 +196,14 @@ VolumeEntry::VolumeEntry(const void *data)
     bit_map_pointer = load16(&cp[0x23]);
     
     total_blocks = load16(&cp[0x25]);
+    
+    return true;
 }
 
 
 
-SubdirEntry::SubdirEntry()
-{
-    bzero(this, sizeof(SubdirEntry));
-}
 
-
-SubdirEntry::SubdirEntry(const void *data)
+bool SubdirEntry::Load(const void *data)
 {
     const uint8_t *cp = (const uint8_t *)data;
     
@@ -275,4 +252,6 @@ SubdirEntry::SubdirEntry(const void *data)
     parent_entry = cp[0x25];
     
     parent_entry_length = cp[0x26];
+    
+    return true;
 }

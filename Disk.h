@@ -27,10 +27,18 @@ enum {
 };
 
 enum {
-    DATA_FORK = 0,
-    RESOURCE_FORK = 1
+    P8_DATA_FORK = 0,
+    P8_RESOURCE_FORK = 1
 };
 
+
+/* flags */
+enum {
+    P8_DOS_ORDER = 1,
+    P8_2MG = 2,
+    P8_DC42 = 4
+    
+};
 
 
 class Disk {
@@ -39,7 +47,7 @@ public:
     ~Disk();
     
     //static Disk *Open2MG(const char *file);
-    static Disk *OpenFile(const char *file, bool dos_order);
+    static Disk *OpenFile(const char *file, unsigned flags);
     
 
     int Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee = NULL);
@@ -62,7 +70,7 @@ private:
     unsigned _blocks;
     size_t _size;
     
-    bool _dosorder;
+    unsigned _flags;
 };
 
 #endif

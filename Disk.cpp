@@ -41,6 +41,7 @@ Disk::Disk()
     _blocks = 0;
     _offset = 0;
     _size = 0;
+    _flags = 0;
 }
 
 Disk::~Disk()
@@ -50,7 +51,7 @@ Disk::~Disk()
 }
 
 
-Disk *Disk::OpenFile(const char *file, bool dos_order)
+Disk *Disk::OpenFile(const char *file, unsigned flags)
 {
     int fd;
     struct stat st;
@@ -106,6 +107,7 @@ Disk *Disk::OpenFile(const char *file, bool dos_order)
                         offset = 84;
                         blocks = dc.data_size >> 9;
                         ok = true;
+                        flags |= P8_DC42;
                         break;
                     }
                     
@@ -119,6 +121,7 @@ Disk *Disk::OpenFile(const char *file, bool dos_order)
                         blocks = udi.data_blocks;
                         offset = udi.data_offset;
                         ok = true;
+                        flags |= P8_2MG;
                         break;
                     }
 
@@ -141,7 +144,7 @@ Disk *Disk::OpenFile(const char *file, bool dos_order)
                 d->_data = (uint8_t *)map;
                 d->_blocks = blocks;
                 d->_offset = offset;
-                d->_dosorder = dos_order;
+                d->_flags = flags;
             }
 
         }
@@ -168,7 +171,8 @@ int Disk::Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee)
     ok = Read(f.key_pointer, buffer);
     if (ok < 0) return ok;
     
-    ExtendedEntry e(buffer);
+    ExtendedEntry e;
+    e.Load(buffer);
     
     if (fork == 0)
     {
@@ -197,7 +201,7 @@ int Disk::Read(unsigned block, void *buffer)
     if (block > _blocks) return -P8_INVALID_BLOCK;
     
     
-    if (_dosorder)
+    if (_flags & P8_DOS_ORDER)
     {
         static unsigned do_map[] = {0x00, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x0f };
                 
@@ -233,7 +237,7 @@ void *Disk::ReadFile(const FileEntry &f, unsigned fork, uint32_t *size, int *err
     SET_ERROR(0);
     SET_SIZE(0);
         
-    if (fork != DATA_FORK && fork != RESOURCE_FORK)
+    if (fork != P8_DATA_FORK && fork != P8_RESOURCE_FORK)
     {
         SET_ERROR(-P8_INVALID_FORK);
         return NULL;
@@ -252,7 +256,7 @@ void *Disk::ReadFile(const FileEntry &f, unsigned fork, uint32_t *size, int *err
         case SEEDLING_FILE:
         case SAPLING_FILE:
         case TREE_FILE:
-            if (fork != DATA_FORK)
+            if (fork != P8_DATA_FORK)
             {
                 SET_ERROR(1);
                 return NULL;
@@ -271,9 +275,10 @@ void *Disk::ReadFile(const FileEntry &f, unsigned fork, uint32_t *size, int *err
                     return NULL;
                 }
                 
-                ExtendedEntry entry(buffer);
+                ExtendedEntry entry;
+                entry.Load(buffer);
                 
-                if (fork == DATA_FORK)
+                if (fork == P8_DATA_FORK)
                 {
                     storage_type = entry.dataFork.storage_type;
                     eof = entry.dataFork.eof;
@@ -362,9 +367,7 @@ int Disk::ReadFile(const FileEntry &f, void *buffer)
 
 
 int Disk::ReadIndex(unsigned block, void *buffer, unsigned level, off_t offset, unsigned blocks)
-{
-    // does not yet handle sparse files (completely).
-    
+{    
     if (level == 0)
     {
         // data level
@@ -401,12 +404,22 @@ int Disk::ReadIndex(unsigned block, void *buffer, unsigned level, off_t offset, 
             return -P8_INTERNAL_ERROR;
     }
     
+    
+
+    
     int ok;
-    
     uint8_t key[BLOCK_SIZE];
-    ok = Read(block, key);
-    if (ok < 0 ) return ok;
     
+    if (block) // not sparse.
+    {
+        ok = Read(block, key);
+        if (ok < 0 ) return ok;
+    }
+    else
+    {
+        // sparse -- zero it out so code below works w/o special cases.
+        bzero(key, BLOCK_SIZE);
+    }
     
     for (unsigned i = first; blocks; i++)
     {
@@ -446,7 +459,8 @@ int Disk::ReadVolume(VolumeEntry *volume, std::vector<FileEntry> *files)
     prev = load16(&buffer[0x00]);
     next = load16(&buffer[0x02]);
     
-    VolumeEntry v(buffer + 0x04);
+    VolumeEntry v;
+    v.Load(buffer + 0x04);
     
     if (v.storage_type != VOLUME_HEADER) return -P8_INVALID_STORAGE_TYPE;
     
@@ -467,7 +481,8 @@ int Disk::ReadVolume(VolumeEntry *volume, std::vector<FileEntry> *files)
             if ( (buffer[0x04 + v.entry_length * index] >> 4) != DELETED_FILE)
             {
                 unsigned offset = v.entry_length * index + 0x4;
-                FileEntry f(buffer + offset);
+                FileEntry f;
+                f.Load(buffer + offset);
                 f.address = (block << 9) + offset;
                 
                 files->push_back(f);
@@ -521,7 +536,8 @@ int Disk::ReadDirectory(unsigned block, SubdirEntry *dir, std::vector<FileEntry>
     prev = load16(&buffer[0x00]);
     next = load16(&buffer[0x02]);
     
-    SubdirEntry v(buffer + 0x04);
+    SubdirEntry v;
+    v.Load(buffer + 0x04);
     
     if (v.storage_type != SUBDIR_HEADER) return -P8_INVALID_STORAGE_TYPE;
 
@@ -543,7 +559,8 @@ int Disk::ReadDirectory(unsigned block, SubdirEntry *dir, std::vector<FileEntry>
             if ( (buffer[0x04 + v.entry_length * index] >> 4) != DELETED_FILE)
             {
                 unsigned offset = v.entry_length * index + 0x4;
-                FileEntry f(buffer + offset);
+                FileEntry f;
+                f.Load(buffer + offset);
                 f.address = (block << 9) + offset;
                 
                 files->push_back(f);

@@ -41,7 +41,8 @@ void prodos_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
     
     if (ino == 1)
     {
-        VolumeEntry v(buffer + 0x04);
+        VolumeEntry v;
+        v.Load(buffer + 0x04);
         
         ok = disk->ReadVolume(&v, &files);
         
@@ -50,7 +51,8 @@ void prodos_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
     else
     {
         
-        FileEntry e(buffer + (ino & 0x1ff));
+        FileEntry e;
+        e.Load(buffer + (ino & 0x1ff));
         
         ERROR(e.storage_type != DIRECTORY_FILE, ENOTDIR)
         

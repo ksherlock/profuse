@@ -42,11 +42,7 @@ enum {
 class FileEntry {
 public:
     
-    FileEntry();
-    FileEntry(const FileEntry& f);
-    FileEntry(const FileEntry *f);
-    
-    FileEntry(const void *data);
+    bool Load(const void *data);
     
     unsigned storage_type;
     unsigned name_length;
@@ -66,13 +62,6 @@ public:
     uint32_t address;
 };
 
-#if 0
-class BlockList {
-public:
-    unsigned prev_block;
-    unsigned next_block;
-};
-#endif
 
 
 struct MiniEntry {
@@ -86,8 +75,8 @@ struct MiniEntry {
 
 class ExtendedEntry {
 public:
-    ExtendedEntry();
-    ExtendedEntry(const void *data);
+    
+    bool Load(const void *data);
     
     MiniEntry dataFork;
     MiniEntry resourceFork;
@@ -99,8 +88,8 @@ public:
 
 class VolumeEntry {
 public:
-    VolumeEntry();
-    VolumeEntry(const void *data);
+    
+    bool Load(const void *data);
     
     unsigned storage_type;
     unsigned name_length;
@@ -123,8 +112,7 @@ public:
 class SubdirEntry {
 public:
     
-    SubdirEntry();
-    SubdirEntry(const void *data);
+    bool Load(const void *data);
     
     unsigned storage_type;
     unsigned name_length;
