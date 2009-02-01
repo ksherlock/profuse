@@ -1,0 +1,33 @@
+
+CC=g++
+CFLAGS=-c  `pkg-config fuse --cflags`
+LDFLAGS=`pkg-config fuse --libs`
+SOURCES=main.cpp File.cpp Disk.cpp DiskCopy42.cpp UniversalDiskImage.cpp profuse_dirent.cpp profuse_file.cpp profuse_stat.cpp  profuse_xattr.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=profuse
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+UniversalDiskImage.o: UniversalDiskImage.cpp UniversalDiskImage.h
+
+DiskCopy42.o: DiskCopy42.cpp DiskCopy42.h
+
+File.o: File.cpp File.h
+
+Disk.o: Disk.cpp Disk.h File.h DiskCopy42.h UniversalDiskImage.h
+
+main.o: main.cpp Disk.h File.h profuse.h
+
+profuse_dirent.o: profuse_dirent.cpp profuse.h
+
+profuse_file.o: profuse_file.cpp profuse.h
+
+profuse_stat.o: profuse_stat.cpp profuse.h
+
+profuse_xattr.o: profuse_xattr.cpp profuse.h
