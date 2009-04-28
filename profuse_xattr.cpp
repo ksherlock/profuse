@@ -138,10 +138,51 @@ static void xattr_rfork(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 
 static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
 {
+    
+    /*
+
+     tech note PT515
+     ProDOS -> Macintosh conversion
+     
+     ProDOS             Macintosh
+     Filetype    Auxtype    Creator    Filetype
+     $00          $0000     'pdos'     'BINA'
+     $B0 (SRC)    (any)     'pdos'     'TEXT'
+     $04 (TXT)    $0000     'pdos'     'TEXT'
+     $FF (SYS)    (any)     'pdos'     'PSYS'
+     $B3 (S16)    (any)     'pdos'     'PS16'
+     $uv          $wxyz     'pdos'     'p' $uv $wx $yz
+     
+     */
+    // the above predates extended auxtypes for $b3.
+    
     finfo[0] = 'p';
     finfo[1] = ftype;
     finfo[2] = auxtype >> 8;
     finfo[3] = auxtype;
+    
+    
+    switch (ftype)
+    {
+
+        case 0x00:
+            if (auxtype == 0) memcpy(finfo, "BINA", 4);
+            break;
+        case 0x04:
+            if (auxtype == 0) memcpy(finfo, "TEXT", 4);
+            break;
+        case 0xb0:
+            memcpy(finfo, "TEXT", 4);
+            break;
+        case 0xb3:
+            if (auxtype == 0) memcpy(finfo, "PS16", 4);
+            break;
+        case 0xff:
+            memcpy(finfo, "PSYS", 4);
+            break;        
+    }
+    
+    
     finfo[4] = 'p';
     finfo[5] = 'd';
     finfo[6] = 'o';
