@@ -13,10 +13,12 @@
 #include "common.h"
 
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #include <algorithm>
 #include <set>

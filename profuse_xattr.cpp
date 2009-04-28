@@ -11,7 +11,10 @@
 
 #include <algorithm>
 #include <string>
+
 #include <errno.h>
+#include <string.h>
+#include <strings.h>
 
 using std::string;
 

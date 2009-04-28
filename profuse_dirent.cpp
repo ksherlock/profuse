@@ -9,6 +9,7 @@
 #include "profuse.h"
 
 #include <errno.h>
+#include <strings.h>
 
 #include <algorithm>
 #include <string>

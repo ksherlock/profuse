@@ -8,6 +8,7 @@
 
 #include "profuse.h"
 #include <errno.h>
+#include <stdio.h>
 
 
 #pragma mark Read Functions
