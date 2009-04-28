@@ -136,6 +136,17 @@ static void xattr_rfork(FileEntry& e, fuse_req_t req, size_t size, off_t off)
     return;
 }
 
+static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
+{
+    finfo[0] = 'p';
+    finfo[1] = ftype;
+    finfo[2] = auxtype >> 8;
+    finfo[3] = auxtype;
+    finfo[4] = 'p';
+    finfo[5] = 'd';
+    finfo[6] = 'o';
+    finfo[7] = 's';    
+}
 
 // Finder info.
 static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
@@ -146,7 +157,26 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
     uint8_t attr[32];
     unsigned attr_size = 32;
     
-    ERROR (e.storage_type != EXTENDED_FILE, ENOENT)
+    //ERROR (e.storage_type != EXTENDED_FILE, ENOENT)
+    
+    switch (e.storage_type)
+    {
+        case SEEDLING_FILE:
+        case SAPLING_FILE:
+        case TREE_FILE:
+            bzero(attr, attr_size);
+            set_creator(attr, e.file_type, e.aux_type);
+            fuse_reply_buf(req, (char *)attr, attr_size);
+            return;
+        
+        case EXTENDED_FILE:
+            // handled below.
+            break;
+
+        default:
+            ERROR(true, ENOENT);
+    }
+    
     
     ok = disk->Normalize(e, 1, &ee);
     ERROR(ok < 0, EIO)
@@ -172,6 +202,10 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
     
     memcpy(attr, ee.FInfo, 16);
     memcpy(attr + 16, ee.xFInfo, 16);
+
+    // if no creator, create one.
+    if (memcmp(attr, "\0\0\0\0\0\0\0\0", 8) == 0)
+        set_creator(attr, e.file_type, e.aux_type);
     
     fuse_reply_buf(req, (char *)attr, attr_size);
 }
@@ -245,6 +279,9 @@ return; \
         case SEEDLING_FILE:
         case SAPLING_FILE:
         case TREE_FILE:
+            // generate HFS creator codes.
+            attr += "com.apple.FinderInfo";
+            attr.append(1, 0);
             break;
             
         case DIRECTORY_FILE:
@@ -348,7 +385,7 @@ void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t si
         return;          
     }
     
-    if ( (e.storage_type == EXTENDED_FILE) && (strcmp("com.apple.FinderInfo", name) == 0))   
+    if ( strcmp("com.apple.FinderInfo", name) == 0)   
     {
         xattr_finfo(e, req, size, off);
         return;          
