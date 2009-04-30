@@ -156,14 +156,32 @@ static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
      $B3 (S16)    (any)     'pdos'     'PS16'
      $uv          $wxyz     'pdos'     'p' $uv $wx $yz
      
+     Programmer's Reference for System 6.0:
+     
+     ProDOS Macintosh 
+     File Type Auxiliary Type Creator Type File Type 
+     $00        $0000           “pdos”  “BINA” 
+     $04 (TXT)  $0000           “pdos”  “TEXT” 
+     $FF (SYS)  (any)           “pdos”  “PSYS” 
+     $B3 (S16)  $DByz           “pdos”  “p” $B3 $DB $yz 
+     $B3 (S16)  (any)           “pdos”  “PS16” 
+     $D7        $0000           “pdos”  “MIDI” 
+     $D8        $0000           “pdos”  “AIFF” 
+     $D8        $0001           “pdos”  “AIFC” 
+     $E0        $0005           “dCpy”  “dImg” 
+     $FF (SYS)  (any)           “pdos”  “PSYS” 
+     $uv        $wxyz           “pdos”  “p” $uv $wx $yz 
+     
+     
+     
      */
-    // the above predates extended auxtypes for $b3.
     
     finfo[0] = 'p';
     finfo[1] = ftype;
     finfo[2] = auxtype >> 8;
     finfo[3] = auxtype;
-    
+
+    memcpy(finfo + 4, "pdos", 4);
     
     switch (ftype)
     {
@@ -171,25 +189,39 @@ static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
         case 0x00:
             if (auxtype == 0) memcpy(finfo, "BINA", 4);
             break;
+            
         case 0x04:
             if (auxtype == 0) memcpy(finfo, "TEXT", 4);
             break;
+            
         case 0xb0:
             memcpy(finfo, "TEXT", 4);
             break;
+            
         case 0xb3:
-            if (auxtype == 0) memcpy(finfo, "PS16", 4);
+            if ((auxtype >> 8) != 0xdb) memcpy(finfo, "PS16", 4);
             break;
+            
+        case 0xd7:
+            if (auxtype == 0) memcpy(finfo, "MIDI", 4);
+            break;
+
+        case 0xd8:
+            if (auxtype == 0) memcpy(finfo, "AIFF", 4);
+            if (auxtype == 1) memcpy(finfo, "AIFC", 4);
+            break;
+            
+        case 0xe0:
+            if (auxtype == 5) memcpy(finfo, "dImgdCpy", 8);
+            break;
+            
         case 0xff:
             memcpy(finfo, "PSYS", 4);
             break;        
     }
     
     
-    finfo[4] = 'p';
-    finfo[5] = 'd';
-    finfo[6] = 'o';
-    finfo[7] = 's';    
+ 
 }
 
 // Finder info.
