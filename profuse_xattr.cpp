@@ -18,6 +18,40 @@
 
 using std::string;
 
+static bool isTextFile(unsigned ftype, unsigned auxtype)
+{
+    if (ftype == 0x04) return true; // ascii text
+    if (ftype == 0x80) return true; // source code.
+    if (ftype == 0x50 && auxtype == 0x5445) return true; // teach text
+
+    return false;
+}
+
+
+static const char *mimeType(unsigned ftype, unsigned auxtype)
+{
+  switch(ftype)
+  {
+  case 0x04:
+    if (auxtype == 0) return "text/plain";
+    break;
+  case 0xb0:
+    return "text/plain";
+  case 0x50:
+    if (auxtype == 0x5445) return "text/plain";
+    break;
+  case 0xc0:
+    if (auxtype == 0x8006) return "image/gif";
+    break;
+  case 0xe0:
+    if (auxtype == 0x8000) return "application/x-BinaryII";
+    if (auxtype == 0x8002) return "application/x-Shrinkit";
+    break;
+  }
+  return NULL;
+}
+
+
 #pragma mark XAttribute Functions
 
 
@@ -59,31 +93,42 @@ static void xattr_auxtype(FileEntry& e, fuse_req_t req, size_t size, off_t off)
     fuse_reply_buf(req, (char *)&attr, attr_size);    
 }
 
+// user.charset
+static void xattr_charset(FileEntry& e, fuse_req_t req, size_t size, off_t off)
+{
+  const char attr[] = "macintosh";
+  unsigned attr_size = sizeof(attr) - 1;
+
+  ERROR(!isTextFile(e.file_type, e.aux_type), ENOENT)
+
+  if (size == 0)
+  {
+    fuse_reply_xattr(req, attr_size);
+    return;
+  }
+
+  ERROR (size < attr_size, ERANGE)
+
+  fuse_reply_buf(req, (char *)&attr, attr_size);    
+}
+
+//apple.TextEncoding
 static void xattr_textencoding(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 {
-    // TODO -- ascii text encoding for ascii files?
-    const char attr[] = "MACINTOSH;0";
-    unsigned attr_size = sizeof(attr) - 1;
-    
-    // currently only valid for Teach Files, "ASCII" Text
-    
-    if (e.file_type == 0x04 || (e.file_type == 0x50 && e.aux_type == 0x5445)) 
-    /* do nothing */ ;
-    else 
-    {
-        ERROR(true, ENOENT)
-    }
-    
-    if (size == 0)
-    {
-        fuse_reply_xattr(req, attr_size);
-        return;
-    }
-    
-    ERROR (size < attr_size, ERANGE)
-    
-    // consider position here?
-    fuse_reply_buf(req, (char *)&attr, attr_size);    
+  const char attr[] = "MACINTOSH";0;
+  unsigned attr_size = sizeof(attr) - 1;
+
+  ERROR(!isTextFile(e.file_type, e.aux_type), ENOENT)
+
+  if (size == 0)
+  {
+    fuse_reply_xattr(req, attr_size);
+    return;
+  }
+
+  ERROR (size < attr_size, ERANGE)
+
+  fuse_reply_buf(req, (char *)&attr, attr_size);
 }
 
 static void xattr_rfork(FileEntry& e, fuse_req_t req, size_t size, off_t off)
@@ -185,13 +230,16 @@ static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
     
     switch (ftype)
     {
-
         case 0x00:
             if (auxtype == 0) memcpy(finfo, "BINA", 4);
             break;
             
         case 0x04:
             if (auxtype == 0) memcpy(finfo, "TEXT", 4);
+            break;
+
+        case 0x50:
+            if (auxtype == 0x5445) memcpy(finfo, "TEXT", 4);
             break;
             
         case 0xb0:
@@ -219,9 +267,6 @@ static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
             memcpy(finfo, "PSYS", 4);
             break;        
     }
-    
-    
- 
 }
 
 // Finder info.
@@ -287,14 +332,25 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 }
 
 
-static bool isTextFile(unsigned ftype, unsigned auxtype)
+static void xattr_mimetype(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 {
-    if (ftype == 0x04) return true; // ascii text
-    if (ftype == 0x80) return true; // source code.
-    if (ftype == 0x50 && auxtype == 0x5445) return true; // teach text
-    
-    return false;
+  unsigned attr_size;
+  const char *mime = mimeType(e.file_type, e.aux_type);
+  ERROR(!mime, ENOENT);
+
+  attr_size = strlen(mime);
+
+  if (size == 0)
+  {
+    fuse_reply_xattr(req, attr_size);
+    return;
+  }
+
+  ERROR (size < attr_size, ERANGE)
+
+  fuse_reply_buf(req, mime, attr_size);
 }
+
 
 
 void prodos_listxattr(fuse_req_t req, fuse_ino_t ino, size_t size)
@@ -373,6 +429,15 @@ return; \
     if (isTextFile(e.file_type, e.aux_type))
     {
         attr += "com.apple.TextEncoding";
+        attr.append(1, 0);
+
+        attr += "user.charset";
+        attr.append(1, 0);
+    }
+
+    if (mimeType(e.file_type, e.aux_type))
+    { 
+        attr += "user.mime_type";
         attr.append(1, 0);
     }
     
@@ -466,7 +531,18 @@ void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t si
         xattr_finfo(e, req, size, off);
         return;          
     }
-    
+   
+    if (strcmp("user.mime_type", name) == 0)
+    {
+      xattr_mimetype(e, req, size, off);
+      return;
+    } 
+
+    if (strcmp("user.charset", name) == 0)
+    {
+      xattr_charset(e, req, size, off);
+      return;
+    }
     
     fuse_reply_err(req, NO_ATTRIBUTE);
     
