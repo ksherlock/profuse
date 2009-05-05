@@ -21,7 +21,7 @@ using std::string;
 static bool isTextFile(unsigned ftype, unsigned auxtype)
 {
     if (ftype == 0x04) return true; // ascii text
-    if (ftype == 0x80) return true; // source code.
+    if (ftype == 0xb0) return true; // source code.
     if (ftype == 0x50 && auxtype == 0x5445) return true; // teach text
 
     return false;
@@ -115,7 +115,7 @@ static void xattr_charset(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 //apple.TextEncoding
 static void xattr_textencoding(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 {
-  const char attr[] = "MACINTOSH";0;
+  const char attr[] = "MACINTOSH;0";
   unsigned attr_size = sizeof(attr) - 1;
 
   ERROR(!isTextFile(e.file_type, e.aux_type), ENOENT)
@@ -285,6 +285,13 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
         case SEEDLING_FILE:
         case SAPLING_FILE:
         case TREE_FILE:
+        
+            if (size == 0)
+            {
+                fuse_reply_xattr(req, attr_size);
+                return;
+            }
+        
             bzero(attr, attr_size);
             set_creator(attr, e.file_type, e.aux_type);
             fuse_reply_buf(req, (char *)attr, attr_size);

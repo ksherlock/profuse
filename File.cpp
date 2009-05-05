@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <stdio.h>
 
 
 /*
@@ -25,15 +26,26 @@
  * o  Year values from 40 to 99 represent 1940 through 1999
  * o  Year values from 0 to 39 represent 2000 through 2039
  */
+/*
+ * A positive or 0 value for tm_isdst causes mktime() to presume initially 
+ * that Daylight Savings Time, respectively, is or is not in effect for 
+ * the specified time. A negative value for tm_isdst causes mktime() to 
+ * attempt to determine whether Daylight Saving Time is in effect for the 
+ * specified time. 
+ */
 static time_t timeToUnix(unsigned yymmdd, unsigned hhmm)
 {
+    printf("%x %x\n", yymmdd, hhmm);
+    
     if (yymmdd == 0) return 0;
     
     tm t;
     bzero(&t, sizeof(tm));
     
     t.tm_min = hhmm & 0x3f;
+    // tm_hour is 0-23, but is_dst -1 compensates
     t.tm_hour = (hhmm >> 8) & 0x1f;
+    t.tm_isdst = -1;
     
     t.tm_mday = yymmdd & 0x1f;
     t.tm_mon = ((yymmdd >> 5) & 0x0f) - 1;
@@ -42,6 +54,7 @@ static time_t timeToUnix(unsigned yymmdd, unsigned hhmm)
     if (t.tm_year <= 39) t.tm_year += 100;
     
     return mktime(&t);
+    // convert back via locatime & fudge for dst?
 }
 
 
