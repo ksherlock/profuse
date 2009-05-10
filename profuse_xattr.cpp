@@ -37,6 +37,7 @@ static const char *mimeType(unsigned ftype, unsigned auxtype)
     break;
   case 0xb0:
     return "text/plain";
+    break;
   case 0x50:
     if (auxtype == 0x5445) return "text/plain";
     break;
@@ -49,6 +50,92 @@ static const char *mimeType(unsigned ftype, unsigned auxtype)
     break;
   }
   return NULL;
+}
+
+
+static void setCreator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
+{
+    
+    /*
+     
+     tech note PT515
+     ProDOS -> Macintosh conversion
+     
+     ProDOS             Macintosh
+     Filetype    Auxtype    Creator    Filetype
+     $00          $0000     'pdos'     'BINA'
+     $B0 (SRC)    (any)     'pdos'     'TEXT'
+     $04 (TXT)    $0000     'pdos'     'TEXT'
+     $FF (SYS)    (any)     'pdos'     'PSYS'
+     $B3 (S16)    (any)     'pdos'     'PS16'
+     $uv          $wxyz     'pdos'     'p' $uv $wx $yz
+     
+     Programmer's Reference for System 6.0:
+     
+     ProDOS Macintosh 
+     File Type Auxiliary Type Creator Type File Type 
+     $00        $0000           “pdos”  “BINA” 
+     $04 (TXT)  $0000           “pdos”  “TEXT” 
+     $FF (SYS)  (any)           “pdos”  “PSYS” 
+     $B3 (S16)  $DByz           “pdos”  “p” $B3 $DB $yz 
+     $B3 (S16)  (any)           “pdos”  “PS16” 
+     $D7        $0000           “pdos”  “MIDI” 
+     $D8        $0000           “pdos”  “AIFF” 
+     $D8        $0001           “pdos”  “AIFC” 
+     $E0        $0005           “dCpy”  “dImg” 
+     $FF (SYS)  (any)           “pdos”  “PSYS” 
+     $uv        $wxyz           “pdos”  “p” $uv $wx $yz 
+     
+     
+     
+     */
+    
+    finfo[0] = 'p';
+    finfo[1] = ftype;
+    finfo[2] = auxtype >> 8;
+    finfo[3] = auxtype;
+    
+    memcpy(finfo + 4, "pdos", 4);
+    
+    switch (ftype)
+    {
+        case 0x00:
+            if (auxtype == 0) memcpy(finfo, "BINA", 4);
+            break;
+            
+        case 0x04:
+            if (auxtype == 0) memcpy(finfo, "TEXT", 4);
+            break;
+            
+        case 0x50:
+            if (auxtype == 0x5445) memcpy(finfo, "TEXT", 4);
+            break;
+            
+        case 0xb0:
+            memcpy(finfo, "TEXT", 4);
+            break;
+            
+        case 0xb3:
+            if ((auxtype >> 8) != 0xdb) memcpy(finfo, "PS16", 4);
+            break;
+            
+        case 0xd7:
+            if (auxtype == 0) memcpy(finfo, "MIDI", 4);
+            break;
+            
+        case 0xd8:
+            if (auxtype == 0) memcpy(finfo, "AIFF", 4);
+            if (auxtype == 1) memcpy(finfo, "AIFC", 4);
+            break;
+            
+        case 0xe0:
+            if (auxtype == 5) memcpy(finfo, "dImgdCpy", 8);
+            break;
+            
+        case 0xff:
+            memcpy(finfo, "PSYS", 4);
+            break;        
+    }
 }
 
 
@@ -184,90 +271,7 @@ static void xattr_rfork(FileEntry& e, fuse_req_t req, size_t size, off_t off)
     return;
 }
 
-static void set_creator(uint8_t *finfo, unsigned ftype, unsigned auxtype)
-{
-    
-    /*
 
-     tech note PT515
-     ProDOS -> Macintosh conversion
-     
-     ProDOS             Macintosh
-     Filetype    Auxtype    Creator    Filetype
-     $00          $0000     'pdos'     'BINA'
-     $B0 (SRC)    (any)     'pdos'     'TEXT'
-     $04 (TXT)    $0000     'pdos'     'TEXT'
-     $FF (SYS)    (any)     'pdos'     'PSYS'
-     $B3 (S16)    (any)     'pdos'     'PS16'
-     $uv          $wxyz     'pdos'     'p' $uv $wx $yz
-     
-     Programmer's Reference for System 6.0:
-     
-     ProDOS Macintosh 
-     File Type Auxiliary Type Creator Type File Type 
-     $00        $0000           “pdos”  “BINA” 
-     $04 (TXT)  $0000           “pdos”  “TEXT” 
-     $FF (SYS)  (any)           “pdos”  “PSYS” 
-     $B3 (S16)  $DByz           “pdos”  “p” $B3 $DB $yz 
-     $B3 (S16)  (any)           “pdos”  “PS16” 
-     $D7        $0000           “pdos”  “MIDI” 
-     $D8        $0000           “pdos”  “AIFF” 
-     $D8        $0001           “pdos”  “AIFC” 
-     $E0        $0005           “dCpy”  “dImg” 
-     $FF (SYS)  (any)           “pdos”  “PSYS” 
-     $uv        $wxyz           “pdos”  “p” $uv $wx $yz 
-     
-     
-     
-     */
-    
-    finfo[0] = 'p';
-    finfo[1] = ftype;
-    finfo[2] = auxtype >> 8;
-    finfo[3] = auxtype;
-
-    memcpy(finfo + 4, "pdos", 4);
-    
-    switch (ftype)
-    {
-        case 0x00:
-            if (auxtype == 0) memcpy(finfo, "BINA", 4);
-            break;
-            
-        case 0x04:
-            if (auxtype == 0) memcpy(finfo, "TEXT", 4);
-            break;
-
-        case 0x50:
-            if (auxtype == 0x5445) memcpy(finfo, "TEXT", 4);
-            break;
-            
-        case 0xb0:
-            memcpy(finfo, "TEXT", 4);
-            break;
-            
-        case 0xb3:
-            if ((auxtype >> 8) != 0xdb) memcpy(finfo, "PS16", 4);
-            break;
-            
-        case 0xd7:
-            if (auxtype == 0) memcpy(finfo, "MIDI", 4);
-            break;
-
-        case 0xd8:
-            if (auxtype == 0) memcpy(finfo, "AIFF", 4);
-            if (auxtype == 1) memcpy(finfo, "AIFC", 4);
-            break;
-            
-        case 0xe0:
-            if (auxtype == 5) memcpy(finfo, "dImgdCpy", 8);
-            break;
-            
-        case 0xff:
-            memcpy(finfo, "PSYS", 4);
-            break;        
-    }
-}
 
 // Finder info.
 static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
@@ -293,7 +297,7 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
             }
         
             bzero(attr, attr_size);
-            set_creator(attr, e.file_type, e.aux_type);
+            setCreator(attr, e.file_type, e.aux_type);
             fuse_reply_buf(req, (char *)attr, attr_size);
             return;
         
@@ -333,7 +337,7 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 
     // if no creator, create one.
     if (memcmp(attr, "\0\0\0\0\0\0\0\0", 8) == 0)
-        set_creator(attr, e.file_type, e.aux_type);
+        setCreator(attr, e.file_type, e.aux_type);
     
     fuse_reply_buf(req, (char *)attr, attr_size);
 }
@@ -539,12 +543,14 @@ void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t si
         return;          
     }
    
+    // linux standard
     if (strcmp("user.mime_type", name) == 0)
     {
       xattr_mimetype(e, req, size, off);
       return;
     } 
 
+    // linux standard
     if (strcmp("user.charset", name) == 0)
     {
       xattr_charset(e, req, size, off);
