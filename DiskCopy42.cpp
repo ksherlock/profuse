@@ -11,6 +11,29 @@
 #include <string.h>
 
 
+uint32_t DiskCopy42::CheckSum(uint8_t *buffer, unsigned length)
+{ 
+    uint32_t checksum = 0;
+    if (length & 0x01) return -1;
+
+    /* 
+     * checksum starts at 0
+     * foreach big-endian 16-bit word w:
+     *   checksum += w
+     *   checksum = checksum rotate right 1 (bit 0 --> bit 31)
+     */
+    
+    for(unsigned i = 0; i < length; i += 2)
+    {
+      checksum += (buffer[i] << 8);
+      checksum += buffer[i + 1];
+      checksum = (checksum >> 1) | (checksum  << 31);
+      //if (checksum & 0x01) checksum = (checksum >> 1) | 0x80000000;
+      //else checksum >>= 1;
+    }
+    return checksum;
+
+}
 
 bool DiskCopy42::Load(const uint8_t *buffer)
 {

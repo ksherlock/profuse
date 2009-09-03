@@ -15,6 +15,7 @@
 struct DiskCopy42
 {
     bool Load(const uint8_t *buffer);
+    static uint32_t CheckSum(uint8_t *buffer, unsigned length);
     
     char disk_name[64];
     uint32_t data_size;
