@@ -21,6 +21,11 @@ public:
    
 
     operator time_t() const;
+    operator uint32_t() const;
+
+    unsigned date() const;
+    unsigned time() const;
+
     unsigned minute() const;
     unsigned hour() const;
     unsigned day() const;
@@ -28,40 +33,56 @@ public:
     unsigned year() const;
 
 private:
+    void init(time_t);
+    void init(unsigned, unsigned, unsigned, unsigned, unsigned);
+
     unsigned _hhmm;
     unsigned _yymmdd;
 };
 
 
-DateTime::operator time_t() const
+inline DateTime::operator time_t() const
 {
     return toUnix();
 }
 
+inline DateTime::operator uint32_t() const
+{
+    return (_yymmdd << 16) | _hhmm;
+}
 
-unsigned DateTime::minute() const 
+inline unsigned DateTime::date() const 
+{
+    return _yymmdd;
+}
+
+inline unsigned DateTime::time() const
+{
+    return _hhmm;
+}
+
+inline unsigned DateTime::minute() const 
 {
     return _hhmm & 0x3f;
 }
 
-unsigned DateTime::hour() const
+inline unsigned DateTime::hour() const
 {
     return (_hhmm >> 8) & 0x1f;
 }
 
-
-unsigned DateTime::day() const
+inline unsigned DateTime::day() const
 {
     return _yymmdd & 0x1f;
 }
 
-unsigned DateTime::month() const
+inline unsigned DateTime::month() const
 {
-    return (_yymmdd >> 5) & 0x1f;
+    return (_yymmdd >> 5) & 0x0f;
 }
 
 /*
-unsigned DateTime::year() const
+inline unsigned DateTime::year() const
 {
     unsigned tmp = _yymmdd >> 9;
     if (tmp <= 39) tmp += 100;

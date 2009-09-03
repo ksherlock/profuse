@@ -2,6 +2,8 @@
 
 #include <strings.h>
 
+#include <cstdio>
+
 namespace ProDOS {
 
 /*
@@ -20,9 +22,25 @@ namespace ProDOS {
  * +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ 
  *
  */
-DateTime::DateTime() 
+
+
+/*
+ * ProDOS technote 28
+ *
+ * The following definition allows the same range of years that the Apple IIgs
+ * Control Panel CDA currently does:
+ *
+ * o  A seven-bit ProDOS year value is in the range 0 to 99
+ * (100 through 127 are invalid)
+ * o  Year values from 40 to 99 represent 1940 through 1999
+ * o  Year values from 0 to 39 represent 2000 through 2039
+ */
+
+
+DateTime::DateTime() :
+    _yymmdd(0), _hhmm(0)
 {
-    DateTime(time(NULL));
+    init(::time(NULL));
 }
 
 DateTime::DateTime(uint32_t dtm) :
@@ -35,21 +53,32 @@ DateTime::DateTime(unsigned yymmdd, unsigned hhmm) :
 {
 }
 
-DateTime::DateTime(time_t time)
+DateTime::DateTime(time_t time) :
+    _yymmdd(0), _hhmm(0)
 {
-    tm t;
-
-    localtime_r(&time, &t);
-
-    DateTime(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min);
-
+    init(time);
 }
 
 
 DateTime::DateTime(unsigned year, unsigned month, unsigned day,
-        unsigned hour, unsigned minute)
+        unsigned hour, unsigned minute) :
+    _yymmdd(0), _hhmm(0)
 {
-  
+    init(year, month, day, hour, minute);
+}
+
+void DateTime::init(time_t time)
+{
+    tm t;
+    ::localtime_r(&time, &t);
+    init(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min);
+}
+
+void DateTime::init(unsigned year, unsigned month, unsigned day, unsigned hour, unsigned minute)
+{
+
+    //printf("%d %d %d %d %d\n", year, month, day, hour, minute);
+
     // 1940 is the earliest year, so clamp to 1940-01-01 00:00
     if (year < 1940)
     {
@@ -68,34 +97,19 @@ DateTime::DateTime(unsigned year, unsigned month, unsigned day,
     if (year >= 2000) year -= 2000;
     else year -= 1900;
 
-
     _hhmm = minute | (hour << 8);
 
     _yymmdd = day | (month << 5) | (year << 9);
 }
 
-/*
- * ProDOS technote 28
- *
- * The following definition allows the same range of years that the Apple IIgs
- * Control Panel CDA currently does:
- *
- * o  A seven-bit ProDOS year value is in the range 0 to 99
- * (100 through 127 are invalid)
- * o  Year values from 40 to 99 represent 1940 through 1999
- * o  Year values from 0 to 39 represent 2000 through 2039
- */
-
-
 unsigned DateTime::year() const
 {
     unsigned tmp = _yymmdd >> 9;
-    if (tmp == 0 || tmp > 100) return 0;
+    //if (tmp > 100) return 0;
   
-    if (tmp <= 39) tmp += 2000;
-    else tmp += 1900;
+    if (tmp <= 39) tmp += 100;
 
-    return tmp;
+    return tmp + 1900;
 }
 
 /*
@@ -112,18 +126,17 @@ time_t DateTime::toUnix() const
 
     if (_yymmdd == 0) return 0;
 
-    bzero(&t, sizeof(tm));
+    ::bzero(&t, sizeof(tm));
 
     t.tm_min = minute();
-    // tm_hour is 0-23, but is_dst -1 compensates
-    t.tm_hour = hour() - 1;
+    t.tm_hour = hour();
     t.tm_isdst = -1;
 
     t.tm_mday = day();
     t.tm_mon = month() - 1;
     t.tm_year = year() - 1900;
 
-    return mktime(&t);
+    return ::mktime(&t);
     // convert back via locatime & fudge for dst?
 }
 
