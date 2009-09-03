@@ -10,17 +10,17 @@ class DateTime
 {
 public:
     DateTime(); 
-    DateTime(time_t);
+    DateTime(std::time_t);
     DateTime(uint32_t);
     DateTime(unsigned, unsigned);
 
     DateTime(unsigned year, unsigned month, unsigned day, 
         unsigned hour, unsigned minute);
 
-    time_t toUnix() const;
+    std::time_t toUnix() const;
    
 
-    operator time_t() const;
+    operator std::time_t() const;
     operator uint32_t() const;
 
     unsigned date() const;
@@ -33,15 +33,15 @@ public:
     unsigned year() const;
 
 private:
-    void init(time_t);
+    void init(std::time_t);
     void init(unsigned, unsigned, unsigned, unsigned, unsigned);
 
-    unsigned _hhmm;
     unsigned _yymmdd;
+    unsigned _hhmm;
 };
 
 
-inline DateTime::operator time_t() const
+inline DateTime::operator std::time_t() const
 {
     return toUnix();
 }

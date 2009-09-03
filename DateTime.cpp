@@ -1,8 +1,9 @@
 #include "DateTime.h"
 
-#include <strings.h>
 
 #include <cstdio>
+#include <ctime>
+#include <cstring>
 
 namespace ProDOS {
 
@@ -40,7 +41,7 @@ namespace ProDOS {
 DateTime::DateTime() :
     _yymmdd(0), _hhmm(0)
 {
-    init(::time(NULL));
+    init(std::time(NULL));
 }
 
 DateTime::DateTime(uint32_t dtm) :
@@ -53,7 +54,7 @@ DateTime::DateTime(unsigned yymmdd, unsigned hhmm) :
 {
 }
 
-DateTime::DateTime(time_t time) :
+DateTime::DateTime(std::time_t time) :
     _yymmdd(0), _hhmm(0)
 {
     init(time);
@@ -67,7 +68,7 @@ DateTime::DateTime(unsigned year, unsigned month, unsigned day,
     init(year, month, day, hour, minute);
 }
 
-void DateTime::init(time_t time)
+void DateTime::init(std::time_t time)
 {
     tm t;
     ::localtime_r(&time, &t);
@@ -120,13 +121,13 @@ unsigned DateTime::year() const
  * specified time.
  */
 
-time_t DateTime::toUnix() const
+std::time_t DateTime::toUnix() const
 {
     tm t;
 
     if (_yymmdd == 0) return 0;
 
-    ::bzero(&t, sizeof(tm));
+    std::memset(&t, 0, sizeof(tm));
 
     t.tm_min = minute();
     t.tm_hour = hour();
@@ -136,7 +137,7 @@ time_t DateTime::toUnix() const
     t.tm_mon = month() - 1;
     t.tm_year = year() - 1900;
 
-    return ::mktime(&t);
+    return std::mktime(&t);
     // convert back via locatime & fudge for dst?
 }
 
