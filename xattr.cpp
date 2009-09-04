@@ -12,6 +12,7 @@
 #include <vector>
 #include <algorithm>
 
+typedef std::vector<std::string>::iterator vsiter;
 
 #ifdef __APPLE__
 // apple has additional parameter for position and options.
@@ -44,7 +45,7 @@ const char *HexMap = "0123456789abcdef";
         std::memset(buffer1, ' ', sizeof(buffer1));
         std::memset(buffer2, ' ', sizeof(buffer2));
         
-        ssize_t linelen = std::min(size, (ssize_t)16);
+        unsigned linelen = std::min((unsigned)size, (unsigned)16);
         
         
         for (i = 0, j = 0; i < linelen; i++)
@@ -55,7 +56,8 @@ const char *HexMap = "0123456789abcdef";
             j++;
             if (i == 7) j++;
             
-            buffer2[i] = std::isprint(x) ? x : '.';
+            // isascii not part of std:: and may be a macro.
+            buffer2[i] = isascii(x) && std::isprint(x) ? x : '.';
             
         }
         
@@ -63,7 +65,7 @@ const char *HexMap = "0123456789abcdef";
         buffer2[sizeof(buffer2)-1] = 0;
         
     
-        std::printf("%06x:\t%s\t%s\n", offset, buffer1, buffer2);
+        std::printf("%06x:\t%s\t%s\n", (unsigned)offset, buffer1, buffer2);
         offset += 16;
         data += 16;
         size -= 16;
@@ -132,7 +134,7 @@ char *buffer;
         return;
     }
     
-    std::printf("%s: %d\n", attr, asize);
+    std::printf("%s: %u\n", attr, (unsigned)asize);
 
     buffer = new char[asize];
     //if (!buffer) return;
@@ -175,24 +177,23 @@ int list(int argc, char **argv)
         }
     }
  
-    typedef std::vector<std::string>::iterator iter;
 
     // find the max name length (not utf-8 happy)
-    ssize_t maxname = 0;
-    for (iter i = attr.begin(); i != attr.end() ; ++i)
+    unsigned maxname = 0;
+    for (vsiter i = attr.begin(); i != attr.end() ; ++i)
     {
-        maxname = std::max(maxname, (ssize_t)i->length());
+        maxname = std::max(maxname, (unsigned)i->length());
     }
     maxname += 2;
     
-    for (iter i = attr.begin(); i != attr.end() ; ++i)
+    for (vsiter i = attr.begin(); i != attr.end() ; ++i)
     {
         const char *attr_name = i->c_str();
         
         ssize_t asize = getxattr(fname, attr_name, NULL, 0);
         if (asize >= 0)
         {
-            std::printf("%-*s % 8u\n", maxname, attr_name, asize); 
+            std::printf("%-*s %8u\n", maxname, attr_name, (unsigned)asize); 
         }
         else
         {
@@ -229,9 +230,9 @@ int dump(int argc, char **argv)
     }
  
     
-    for (int i = 0; i < attr.size(); ++i)
+    for (vsiter i = attr.begin(); i != attr.end() ; ++i)
     {
-        const char *attr_name = attr[i].c_str();
+        const char *attr_name = i->c_str();
         
         dumpxattr(fname, attr_name);
     }
