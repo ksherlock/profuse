@@ -1,130 +1,266 @@
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <strings.h>
-#include <stdio.h>
-#include <ctype.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+#include <cctype>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include <sys/xattr.h>
 
+#include <string>
+#include <vector>
+#include <algorithm>
 
+
+void hexdump(const uint8_t *data, ssize_t size)
+{
+const char *HexMap = "0123456789abcdef";
+
+    char buffer1[16 * 3 + 1 + 1];
+    char buffer2[16 + 1];
+    ssize_t offset = 0;
+    unsigned i, j;
+    
+    
+    while(size > 0)
+    {        
+        std::memset(buffer1, ' ', sizeof(buffer1));
+        std::memset(buffer2, ' ', sizeof(buffer2));
+        
+        ssize_t linelen = std::min(size, (ssize_t)16);
+        
+        
+        for (i = 0, j = 0; i < linelen; i++)
+        {
+            unsigned x = data[i];
+            buffer1[j++] = HexMap[x >> 4];
+            buffer1[j++] = HexMap[x & 0x0f];
+            j++;
+            if (i == 7) j++;
+            
+            buffer2[i] = std::isprint(x) ? x : '.';
+            
+        }
+        
+        buffer1[sizeof(buffer1)-1] = 0;
+        buffer2[sizeof(buffer2)-1] = 0;
+        
+    
+        std::printf("%06x:\t%s\t%s\n", offset, buffer1, buffer2);
+        offset += 16;
+        data += 16;
+        size -= 16;
+    }
+    std::printf("\n");
+}
+
+/*
+ * build a list of attribute names for a file. 
+ * returns -1 on failure
+ * otherwise, returns # of attributes.
+ *
+ */
+ssize_t get_attr_list(const char * fname, std::vector<std::string> &out)
+{
+    ssize_t asize = listxattr(fname, NULL, 0, XATTR_NOFOLLOW);
+    if (asize < 0) return -1;
+    if (asize == 0) return 0;
+    
+    char *buffer = new char[asize];
+    
+    if ((asize = listxattr(fname, buffer, asize, XATTR_NOFOLLOW)) < 0)
+    {
+        delete []buffer;
+        return -1;
+    }
+    
+    //hexdump((uint8_t *)buffer, asize);
+    
+    char *cp = buffer;
+    // buffer is null-terminated utf-8 strings
+    // eg:
+    // c a t 0 d o g 0
+    // 0 1 2 3 4 5 6 7 
+    while (asize > 0)
+    {
+        ssize_t len = std::strlen(cp);
+                
+        out.push_back(std::string(cp, len));
+        ++len;
+        asize -= len;
+        cp += len;
+    }
+    
+    delete []buffer;
+    
+    return out.size();
+}
+
+
+#ifdef __APPLE__
+// apple has additional parameter for position (only valid for resource forks)
+
+inline ssize_t getxattr(const char *path, const char *name, void *value, size_t size, int options)
+{
+    return getxattr(path, name, value, size, 0, options);
+}
+
+
+#endif
+
+
+
+/*
+ * hexdump an individual attribute.
+ */
 void dumpxattr(const char *file, const char *attr)
 {
 ssize_t asize;
 char *buffer;
 
-    asize = getxattr(file, attr, NULL, 0);
-    if (asize < 0) return;
-    
-    printf("%s: %d\n", attr, asize);
-
-    buffer = (char *)malloc(asize);
-    if (!buffer) return;
-    
-    if ( (asize = getxattr(file, attr, buffer, asize)) > 0)
+    asize = getxattr(file, attr, NULL, 0, XATTR_NOFOLLOW);
+    if (asize < 0)
     {
-        char *cp = buffer;
-        char buffer1[16 * 3 + 1 + 1];
-        char buffer2[16 + 1];
-        ssize_t offset = 0;
-        unsigned i, j;
-        unsigned max;
-        
-        while(asize > 0)
-        {        
-            memset(buffer1, ' ', sizeof(buffer1));
-            memset(buffer2, ' ', sizeof(buffer2));
-            
-            max = asize > 16 ? 16 : asize;
-            
-            
-            for (i = 0, j = 0; i < max; i++)
-            {
-                unsigned x = cp[i];
-                buffer1[j++] = "0123456789abcdef"[x >> 4];
-                buffer1[j++] = "0123456789abcdef"[x & 0x0f];
-                j++;
-                if (i == 7) j++;
-                
-                buffer2[i] = isprint(x) ? x : '.';
-                
-            }
-            
-            buffer1[sizeof(buffer1)-1] = 0;
-            buffer2[sizeof(buffer2)-1] = 0;
-            
-
-            printf("%06x:\t%s\t%s\n", offset, buffer1, buffer2);
-            offset += 16;
-            cp += 16;
-            asize -= 16;
-        }
-    } 
+        std::perror(attr);
+        return;
+    }
     
-    free(buffer);
+    std::printf("%s: %d\n", attr, asize);
+
+    buffer = new char[asize];
+    //if (!buffer) return;
+    
+    asize = getxattr(file, attr, buffer, asize, XATTR_NOFOLLOW);
+    if (asize >= 0)
+    {
+        hexdump((uint8_t *)buffer, asize);
+    }
+    else
+    {
+        std::perror(attr);
+    }
+    
+    delete []buffer;
 }
 
 
-void listx(const char *file)
+/*
+ * list a file's attributes (and size)
+ *
+ */
+int list(int argc, char **argv)
 {
-ssize_t asize;
-char *buffer;
 
-    asize = listxattr(file, NULL, 0);
+    const char *fname = *argv;
     
-    if (asize < 0) return;
-
-
-    buffer = (char *)malloc(asize);
+    std::vector<std::string>attr;
     
-    if (!buffer) return;
-    
-    if ((asize = listxattr(file, buffer, asize)) > 0)
-    {    
-        char *cp = buffer;
-        ssize_t len;
-        
-        while (asize > 0)
+    if (argc == 1)
+    {
+        get_attr_list(fname, attr);
+        std::sort(attr.begin(), attr.end());
+    }
+    else 
+    {
+        for (int i = 1; i < argc; ++i)
         {
-            dumpxattr(file, cp);
-            len = strlen(cp) + 1;
-            cp += len;
-            asize -= len;
+            attr.push_back(argv[i]);
+        }
+    }
+ 
+    typedef std::vector<std::string>::iterator iter;
+
+    // find the max name length (not utf-8 happy)
+    ssize_t maxname = 0;
+    for (iter i = attr.begin(); i != attr.end() ; ++i)
+    {
+        maxname = std::max(maxname, (ssize_t)i->length());
+    }
+    maxname += 2;
+    
+    for (iter i = attr.begin(); i != attr.end() ; ++i)
+    {
+        const char *attr_name = i->c_str();
+        
+        ssize_t asize = getxattr(fname, attr_name, NULL, 0, XATTR_NOFOLLOW);
+        if (asize >= 0)
+        {
+            std::printf("%-*s % 8u\n", maxname, attr_name, asize); 
+        }
+        else
+        {
+            std::perror(attr_name);
         }
     }
     
-    
-    free(buffer);
+    return 0;
 }
 
+
+/*
+ * hexdump a file's attributes.
+ *
+ */
+int dump(int argc, char **argv)
+{
+
+    const char *fname = *argv;
+    
+    std::vector<std::string>attr;
+    
+    if (argc == 1)
+    {
+        get_attr_list(fname, attr);
+        std::sort(attr.begin(), attr.end());
+    }
+    else 
+    {
+        for (int i = 1; i < argc; ++i)
+        {
+            attr.push_back(argv[i]);
+        }
+    }
+ 
+    
+    for (int i = 0; i < attr.size(); ++i)
+    {
+        const char *attr_name = attr[i].c_str();
+        
+        dumpxattr(fname, attr_name);
+    }
+    
+    return 0;
+}
+
+
+
+
+
+
+
+
+void usage(const char *name)
+{
+    std::printf("usage:\n");
+    std::printf("%s list file [attr ...]\n", name);
+    std::printf("%s dump file [attr ...]\n", name);
+    std::exit(0);
+}
+
+/*
+ * xattr list file [xattr ...]
+ * xattr dump file [xattr ...]
+ *
+ */
 int main(int argc, char **argv)
 {
-struct stat st;
-unsigned i;
-ssize_t asize;
+    if (argc < 3) usage(*argv);
+    
+    if (std::strcmp(argv[1], "list") == 0) return list(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "dump") == 0) return dump(argc - 2, argv + 2);
+    
+    usage(*argv);
 
-
-  for (i = 1; i < argc; ++i)
-  {
-    if (stat(argv[i], &st) != 0)
-    {
-      fprintf(stderr, "Unable to stat %s\n", argv[i]);
-      continue;
-    }
-
-    printf("%s\n", argv[i]);
-    printf("\tChange Time      : %s\n", asctime(localtime(&st.st_ctime)));
-    printf("\tModification Time: %s\n", asctime(localtime(&st.st_mtime)));
-    printf("\tAccess Time      : %s\n", asctime(localtime(&st.st_atime)));
-
-    listx(argv[i]);
-    printf("\n");
-  }
-
-
- return 0;
+    return 1;
 }
