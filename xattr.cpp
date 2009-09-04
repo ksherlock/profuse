@@ -45,7 +45,7 @@ const char *HexMap = "0123456789abcdef";
         std::memset(buffer1, ' ', sizeof(buffer1));
         std::memset(buffer2, ' ', sizeof(buffer2));
         
-        unsigned linelen = std::min((unsigned)size, (unsigned)16);
+        unsigned linelen = (unsigned)std::min(size, (ssize_t)16);
         
         
         for (i = 0, j = 0; i < linelen; i++)
