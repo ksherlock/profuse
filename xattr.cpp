@@ -13,6 +13,22 @@
 #include <algorithm>
 
 
+#ifdef __APPLE__
+// apple has additional parameter for position and options.
+
+inline ssize_t getxattr(const char *path, const char *name, void *value, size_t size)
+{
+    return getxattr(path, name, value, size, 0, XATTR_NOFOLLOW);
+}
+
+// apple has additional parameter for options.
+inline ssize_t listxattr(const char *path, char *namebuf, size_t size)
+{
+    return listxattr(path, namebuf, size, XATTR_NOFOLLOW);
+}
+
+#endif
+
 void hexdump(const uint8_t *data, ssize_t size)
 {
 const char *HexMap = "0123456789abcdef";
@@ -63,13 +79,13 @@ const char *HexMap = "0123456789abcdef";
  */
 ssize_t get_attr_list(const char * fname, std::vector<std::string> &out)
 {
-    ssize_t asize = listxattr(fname, NULL, 0, XATTR_NOFOLLOW);
+    ssize_t asize = listxattr(fname, NULL, 0);
     if (asize < 0) return -1;
     if (asize == 0) return 0;
     
     char *buffer = new char[asize];
     
-    if ((asize = listxattr(fname, buffer, asize, XATTR_NOFOLLOW)) < 0)
+    if ((asize = listxattr(fname, buffer, asize)) < 0)
     {
         delete []buffer;
         return -1;
@@ -98,16 +114,6 @@ ssize_t get_attr_list(const char * fname, std::vector<std::string> &out)
 }
 
 
-#ifdef __APPLE__
-// apple has additional parameter for position (only valid for resource forks)
-
-inline ssize_t getxattr(const char *path, const char *name, void *value, size_t size, int options)
-{
-    return getxattr(path, name, value, size, 0, options);
-}
-
-
-#endif
 
 
 
@@ -119,7 +125,7 @@ void dumpxattr(const char *file, const char *attr)
 ssize_t asize;
 char *buffer;
 
-    asize = getxattr(file, attr, NULL, 0, XATTR_NOFOLLOW);
+    asize = getxattr(file, attr, NULL, 0);
     if (asize < 0)
     {
         std::perror(attr);
@@ -131,7 +137,7 @@ char *buffer;
     buffer = new char[asize];
     //if (!buffer) return;
     
-    asize = getxattr(file, attr, buffer, asize, XATTR_NOFOLLOW);
+    asize = getxattr(file, attr, buffer, asize);
     if (asize >= 0)
     {
         hexdump((uint8_t *)buffer, asize);
@@ -183,7 +189,7 @@ int list(int argc, char **argv)
     {
         const char *attr_name = i->c_str();
         
-        ssize_t asize = getxattr(fname, attr_name, NULL, 0, XATTR_NOFOLLOW);
+        ssize_t asize = getxattr(fname, attr_name, NULL, 0);
         if (asize >= 0)
         {
             std::printf("%-*s % 8u\n", maxname, attr_name, asize); 
