@@ -16,16 +16,31 @@ public:
     unsigned blocks() const;
     unsigned bitmapBlocks() const;
 
+    unsigned freeBlocks() const;
+    
+    int firstFreeBlock(unsigned startingBlock = 0) const;
+    int countUnusedBlocks(unsigned startingBlock = 0, unsigned maxSearch = -1) const;
+        
+    int freeBlock(unsigned count = 1) const;
+
+    
 private:
     static unsigned BlockMask(unsigned block);
     static unsigned BlockIndex(unsigned block);
 
-    uint8_t *_bitmap;
     unsigned _blocks;
+    unsigned _freeBlocks;
     unsigned _bitmapSize;
+    uint8_t *_bitmap;
+    
 };
 
 inline unsigned Bitmap::blocks() const
+{
+    return _blocks;
+}
+
+inline unsigned Bitmap::freeBlocks() const
 {
     return _blocks;
 }
