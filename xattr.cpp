@@ -241,7 +241,50 @@ int dump(int argc, char **argv)
 }
 
 
+// must specify the xattr name.
+int read(int argc, char **argv)
+{
 
+    if (argc != 2)
+    {
+        std::fprintf(stderr, "Must specify attribute to be read.\n");
+        return -1;
+    }
+    
+    const char *fname = argv[0];
+    const char *attr_name = argv[1];
+    
+    // get the attribute size and read it in.
+    ssize_t asize = getxattr(fname, attr_name, NULL, 0);
+    if (asize < 0)
+    {
+        std::perror(attr_name);
+        return -1;
+    }
+    if (asize == 0) return 0;
+    
+    uint8_t *buffer = new uint8_t[asize];
+    asize = getxattr(fname, attr_name, buffer, asize);
+
+    if (asize < 0)
+    {
+        std::perror(attr_name);
+        return -1;
+    }
+    
+    if (::write(STDOUT_FILENO, buffer, asize) != asize)
+    {
+        perror(NULL);
+        delete []buffer;
+        return -1;
+    }
+
+    
+    delete []buffer;
+    return 0;
+    
+
+}
 
 
 
@@ -252,6 +295,8 @@ void usage(const char *name)
     std::printf("usage:\n");
     std::printf("%s list file [attr ...]\n", name);
     std::printf("%s dump file [attr ...]\n", name);
+    std::printf("%s read file attr\n", name);
+    
     std::exit(0);
 }
 
@@ -266,6 +311,9 @@ int main(int argc, char **argv)
     
     if (std::strcmp(argv[1], "list") == 0) return list(argc - 2, argv + 2);
     if (std::strcmp(argv[1], "dump") == 0) return dump(argc - 2, argv + 2);
+    
+    if (std::strcmp(argv[1], "read") == 0) return read(argc - 2, argv + 2);
+    
     
     usage(*argv);
 
