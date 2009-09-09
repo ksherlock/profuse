@@ -375,7 +375,7 @@ else fuse_reply_xattr(req, 0); \
 return; \
 }
     
-    fprintf(stderr, "listxattr %u\n", ino);
+    fprintf(stderr, "listxattr %u\n", (unsigned)ino);
     
     uint8_t buffer[BLOCK_SIZE];
     int ok;
@@ -484,7 +484,7 @@ void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t si
 #define NO_ATTRIBUTE EOPNOTSUPP 
 #endif
     
-    fprintf(stderr, "getxattr: %u %s %u %u \n", ino, name, (int)size, (int)off);
+    fprintf(stderr, "getxattr: %u %s %u %u \n", (unsigned)ino, name, (unsigned)size, (unsigned)off);
     
     uint8_t buffer[BLOCK_SIZE];
     

@@ -27,7 +27,7 @@ using std::vector;
  */
 void prodos_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-    fprintf(stderr, "opendir: %u\n", ino);
+    fprintf(stderr, "opendir: %u\n", (unsigned)ino);
     // verify it's a directory/volume here?
     
     
@@ -72,7 +72,7 @@ void prodos_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 
 void prodos_releasedir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-    fprintf(stderr,"releasedir: %d\n", ino);
+    fprintf(stderr,"releasedir: %u\n", (unsigned)ino);
     vector<FileEntry> *files = (vector<FileEntry> *)fi->fh;
     
     if (files) delete files;
@@ -85,7 +85,7 @@ void prodos_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, stru
     vector<FileEntry> *files = (vector<FileEntry> *)fi->fh;
     struct stat st;
     
-    fprintf(stderr, "readdir %u %u %u\n", ino, size, off);
+    fprintf(stderr, "readdir %u %u %u\n", (unsigned)ino, (unsigned)size, (unsigned)off);
     
     // TODO -- add "." and ".." entries...
     

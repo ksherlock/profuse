@@ -15,7 +15,7 @@
 
 void prodos_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-    fprintf(stderr, "open: %u\n", ino);
+    fprintf(stderr, "open: %u\n", (unsigned)ino);
     
     
     uint8_t buffer[BLOCK_SIZE];
@@ -70,7 +70,7 @@ void prodos_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 
 void prodos_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-    fprintf(stderr, "release: %d\n", ino);
+    fprintf(stderr, "release: %u\n", (unsigned)ino);
     
     FileEntry *e = (FileEntry *)fi->fh;
     
@@ -82,7 +82,7 @@ void prodos_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 
 void prodos_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi)
 {
-    fprintf(stderr, "read: %u %u %u\n", ino, size, off);
+    fprintf(stderr, "read: %u %u %u\n", (unsigned)ino, (unsigned)size, (unsigned)off);
     
     FileEntry *e = (FileEntry *)fi->fh;
     

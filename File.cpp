@@ -14,49 +14,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
-
-/*
- * ProDOS technote 28
- *
- * The following definition allows the same range of years that the Apple IIgs 
- * Control Panel CDA currently does:
- *
- * o  A seven-bit ProDOS year value is in the range 0 to 99
- * (100 through 127 are invalid)
- * o  Year values from 40 to 99 represent 1940 through 1999
- * o  Year values from 0 to 39 represent 2000 through 2039
- */
-/*
- * A positive or 0 value for tm_isdst causes mktime() to presume initially 
- * that Daylight Savings Time, respectively, is or is not in effect for 
- * the specified time. A negative value for tm_isdst causes mktime() to 
- * attempt to determine whether Daylight Saving Time is in effect for the 
- * specified time. 
- */
-static time_t timeToUnix(unsigned yymmdd, unsigned hhmm)
-{
-    printf("%x %x\n", yymmdd, hhmm);
-    
-    if (yymmdd == 0) return 0;
-    
-    tm t;
-    bzero(&t, sizeof(tm));
-    
-    t.tm_min = hhmm & 0x3f;
-    // tm_hour is 0-23, but is_dst -1 compensates
-    t.tm_hour = (hhmm >> 8) & 0x1f;
-    t.tm_isdst = -1;
-    
-    t.tm_mday = yymmdd & 0x1f;
-    t.tm_mon = ((yymmdd >> 5) & 0x0f) - 1;
-    t.tm_year = (yymmdd) >> 9;
-    
-    if (t.tm_year <= 39) t.tm_year += 100;
-    
-    return mktime(&t);
-    // convert back via locatime & fudge for dst?
-}
-
+#include "DateTime.h"
 
 
 bool FileEntry::Load(const void *data)
@@ -79,7 +37,7 @@ bool FileEntry::Load(const void *data)
     
     eof = load24(&cp[0x15]);
 
-    creation = timeToUnix(load16(&cp[0x18]), load16(&cp[0x1a]));
+    creation = ProDOS::DateTime(load16(&cp[0x18]), load16(&cp[0x1a]));
     
     //version = cp[0x1c];
     //min_version = cp[0x1d];
@@ -103,7 +61,7 @@ bool FileEntry::Load(const void *data)
 
     aux_type = load16(&cp[0x1f]);
     
-    last_mod = timeToUnix(load16(&cp[0x21]), load16(&cp[0x23]));
+    last_mod = ProDOS::DateTime(load16(&cp[0x21]), load16(&cp[0x23]));
     
     header_pointer = load16(&cp[0x25]);
     
@@ -177,8 +135,8 @@ bool VolumeEntry::Load(const void *data)
 
     // 0x14--0x1b reserved
     
-    creation = timeToUnix(load16(&cp[0x18]), load16(&cp[0x1a]));
-    last_mod = timeToUnix(load16(&cp[0x12]), load16(&cp[0x14]));
+    creation = ProDOS::DateTime(load16(&cp[0x18]), load16(&cp[0x1a]));
+    last_mod = ProDOS::DateTime(load16(&cp[0x12]), load16(&cp[0x14]));
 
     if (last_mod == 0) last_mod = creation;
     
@@ -234,7 +192,7 @@ bool SubdirEntry::Load(const void *data)
     
     // 0x145-0x1b reserved
     
-    creation = timeToUnix(load16(&cp[0x18]), load16(&cp[0x1a]));
+    creation = ProDOS::DateTime(load16(&cp[0x18]), load16(&cp[0x1a]));
     
     //version = cp[0x1c];
     //min_version = cp[0x1d];

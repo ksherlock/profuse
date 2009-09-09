@@ -109,7 +109,7 @@ void prodos_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
     struct stat st;
     int ok;
     
-    fprintf(stderr, "get_attr %u\n", ino);
+    fprintf(stderr, "get_attr %u\n", (unsigned)ino);
     
     bzero(&st, sizeof(st));
     
@@ -162,7 +162,7 @@ void prodos_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
     vector<FileEntry> files;
     
     
-    fprintf(stderr, "lookup: %d %s\n", parent, name);
+    fprintf(stderr, "lookup: %u %s\n", (unsigned)parent, name);
     
     ERROR(!validProdosName(name), ENOENT)
     

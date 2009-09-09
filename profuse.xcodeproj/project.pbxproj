@@ -11,6 +11,7 @@
 		B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E91540EFB51FE000E4348 /* Disk.cpp */; };
 		B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */; };
 		B679E4A80F02E79300FB3F0C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B679E4A70F02E79300FB3F0C /* main.cpp */; };
+		B67F097910575F8300A13214 /* DateTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B67F097810575F8300A13214 /* DateTime.cpp */; };
 		B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */; };
 		B6C786B50F2A59FF00053681 /* profuse_xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786B40F2A59FE00053681 /* profuse_xattr.cpp */; };
 		B6C786BC0F2A5C0800053681 /* profuse_dirent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */; };
@@ -40,6 +41,8 @@
 		B642F1290F132FA3001F7696 /* UniversalDiskImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniversalDiskImage.h; sourceTree = "<group>"; };
 		B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UniversalDiskImage.cpp; sourceTree = "<group>"; };
 		B679E4A70F02E79300FB3F0C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B67F097810575F8300A13214 /* DateTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DateTime.cpp; sourceTree = "<group>"; };
+		B67F097A10575FD900A13214 /* DateTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateTime.h; sourceTree = "<group>"; };
 		B6B17FA00F1138830060F7AA /* DiskCopy42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskCopy42.h; sourceTree = "<group>"; };
 		B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DiskCopy42.cpp; sourceTree = "<group>"; };
 		B6C786B30F2A59AF00053681 /* profuse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = profuse.h; sourceTree = "<group>"; };
@@ -75,6 +78,8 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				B67F097810575F8300A13214 /* DateTime.cpp */,
+				B67F097A10575FD900A13214 /* DateTime.h */,
 				B642F1290F132FA3001F7696 /* UniversalDiskImage.h */,
 				B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */,
 				B60E91580EFD77E3000E4348 /* common.h */,
@@ -169,6 +174,7 @@
 				B6C786BC0F2A5C0800053681 /* profuse_dirent.cpp in Sources */,
 				B6C786C00F2A5CC000053681 /* profuse_stat.cpp in Sources */,
 				B6C786C40F2A5DCE00053681 /* profuse_file.cpp in Sources */,
+				B67F097910575F8300A13214 /* DateTime.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +292,51 @@
 			};
 			name = "Debug Universal";
 		};
+		B67F09801057600400A13214 /* Debug 10.6 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include/fuse;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-D__FreeBSD__=10",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__DARWIN_64_BIT_INO_T=1",
+					"-DHAVE_STAT_BIRTHTIME",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib/",
+					"-lfuse_ino64",
+				);
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+				VALID_ARCHS = "i386 x86_64";
+			};
+			name = "Debug 10.6";
+		};
+		B67F09811057600400A13214 /* Debug 10.6 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_GLIBCXX_DEBUG=1",
+					"_GLIBCXX_DEBUG_PEDANTIC=1",
+				);
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = profuse;
+			};
+			name = "Debug 10.6";
+		};
 		B6B767C10F0FF90400D819C9 /* Debug Universal 10.4 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -335,6 +386,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
+				B67F09811057600400A13214 /* Debug 10.6 */,
 				B618461B0F0AF6CC0045CCF7 /* Debug Universal */,
 				B6B767C20F0FF90400D819C9 /* Debug Universal 10.4 */,
 				1DEB923308733DC60010E9CD /* Release */,
@@ -346,6 +398,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
+				B67F09801057600400A13214 /* Debug 10.6 */,
 				B618461A0F0AF6CC0045CCF7 /* Debug Universal */,
 				B6B767C10F0FF90400D819C9 /* Debug Universal 10.4 */,
 				1DEB923708733DC60010E9CD /* Release */,
