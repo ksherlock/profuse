@@ -19,6 +19,8 @@ public:
 
     virtual bool readOnly() = 0;
     virtual void sync() = 0;
+    
+    void zeroBlock(unsigned block);
 };
 
 

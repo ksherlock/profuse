@@ -12,7 +12,9 @@ public:
 
     void *buffer() const { return (void *)&_buffer[0]; }
     unsigned size() const { return _buffer.size(); }
+    
     void resize(unsigned size) { _buffer.resize(size); }
+    void clear() { _buffer.clear(); }
     
     void push8(uint8_t x) { _buffer.push_back(x); }
     

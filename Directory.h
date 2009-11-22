@@ -15,12 +15,25 @@ class FileEntry;
 class Volume;
 
 
-enum {
+enum Access {
     DestroyEnabled = 0x80,
     RenameEnabled = 0x40,
     BackupNeeded = 0x20,
+    Invisible = 0x04,
     WriteEnabled = 0x02,
     ReadEnabled = 0x01
+};
+
+enum StorageType {
+    SeedlingFile = 0x01,
+    SaplingFile = 0x02,
+    TreeFile = 0x03,
+    PascalFile = 0x04,
+    ExtendedFile = 0x05,
+
+    DirectoryFile = 0x0d,
+    DirectoryHeader = 0x0e,
+    VolumeHeader = 0x0f
 };
 
 
@@ -28,12 +41,18 @@ class Entry {
 public:
     virtual ~Entry();
 
+    virtual void write(Buffer *) = 0;
 
 
     unsigned storageType() const { return _storageType; }
     
     unsigned nameLength() const { return _nameLength; }
     const char *name() const { return _name; }
+    const char *namei() const { return _namei; }
+    
+    unsigned caseFlags() const { return _caseFlags; }
+    
+    
     void setName(const char *name);
     
     
@@ -43,6 +62,20 @@ public:
 
 protected:
     Entry(int storageType, const char *name);
+    Entry(const void *bp);
+
+    
+    setStorageType(unsigned type)
+    {
+        _storageType = type;
+    }
+    
+    setAddress(unsigned address)
+    {
+        _address = address;
+    }
+    
+    Volume *volume() { return _volume; }
     
 private:
 
@@ -51,11 +84,13 @@ private:
 
     unsigned _storageType;
     unsigned _nameLength;
+    char _namei[15+1];  // insensitive, ie, uppercase.
     char _name[15+1];
-
+    
+    unsigned _caseFlag;
 };
 
-class Directory public Entry {
+class Directory : public Entry {
 public:
     virtual ~Directory();
     
@@ -68,24 +103,24 @@ public:
     
     unsigned fileCount() const { return _fileCount; }
     
+    unsigned version() const { return _version; }
+    unsigned minVersion() const { return _minVersion; }
+    
     void setAccess(unsigned access);
     
     
 protected:
     Directory(unsigned type, const char *name);
-    Directory(BlockDevice *, unsigned block);
+    Directory(const void *bp);
 
     std::vector<FileEntry *> _children;
     std::vector<unsigned> _entryBlocks;
-    
-    BlockDevice *_device;
         
-    
 private:
 
     DateTime _creation;
-    // version
-    // min version
+    unsigned _version
+    unsigned _minVersion
     unsigned _access;
     usnigned _entryLength;      // always 0x27
     unsigned _entriesPerBlock;  //always 0x0d

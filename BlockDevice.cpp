@@ -18,6 +18,14 @@ BlockDevice::~BlockDevice()
 {
 }
 
+BlockDevice::zeroBlock(unsigned block)
+{
+    uint8_t bp[512];
+    std::memset(bp, 0, 512);
+    
+    write(block, bp);
+}
+
 
 #pragma mark DiskImage
 
