@@ -15,6 +15,22 @@ void Buffer::push16le(uint16_t x)
     _buffer.push_back((x >> 8) & 0xff);
 }
 
+
+void Buffer::push24be(uint32_t x)
+{
+    _buffer.push_back((x >> 16) & 0xff);
+    _buffer.push_back((x >> 8) & 0xff);
+    _buffer.push_back(x & 0xff);
+}
+
+void Buffer::push24le(uint32_t x)
+{
+    _buffer.push_back(x & 0xff);
+    _buffer.push_back((x >> 8) & 0xff);
+    _buffer.push_back((x >> 16) & 0xff);
+}
+
+
 void Buffer::push32be(uint32_t x)
 {
     _buffer.push_back((x >> 24) & 0xff);

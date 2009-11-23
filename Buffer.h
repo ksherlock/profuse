@@ -21,6 +21,10 @@ public:
     void push16be(uint16_t);
     void push16le(uint16_t);
     
+
+    void push24be(uint32_t);
+    void push24le(uint32_t);    
+    
     void push32be(uint32_t);
     void push32le(uint32_t);
     

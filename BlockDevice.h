@@ -20,6 +20,8 @@ public:
     virtual bool readOnly() = 0;
     virtual void sync() = 0;
     
+    virtual unsigned blocks();
+    
     void zeroBlock(unsigned block);
 };
 

@@ -25,6 +25,7 @@ enum Access {
 };
 
 enum StorageType {
+    DeletedFile = 0x00,
     SeedlingFile = 0x01,
     SaplingFile = 0x02,
     TreeFile = 0x03,
@@ -166,6 +167,13 @@ private:
 class FileEntry : public Entry {
 public:
 
+    unsigned fileType() const { return _fileType; }
+    unsigned auxType() const { return _auxType; }
+    unsigned blocksUsed() const { return _blocksUsed; }
+    unsigned eof() const { return _eof; }
+    
+    DateTime creation() const { return _creation; }
+    DateTime modification() const { return _modification; }
 
 private:
     unsigned _fileType;
