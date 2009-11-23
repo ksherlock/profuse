@@ -26,18 +26,37 @@ private:
 class auto_fd
 {
 public:
-  auto_fd(int fd) : _fd(fd) { }
+  auto_fd(int fd = -1) : _fd(fd) { }
 
-  ~auto_fd() 
-  { if (_fd != -1) ::close(_fd); }
+  ~auto_fd() { close(); }
 
   int release() 
   { int tmp = _fd; _fd = -1; return tmp; }
 
   int get() const { return _fd; }
   operator int() const { return _fd; }
+  
+  void reset(int fd)
+  {
+    if (fd != _fd)
+    {
+      close();
+      _fd = fd;
+    }
+  }
 
 private:
+  auto_fd& operator=(const auto_fd&);
+  
+  void close()
+  {
+    if (_fd >= 0)
+    {
+      ::close(_fd);
+      fd = -1;
+    }
+  }
+  
   int _fd;
 };
 #endif

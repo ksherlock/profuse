@@ -21,8 +21,21 @@ MappedFile::MappedFile(const char *name, bool readOnly) :
     #undef __METHOD__
     #define __METHOD__ "MappedFile::MappedFile"
     
-    auto_fd fd(::open(name, readOnly ? O_RDONLY : O_RDWR));
     
+    // if unable to open as read/write, open as read-only.
+    
+    auto_fd fd;
+    
+    if (!readOnly)
+    {
+        fd.reset(::open(name, O_RDWR));
+    }
+    if (fd < 0)
+    {
+        fd.reset(::open(name, O_RDONLY));
+        readOnly = true;
+    }
+     
     if (fd < 0)
     {
         throw Exception(__METHOD__ ": Unable to open file.", errno);
@@ -38,7 +51,6 @@ MappedFile::MappedFile(int fd, bool readOnly) :
     init(fd, readOnly);
 }
 
-// todo -- verify throw calls destructor.
 MappedFile::MappedFile(const char *name, size_t size) :
     _fd(-1),
     _map(MAP_FAILED)
@@ -48,6 +60,7 @@ MappedFile::MappedFile(const char *name, size_t size) :
     
     _size = size;
     _readOnly = false;
+    
     auto_fd fd(::open(name, O_CREAT | O_TRUNC | O_RDWR, 0644));
     
     if (fd < 0)

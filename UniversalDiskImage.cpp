@@ -1,18 +1,25 @@
 #include "UniversalDiskImage.h"
 #include "MappedFile.h"
 #include "Buffer.h"
+#inluce "Endian.h"
 
 using namespace ProFUSE;
+using namespace LittleEndian;
 
 UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
     DiskImage(name, readOnly)
 {
     Validate(file());
+    const void *data = file()->fileData();
+    
+    // flags.  bit 31 = locked.
+    _flags = Read32(data, 0x10;
 }
 
 UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
     DiskImage(file)
 {
+    _flags = 0;
 }
 
 UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
@@ -75,7 +82,7 @@ void UniversalDiskImage::Validate(MappedFile *file)
 #undef __METHOD__
 #define __METHOD__ "DavexDiskImage::Validate"
 
-    uint8_t *data = (uint8_t *)file->fileData();
+    const void *data = file->fileData();
     size_t size = file->fileSize();
     bool ok = false;
     unsigned blocks = 0;
@@ -88,13 +95,13 @@ void UniversalDiskImage::Validate(MappedFile *file)
         if (std::memcmp(data, "2IMG", 4)) break;
         
         // only prodos supported, for now...
-        if (file->read32(0x0c, LittleEndian) != 1) break;
+        if (Read32(data, 0x0c) != 1) break;
         
-        offset = file->read32(0x20, LittleEndian);
-        blocks = file->read32(0x14, LittleEndian);
+        offset = Read32(data, 0x20);
+        blocks = Read32(data, 0x14);
         
         // file size == blocks * 512
-        if (file->read32(0x1c, LittleEndian) != blocks * 512) break;
+        if (Read32(data, 0x1c) != blocks * 512) break;
         
         if (offset + blocks * 512 > size) break;
         
@@ -107,4 +114,10 @@ void UniversalDiskImage::Validate(MappedFile *file)
     file->reset();
     file->setOffset(offset);
     file->setBlocks(blocks);
+}
+
+
+bool UniversalDiskImage::readOnly()
+{
+    return (_flags & 0x8000000) || DiskImage::readOnly();
 }

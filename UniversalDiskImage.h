@@ -13,9 +13,13 @@ public:
     static UniversalDiskImage *Create(const char *name, size_t blocks);
     static UniversalDiskImage *Open(MappedFile *);
 
+    virtual bool readOnly();
+
 private:
     UniversalDiskImage(MappedFile *);
     static void Validate(MappedFile *);
+    
+    uint32_t flags;
 };
 
 }

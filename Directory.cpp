@@ -60,6 +60,7 @@ Entry::Entry(unsigned type, const char *name)
 {
     _storageType = type;
     _address = 0;
+    _index = 0;
     _volume = NULL;
     
     // everything else initialized in setName.
@@ -74,6 +75,7 @@ Entry::Entry(const void *bp)
     uint8_t x;
     uint16_t xcase = 0;
     _address = 0;
+    _index = 0;
     _volume = NULL;
     _caseFlag = 0;
     std::memset(_name, 0, 16);
@@ -318,12 +320,24 @@ void VolumeDirectory::write(Buffer *out)
 
 #pragma mark SubDirectory
 
-SubDirectory::SubDirectory(unsigned type, const char *name) :
-    Directory(type, name)
+SubDirectory::SubDirectory(FileEntry *e) :
+    Directory(DirectoryHeader, e->iname())
+{
+    _creation = e->creation();
+    setAccess(e->access());
+
+    _parentEntryPointer = e->block();
+    _parentEntryNumber = e->index();
+    _parentEntryLength = 0x27;
+
+}
+
+SubDirectory::SubDirectory(const char *name) :
+    Directory(DirectoryHeader, name)
 {
     _parentPointer = 0;
     _parentEntryNumber = 0;
-    _parentEntryLength = 0x27;
+    _parentEntryLength = 0x27;    
 }
 
 SubDirectory::SubDirectory(const void *bp) :

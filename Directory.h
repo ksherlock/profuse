@@ -61,6 +61,14 @@ public:
     // returns strlen() on success, 0 on failure.
     static unsigned ValidName(const char *);
 
+
+    unsigned block() const { return _address  / 512; }
+    unsigned offset() const { return _address % 512; }
+
+    unsigned address() const { return _address; }
+
+    unsigned index() const { return _index; }
+
 protected:
     Entry(int storageType, const char *name);
     Entry(const void *bp);
@@ -71,16 +79,26 @@ protected:
         _storageType = type;
     }
     
+
     setAddress(unsigned address)
     {
         _address = address;
     }
+
+    setIndex(unsigned index)
+    {
+        _index = index;
+    }
+
+    
     
     Volume *volume() { return _volume; }
     
 private:
 
-    unsigned _address; // absolute address on disk.
+    unsigned _address;
+    unsigned _index;
+    
     Volume *_volume;
 
     unsigned _storageType;
@@ -123,7 +141,7 @@ private:
     unsigned _version
     unsigned _minVersion
     unsigned _access;
-    usnigned _entryLength;      // always 0x27
+    unsigned _entryLength;      // always 0x27
     unsigned _entriesPerBlock;  //always 0x0d
 
     unsigned _fileCount;
@@ -156,7 +174,7 @@ private:
 
 class SubDirectory : public Directory {
 public:
-
+    SubDirectory(FileEntry *);
 private:
     unsigned _parentPointer;
     unsigned _parentEntryNumber;
@@ -171,6 +189,9 @@ public:
     unsigned auxType() const { return _auxType; }
     unsigned blocksUsed() const { return _blocksUsed; }
     unsigned eof() const { return _eof; }
+    
+    unsigned access() const { return _access; }
+    
     
     DateTime creation() const { return _creation; }
     DateTime modification() const { return _modification; }
