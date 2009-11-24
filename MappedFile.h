@@ -8,10 +8,6 @@
 namespace ProFUSE {
 
 
-enum {
-    LittleEndian = 0x3412,
-    BigEndian = 0x1234
-};
 
 class MappedFile {
 public:
@@ -41,20 +37,7 @@ public:
     size_t fileSize() const { return _size; }  
     void *fileData() const { return _map; }
     
-    uint8_t read8(size_t location) const
-    {
-        return ((uint8_t *)_map)[location];
-    }
-    uint16_t read16(size_t location, int byteOrder) const;
-    uint32_t read32(size_t location, int byteOrder) const;
-    
-    void write8(size_t location, uint8_t data)
-    {
-        ((uint8_t *)_map)[location] = data;
-    }
-    void write16(size_t location, uint16_t data, int byteOrder);
-    void write32(size_t location, uint32_t data, int byteOrder);
-    
+
 
 private:
     MappedFile& operator=(const MappedFile& other);
