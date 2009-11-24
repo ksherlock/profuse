@@ -5,6 +5,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
+#include <cerrno>
 
 
 #ifdef __APPLE__
@@ -24,7 +25,7 @@
 #include "auto.h"
 #include "Exception.h"
 
-using Namespace ProFUSE;
+using namespace ProFUSE;
 
 #ifdef __SUN__
 void RawDevice::devSize(int fd)
@@ -61,7 +62,7 @@ void RawDevice::devSize(int fd)
         throw Exception(__METHOD__ ": Unable to determine block count.", errno);
         
     _blockSize = blockSize;
-    _size = _blockSize * _blockCount;
+    _size = _blockSize * blockCount;
     _blocks = _size / 512;
 }
 
@@ -91,12 +92,23 @@ void RawDevice::devSize(int fd)
 
 // TODO -- FreeBSD/NetBSD/OpenBSD
 
-RawDevice::RawDevice(const char *name, bool readOnly) :
+RawDevice::RawDevice(const char *name, bool readOnly)
 {
+#undef __METHOD__
+#define __METHOD__ "RawDevice::RawDevice"
+
+
     // open read-only, verify if device is readable, and then try to upgrade to read/write?
+
+    auto_fd fd;
     
-    auto_fd fd(::open(name, readOnly ? O_RDONLY : O_RDWR));
-    
+    if (!readOnly) fd.reset(::open(name, O_RDWR));
+    if (fd < 0)
+    {
+        readOnly = false;
+        fd.reset(::open(name, O_RDONLY));
+    }
+     
     if (fd < 0)
         throw Exception(__METHOD__ ": Unable to open device.", errno);
 
@@ -136,7 +148,7 @@ void RawDevice::read(unsigned block, void *bp)
     // TODO -- EINTR?
     if (ok != 512)
         throw Exception(__METHOD__ ": Error reading block.", 
-            ok < 0 : errno, 0);
+            ok < 0 ? errno : 0);
     
     
 }
@@ -154,8 +166,8 @@ void RawDevice::write(unsigned block, const void *bp)
     size_t ok = ::pwrite(_fd, bp, 512, block * 512);
     
     if (ok != 512)
-        throw Exception(__METHOD__ : ": Error writing block.", 
-            ok < 0 : errno, 0);
+        throw Exception(__METHOD__ ": Error writing block.", 
+            ok < 0 ? errno : 0);
 }
 
 
@@ -172,5 +184,5 @@ void RawDevice::sync()
     if (_readOnly) return;
     
     if (::fsync(_fd) < 0)
-        throw Exception(__METHOD__ ": msync error.", errno);
+        throw Exception(__METHOD__ ": fsync error.", errno);
 }

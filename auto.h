@@ -53,7 +53,7 @@ private:
     if (_fd >= 0)
     {
       ::close(_fd);
-      fd = -1;
+      _fd = -1;
     }
   }
   

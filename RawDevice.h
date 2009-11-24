@@ -36,5 +36,6 @@ private:
     unsigned _blockSize;
 };
 
+}
 
 #endif
