@@ -18,7 +18,7 @@ BlockDevice::~BlockDevice()
 {
 }
 
-BlockDevice::zeroBlock(unsigned block)
+void BlockDevice::zeroBlock(unsigned block)
 {
     uint8_t bp[512];
     std::memset(bp, 0, 512);
@@ -55,9 +55,15 @@ bool DiskImage::readOnly()
     throw Exception(__METHOD__ ": File not set."); 
 }
 
-
-
-
+unsigned DiskImage::blocks()
+{
+    #undef __METHOD__
+    #define __METHOD__ "DiskImage::blocks"
+    
+    if (_file) return _file->blocks();
+    
+    throw Exception(__METHOD__ ": File not set."); 
+}
 
 void DiskImage::read(unsigned block, void *bp)
 {

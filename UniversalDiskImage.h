@@ -3,6 +3,7 @@
 
 
 #include "BlockDevice.h"
+#include <stdint.h>
 
 namespace ProFUSE {
 
@@ -19,7 +20,7 @@ private:
     UniversalDiskImage(MappedFile *);
     static void Validate(MappedFile *);
     
-    uint32_t flags;
+    uint32_t _flags;
 };
 
 }

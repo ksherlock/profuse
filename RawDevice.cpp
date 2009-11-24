@@ -1,5 +1,5 @@
 
-#include <ioctl.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -89,6 +89,8 @@ void RawDevice::devSize(int fd)
 
 #endif
 
+// TODO -- FreeBSD/NetBSD/OpenBSD
+
 RawDevice::RawDevice(const char *name, bool readOnly) :
 {
     // open read-only, verify if device is readable, and then try to upgrade to read/write?
@@ -133,7 +135,7 @@ void RawDevice::read(unsigned block, void *bp)
     
     // TODO -- EINTR?
     if (ok != 512)
-        throw Exception(__METHOD__ : ": Error reading block.", 
+        throw Exception(__METHOD__ ": Error reading block.", 
             ok < 0 : errno, 0);
     
     

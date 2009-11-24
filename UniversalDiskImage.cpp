@@ -1,7 +1,7 @@
 #include "UniversalDiskImage.h"
 #include "MappedFile.h"
 #include "Buffer.h"
-#inluce "Endian.h"
+#include "Endian.h"
 
 using namespace ProFUSE;
 using namespace LittleEndian;
@@ -13,7 +13,7 @@ UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
     const void *data = file()->fileData();
     
     // flags.  bit 31 = locked.
-    _flags = Read32(data, 0x10;
+    _flags = Read32(data, 0x10);
 }
 
 UniversalDiskImage::UniversalDiskImage(MappedFile *file) :

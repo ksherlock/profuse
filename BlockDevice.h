@@ -20,7 +20,7 @@ public:
     virtual bool readOnly() = 0;
     virtual void sync() = 0;
     
-    virtual unsigned blocks();
+    virtual unsigned blocks() = 0;
     
     void zeroBlock(unsigned block);
 };
@@ -37,7 +37,7 @@ public:
     virtual void sync();
     
     virtual bool readOnly();
-    
+    virtual unsigned blocks();
     
 protected:
 

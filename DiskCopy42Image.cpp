@@ -26,7 +26,7 @@ DiskCopy42Image::~DiskCopy42Image()
     if (_changed)
     {
         MappedFile *f = file();
-        void *data = file->fileData();
+        void *data = f->fileData();
         
         if (f)
         {

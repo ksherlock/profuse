@@ -34,7 +34,7 @@ private:
     unsigned _blocks;
     
     unsigned _blockSize;
-}
+};
 
 
 #endif
