@@ -1,8 +1,11 @@
-#include "Bitmap.h"
 #include <cstring>
 
+#include "Bitmap.h"
+#include "BlockDevice.h"
 #include "auto.h"
 
+
+using namespace ProFUSE;
 
 // returns # of 1-bits set (0-8)
 inline static unsigned popCount(uint8_t x)
@@ -33,7 +36,7 @@ Bitmap::Bitmap(unsigned blocks)
     unsigned bitmapSize = _bitmapBlocks * 512;
     unsigned blockSize = blocks / 8;
     
-    auto_array bitmap(new uint8_t[bitmapSize]);
+    auto_array<uint8_t> bitmap(new uint8_t[bitmapSize]);
 
     // mark overflow in use, everything else free.
 
@@ -61,11 +64,11 @@ Bitmap::Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks)
     unsigned bitmapSize = _bitmapBlocks * 512;
     unsigned blockSize = blocks / 8;
     
-    auto_array bitmap(new uint8_t[bitmapSize]);
+    auto_array<uint8_t> bitmap(new uint8_t[bitmapSize]);
 
     for (unsigned i = 0; i < blockSize; ++i)
     {
-        device->readBlock(keyPointer + i, bitmap + 512 * i);
+        device->read(keyPointer + i, bitmap + 512 * i);
     }
     
     // make sure all trailing bits are marked in use.
@@ -83,11 +86,11 @@ Bitmap::Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks)
         _freeBlocks += popCount(bitmap[i]);
     } 
     
-    if (_freeblocks)
+    if (_freeBlocks)
     {
         for (unsigned i = 0; i < (blocks + 7) / 8; ++i)
         {
-            if (tmp[i])
+            if (bitmap[i])
             {
                 _freeIndex = i;
                 break;
@@ -149,11 +152,11 @@ int Bitmap::allocBlock()
 {
     if (!_freeBlocks) return -1;
     
-    unsigned firstIndex = _firstIndex;
+    unsigned freeIndex = _freeIndex;
     unsigned maxIndex = (_blocks + 7) / 8;
 
 
-    for (unsigned index = _firstIndex; index < maxIndex; ++index)
+    for (unsigned index = _freeIndex; index < maxIndex; ++index)
     {
         uint8_t tmp = _bitmap[index];
         if (!tmp) continue;
@@ -163,7 +166,7 @@ int Bitmap::allocBlock()
         {
             if (tmp & mask)
             {
-                _firstIndex = index;
+                _freeIndex = index;
                 _bitmap[index] = tmp & ~mask;
                 --_freeBlocks;
                 return index * 8 + offset;
@@ -172,7 +175,7 @@ int Bitmap::allocBlock()
         }
     }
 
-    for (unsigned index = 0; index < _firstIndex; ++index)
+    for (unsigned index = 0; index < freeIndex; ++index)
     {
         uint8_t tmp = _bitmap[index];
         if (!tmp) continue;
@@ -182,7 +185,7 @@ int Bitmap::allocBlock()
         {
             if (tmp & mask)
             {
-                _firstIndex = index;
+                _freeIndex = index;
                 _bitmap[index] = tmp & ~mask;
                 --_freeBlocks;
                 return index * 8 + offset;

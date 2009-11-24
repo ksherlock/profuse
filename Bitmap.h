@@ -2,15 +2,19 @@
 #define __BITMAP_H__
 
 #include <stdint.h>
-class BlockDevice;
+
+
 
 namespace ProFUSE {
+
+class BlockDevice;
+
 
 class Bitmap {
 public:
 
     Bitmap(unsigned blocks);
-    Bitmap(BlockDevice *device, int keyPointer, int blocks);
+    Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks);
     //todo -- constructor by loading fro, block device...
     ~Bitmap();
     
