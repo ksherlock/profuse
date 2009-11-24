@@ -87,7 +87,7 @@ protected:
 
     setIndex(unsigned index)
     {
-        _index = index;
+        _index = index;w
     }
 
     

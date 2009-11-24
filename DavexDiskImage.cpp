@@ -1,6 +1,7 @@
 #include "DavexDiskImage.h"
 #include "MappedFile.h"
 #include "Buffer.h"
+#include "Endian.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -10,6 +11,7 @@
 #include <cstdio>
 
 using namespace ProFUSE;
+using namespace LittleEndian;
 
 /*
  http://www.umich.edu/~archive/apple2/technotes/ftn/FTN.E0.8004
@@ -41,7 +43,7 @@ void DavexDiskImage::Validate(MappedFile *f)
 #define __METHOD__ "DavexDiskImage::Validate"
 
     size_t size = f->fileSize();
-    void * data = f->fileData();
+    const void * data = f->fileData();
     bool ok = false;
     unsigned blocks = (size / 512) - 1;
     
@@ -54,15 +56,15 @@ void DavexDiskImage::Validate(MappedFile *f)
             break;
         
         // file format.
-        if (f->read8(16) != 0)
+        if (Read8(data, 0x10) != 0)
             break;
         
         // total blocks
-        if (f->read32(33, LittleEndian) != blocks)
+        if (Read32(data, 33) != blocks)
             break;
         
         // file number -- must be 1
-        if (f->read8(64) != 1)
+        if (Read8(data, 64) != 1)
             break;
                     
         ok = true;

@@ -1,10 +1,12 @@
 #include "DiskCopy42Image.h"
 #include "MappedFile.h"
 #include "Buffer.h"
+#include "Endian.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace ProFUSE;
+using namespace BigEndian;
 
 DiskCopy42Image::DiskCopy42Image(MappedFile *f) :
     DiskImage(f),
@@ -24,12 +26,14 @@ DiskCopy42Image::~DiskCopy42Image()
     if (_changed)
     {
         MappedFile *f = file();
+        void *data = file->fileData();
+        
         if (f)
         {
-            uint32_t cs = Checksum(f->offset() + (uint8_t *)f->fileData(), 
+            uint32_t cs = Checksum(f->offset() + (uint8_t *)data, 
                 f->blocks() * 512);
                 
-            f->write32(72, cs, BigEndian);
+            Write32(data, 72, cs);
             f->sync();
         }
         // TODO -- checksum
@@ -137,6 +141,7 @@ void DiskCopy42Image::Validate(MappedFile *file)
 {
     size_t bytes = 0;
     size_t size = file->fileSize();
+    const void *data = file->fileData();
     bool ok = false;
     uint32_t checksum;
     
@@ -144,26 +149,26 @@ void DiskCopy42Image::Validate(MappedFile *file)
         if (size < 84) break;
         
         // name must be < 64
-        if (file->read8(0) > 63) break;
+        if (Read8(data, 0) > 63) break;
         
-        if (file->read32(82, BigEndian) != 0x100)
+        if (Read32(data, 82) != 0x100)
             break;
         
         // bytes, not blocks.
-        bytes = file->read32(64, BigEndian);
+        bytes = Read32(data, 64);
         
         if (bytes % 512) break;
         
         if (size < 84 + bytes) break;
         
         // todo -- checksum.
-        checksum = file->read32(72, BigEndian);
+        checksum = Read32(data, 72);
         
         ok = true;
     } while (false);
     
     
-    uint32_t cs = Checksum(64 + (uint8_t *)file->fileData(), bytes);
+    uint32_t cs = Checksum(64 + (uint8_t *)data, bytes);
     
     if (cs != checksum)
     {
