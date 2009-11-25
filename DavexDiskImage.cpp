@@ -74,9 +74,9 @@ void DavexDiskImage::Validate(MappedFile *f)
     if (!ok)
         throw Exception(__METHOD__ ": Invalid file format.");
     
+    f->reset();
     f->setBlocks(blocks);
     f->setOffset(512);
-    f->setDosOrder(false);
 }
 
 DavexDiskImage *DavexDiskImage::Open(MappedFile *file)

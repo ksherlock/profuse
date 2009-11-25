@@ -153,7 +153,7 @@ DOSOrderDiskImage::DOSOrderDiskImage(MappedFile *file) :
 DOSOrderDiskImage *DOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = new MappedFile(name, blocks * 512);
-    file->setDosOrder(true);
+    file->setEncoding(MappedFile::DOSOrder);
     return new DOSOrderDiskImage(file);
 }
 
@@ -176,6 +176,6 @@ void DOSOrderDiskImage::Validate(MappedFile *f)
         throw Exception(__METHOD__ ": Invalid file format.");
     
     f->reset();
-    f->setDosOrder(true);
+    f->setEncoding(MappedFile::DOSOrder);
     f->setBlocks(size / 512);
 }

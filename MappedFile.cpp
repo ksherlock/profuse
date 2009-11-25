@@ -14,9 +14,7 @@ using namespace ProFUSE;
 
 
 
-MappedFile::MappedFile(const char *name, bool readOnly) :
-    _fd(-1),
-    _map(MAP_FAILED)
+MappedFile::MappedFile(const char *name, bool readOnly)
 {
     #undef __METHOD__
     #define __METHOD__ "MappedFile::MappedFile"
@@ -40,26 +38,27 @@ MappedFile::MappedFile(const char *name, bool readOnly) :
     {
         throw Exception(__METHOD__ ": Unable to open file.", errno);
     }
-    //
-    init(fd.release(), readOnly);
+    // init may throw; auto_fd guarantees the file will be closed if that happens.
+    init(fd, readOnly);
+    fd.release();
 }
 
-MappedFile::MappedFile(int fd, bool readOnly) :
-    _fd(-1),
-    _map(MAP_FAILED)
+// does NOT close fd on failure.
+MappedFile::MappedFile(int fd, bool readOnly)
 {
     init(fd, readOnly);
 }
 
-MappedFile::MappedFile(const char *name, size_t size) :
-    _fd(-1),
-    _map(MAP_FAILED)
+MappedFile::MappedFile(const char *name, size_t size)
 {
     #undef __METHOD__
     #define __METHOD__ "MappedFile::MappedFile"
     
+    _fd = -1;
+    _map = MAP_FAILED;
     _size = size;
     _readOnly = false;
+    _encoding = ProDOSOrder;
     
     auto_fd fd(::open(name, O_CREAT | O_TRUNC | O_RDWR, 0644));
     
@@ -93,20 +92,22 @@ MappedFile::~MappedFile()
     if (_fd >= 0) ::close(_fd);
 }
 
+// does NOT close f on exception.
 void MappedFile::init(int f, bool readOnly)
 {
     #undef __METHOD__
     #define __METHOD__ "MappedFile::init"
     
-    auto_fd fd(f);
-    
+    //auto_fd fd(f);
+
+    _fd = -1;
+    _map = MAP_FAILED;    
     _offset = 0;
     _blocks = 0;
     _size = 0;
     _readOnly = readOnly;
-    _dosOrder = false;
-    
-    _size = ::lseek(_fd, 0, SEEK_END);
+    _encoding = ProDOSOrder;
+    _size = ::lseek(f, 0, SEEK_END);
     
     if (_size < 0)
         throw Exception(__METHOD__ ": Unable to determine file size.", errno);
@@ -116,7 +117,7 @@ void MappedFile::init(int f, bool readOnly)
         MAP_FILE | MAP_SHARED, fd, 0);
 */
     auto_map map(
-        fd, 
+        f, 
         _size,
         readOnly ?  PROT_READ  : PROT_READ | PROT_WRITE, 
         readOnly ? MAP_FILE : MAP_FILE |  MAP_SHARED
@@ -124,7 +125,7 @@ void MappedFile::init(int f, bool readOnly)
   
     if (map == MAP_FAILED) throw Exception(__METHOD__ ": Unable to map file.", errno);
     
-    _fd = fd.release();
+    _fd = f;
     _map = map.release();
 }
 
@@ -147,26 +148,35 @@ void MappedFile::readBlock(unsigned block, void *bp)
     if (bp == 0) throw Exception(__METHOD__ ": Invalid address."); 
     
     
-    if (_dosOrder)
+    switch(_encoding)
     {
-        unsigned track = (block & ~0x07) << 9;
-        unsigned sector = (block & 0x07) << 1;
-        
-        for (unsigned i = 0; i < 2; ++i)
+    case ProDOSOrder:
         {
-            size_t address =  track | (DOSMap[sector+i] << 8); 
-            
-            std::memcpy(bp, (uint8_t *)_map + _offset + address,  256);
-            
-            bp = (uint8_t *)bp + 256;
+            size_t address = block * 512;
+            std::memcpy(bp, (uint8_t *)_map + _offset + address,  512);
         }
+        break;   
         
+    case DOSOrder:
+        {
+            unsigned track = (block & ~0x07) << 9;
+            unsigned sector = (block & 0x07) << 1;
+            
+            for (unsigned i = 0; i < 2; ++i)
+            {
+                size_t address =  track | (DOSMap[sector+i] << 8); 
+                
+                std::memcpy(bp, (uint8_t *)_map + _offset + address,  256);
+                
+                bp = (uint8_t *)bp + 256;
+            }     
+        }
+        break;
+    
+    default:
+        throw Exception(__METHOD__ ": Unsupported Encoding.");        
     }
-    else
-    {
-        size_t address = block * 512;
-        std::memcpy(bp, (uint8_t *)_map + _offset + address,  512);
-    }
+    
 }
 
 void MappedFile::writeBlock(unsigned block, const void *bp)
@@ -176,27 +186,37 @@ void MappedFile::writeBlock(unsigned block, const void *bp)
         
     if (block > _blocks) throw Exception(__METHOD__ ": Invalid block number.");
 
-    if ( (_readOnly) || (_map == MAP_FAILED))
-        throw Exception(__METHOD__ ": File is readonly.");
+    if (_readOnly) throw Exception(__METHOD__ ": File is readonly.");
     
-    if (_dosOrder)
+    
+    switch(_encoding)
     {
-        unsigned track = (block & ~0x07) << 9;
-        unsigned sector = (block & 0x07) << 1;
-        
-        for (unsigned i = 0; i < 2; ++i)
+    case ProDOSOrder:
         {
-            size_t address =  track | (DOSMap[sector+i] << 8); 
-            
-            std::memcpy((uint8_t *)_map + _offset + address,  bp, 256);
-            bp = (uint8_t *)bp + 256;
+            size_t address = block * 512;
+            std::memcpy((uint8_t *)_map + _offset +  address , bp,  512);
         }
+        break;
+        
+    case DOSOrder:
+        {
+            unsigned track = (block & ~0x07) << 9;
+            unsigned sector = (block & 0x07) << 1;
+            
+            for (unsigned i = 0; i < 2; ++i)
+            {
+                size_t address =  track | (DOSMap[sector+i] << 8); 
+                
+                std::memcpy((uint8_t *)_map + _offset + address,  bp, 256);
+                bp = (uint8_t *)bp + 256;
+            }
+        }
+        break;
+
+    default:
+        throw Exception(__METHOD__ ": Unsupported Encoding.");            
     }
-    else
-    {
-        size_t address = block * 512;
-        std::memcpy((uint8_t *)_map + _offset +  address , bp,  512);
-    }
+    
 }
 
 void MappedFile::sync()
@@ -204,8 +224,7 @@ void MappedFile::sync()
     #undef __METHOD__
     #define __METHOD__ "MappedFile::sync"
     
-    if ( (_readOnly) || (_map == MAP_FAILED))
-        return;
+    if (_readOnly) return;
     
     if (::msync(_map, _size, MS_SYNC) < 0)
         throw Exception(__METHOD__ ": msync error.", errno);
@@ -215,7 +234,7 @@ void MappedFile::reset()
 {
     _offset = 0;
     _blocks = 0;
-    _dosOrder = false;
+    _encoding = ProDOSOrder;
 }
 
 

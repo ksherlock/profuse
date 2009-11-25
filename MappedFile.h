@@ -11,6 +11,14 @@ namespace ProFUSE {
 
 class MappedFile {
 public:
+
+    enum Encoding {
+        ProDOSOrder = 0,
+        DOSOrder,
+        Nibblized62,
+        Nibblized53
+    };
+
     MappedFile(const char *name, bool ReadOnly);
     MappedFile(int fd, bool readOnly);
     MappedFile(const char *name, size_t size);
@@ -24,8 +32,8 @@ public:
     
     void reset();
 
-    bool dosOrder() const { return _dosOrder; }
-    void setDosOrder(bool tf) { _dosOrder = tf; }
+    Encoding encoding() const { return _encoding; }
+    void setEncoding(Encoding e) { _encoding = e; }
     
     unsigned offset() const { return _offset; }
     void setOffset(unsigned o) { _offset = o; }
@@ -52,7 +60,7 @@ private:
     size_t _size;
     bool _readOnly;
     
-    bool _dosOrder;
+    Encoding _encoding;
     unsigned _offset;
     unsigned _blocks;
 
