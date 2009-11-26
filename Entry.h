@@ -13,6 +13,7 @@ class BlockDevice;
 class Bitmap;
 class FileEntry;
 class Volume;
+class Buffer;
 
 
 enum Access {

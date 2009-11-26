@@ -5,7 +5,7 @@
 #include <ctime>
 #include <cstring>
 
-namespace ProDOS {
+using namespace ProFUSE;
 
 /*
  *  date is a 16 bit value:
