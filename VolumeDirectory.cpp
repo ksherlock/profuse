@@ -83,6 +83,7 @@ VolumeDirectory::~VolumeDirectory()
         _device->sync();
         delete _device;
     }
+    delete _bitmap;
 }
 
 void VolumeDirectory::write(Buffer *out)

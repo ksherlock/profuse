@@ -141,4 +141,3 @@ std::time_t DateTime::toUnix() const
     // convert back via locatime & fudge for dst?
 }
 
-} // namespace
