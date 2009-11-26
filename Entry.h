@@ -52,7 +52,7 @@ public:
     const char *name() const { return _name; }
     const char *namei() const { return _namei; }
     
-    unsigned caseFlags() const { return _caseFlags; }
+    unsigned caseFlag() const { return _caseFlag; }
     
     
     void setName(const char *name);
@@ -63,37 +63,33 @@ public:
     static unsigned ValidName(const char *);
 
 
-    unsigned block() const { return _address  / 512; }
+    unsigned block() const { return _address / 512; }
     unsigned offset() const { return _address % 512; }
 
     unsigned address() const { return _address; }
 
     unsigned index() const { return _index; }
+    
+    Volume *volume() { return _volume; }
 
 protected:
-    Entry(int storageType, const char *name);
+    Entry(unsigned storageType, const char *name);
     Entry(const void *bp);
 
     
-    setStorageType(unsigned type)
-    {
-        _storageType = type;
-    }
+    void setStorageType(unsigned type)
+    { _storageType = type; }
     
+    void setAddress(unsigned address)
+    { _address = address; }
 
-    setAddress(unsigned address)
-    {
-        _address = address;
-    }
-
-    setIndex(unsigned index)
-    {
-        _index = index;w
-    }
-
+    void setIndex(unsigned index)
+    { _index = index; }
     
-    
-    Volume *volume() { return _volume; }
+    void setVolume(Volume *v)
+    { _volume = v; }
+        
+
     
 private:
 
@@ -101,7 +97,7 @@ private:
     unsigned _index;
     
     Volume *_volume;
-
+    
     unsigned _storageType;
     unsigned _nameLength;
     char _namei[15+1];  // insensitive, ie, uppercase.
@@ -139,8 +135,8 @@ protected:
 private:
 
     DateTime _creation;
-    unsigned _version
-    unsigned _minVersion
+    unsigned _version;
+    unsigned _minVersion;
     unsigned _access;
     unsigned _entryLength;      // always 0x27
     unsigned _entriesPerBlock;  //always 0x0d
@@ -153,6 +149,7 @@ private:
 class VolumeDirectory: public Directory {
 public:
 
+    VolumeDirectory(const char *name, BlockDevice *device);
     virtual ~VolumeDirectory();
 
     unsigned bitmapPointer() const { return _bitmapPointer; }
@@ -162,12 +159,17 @@ public:
     int allocBlock();
     void freeBlock(unsigned block);
 
+    virtual void write(Buffer *);
+
+    BlockDevice *device() const { return _device; }
 private:
     Bitmap *_bitmap;
+    BlockDevice *_device;
     
+    DateTime _modification;
     unsigned _totalBlocks;
     unsigned _bitmapPointer;
-
+    
     // inode / free inode list?
 
 };
