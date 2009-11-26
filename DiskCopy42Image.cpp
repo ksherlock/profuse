@@ -4,6 +4,8 @@
 #include "Endian.h"
 
 #include <cstdio>
+#include <cstring>
+#include <algorithm>
 
 using namespace ProFUSE;
 using namespace BigEndian;
@@ -86,14 +88,24 @@ static uint8_t FormatByte(size_t blocks)
 }
 DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks)
 {
+    return Create(name, blocks, "Untitled");
+}
+
+DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const char *vname)
+{
     MappedFile *file = new MappedFile(name, blocks * 512 + 84);
     file->setOffset(84);
     file->setBlocks(blocks);
     
     Buffer header(84);
     
-    // name -- 64byte pstring. 
-    header.pushBytes("\x08Untitled", 9);
+    // name -- 64byte pstring.
+    
+    if (vname == NULL) vname = "Untitled"; 
+    unsigned l = std::strlen(vname);
+    header.push8(std::min(l, 63u));
+    header.pushBytes(vname, std::min(l, 63u));
+
     header.resize(64);
     
     // data size -- number of bytes
@@ -139,11 +151,14 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks)
 
 void DiskCopy42Image::Validate(MappedFile *file)
 {
+#undef __METHOD__
+#define __METHOD__ "DiskCopy42Image::Validate"
+
     size_t bytes = 0;
     size_t size = file->fileSize();
     const void *data = file->fileData();
     bool ok = false;
-    uint32_t checksum;
+    uint32_t checksum = 0;
     
     do {
         if (size < 84) break;
@@ -167,6 +182,8 @@ void DiskCopy42Image::Validate(MappedFile *file)
         ok = true;
     } while (false);
     
+    if (!ok)
+        throw Exception(__METHOD__ ": Invalid file format.");
     
     uint32_t cs = Checksum(64 + (uint8_t *)data, bytes);
     

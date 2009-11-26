@@ -13,6 +13,8 @@ public:
     virtual ~DiskCopy42Image();
 
     static DiskCopy42Image *Create(const char *name, size_t blocks);
+    static DiskCopy42Image *Create(const char *name, size_t blocks, const char *vname);
+    
     static DiskCopy42Image *Open(MappedFile *);
 
     static uint32_t Checksum(void *data, size_t size);

@@ -80,7 +80,7 @@ UniversalDiskImage *UniversalDiskImage::Open(MappedFile *file)
 void UniversalDiskImage::Validate(MappedFile *file)
 {
 #undef __METHOD__
-#define __METHOD__ "DavexDiskImage::Validate"
+#define __METHOD__ "UniversalDiskImage::Validate"
 
     const void *data = file->fileData();
     size_t size = file->fileSize();

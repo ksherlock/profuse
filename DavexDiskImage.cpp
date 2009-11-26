@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdio>
+#include <algorithm>
 
 using namespace ProFUSE;
 using namespace LittleEndian;
@@ -90,6 +91,10 @@ DavexDiskImage *DavexDiskImage::Open(MappedFile *file)
 
 DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks)
 {
+    return Create(name, blocks, "Untitled");
+}
+DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const char *vname)
+{
 #undef __METHOD__
 #define __METHOD__ "DavexDiskImage::Create"
 
@@ -122,7 +127,10 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks)
     header.push32le(0);
     
     // volume Name
-    header.pushBytes("\x08Untitled", 9);
+    if (!vname || !*vname) vname = "Untitled";
+    unsigned l = std::strlen(vname);
+    header.push8(std::min(l, 15u));
+    header.pushBytes(vname, std::min(l, 15u));
     
     // name + reserved.
     header.resize(64);
