@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS += -Wall -O2
+CPPFLAGS += -Wall -O2 -g
 
 newfs_prodos: \
  newfs_prodos.o \

@@ -1,19 +1,20 @@
-#include "BlockDevice.h"
-#include "UniversalDiskImage.h"
-#include "DiskCopy42Image.h"
-#include "DavexDiskImage.h"
-#include "RawDevice.h"
-#include "Exception.h"
-
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <cctype>
 #include <cerrno>
-
 #include <memory>
 
 #include <unistd.h>
+
+#include "BlockDevice.h"
+#include "DavexDiskImage.h"
+#include "DiskCopy42Image.h"
+#include "Entry.h"
+#include "Exception.h"
+#include "RawDevice.h"
+#include "UniversalDiskImage.h"
+
 
 #define NEWFS_VERSION "0.1"
 
@@ -244,7 +245,7 @@ int main(int argc, char **argv)
     try
     {
         std::auto_ptr<BlockDevice> device;
-        //auto_ptr<VolumeDirectory> volume;
+        std::auto_ptr<VolumeDirectory> volume;
                 
         // todo -- check if path matches /dev/xxx; if so, use RawDevice.
         // todo -- check if file exists at path?
@@ -252,7 +253,6 @@ int main(int argc, char **argv)
         switch(format)
         {
         case 'DC42':
-            // todo -- pass in volume name
             device.reset(DiskCopy42Image::Create(fname, blocks, volumeName.c_str()));
             break;
             
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
     
         // VolumeDirectory assumes ownership of device,
         // but doesn't release it on exception.
-        //volume.reset(new VolumeDirectory(name, device));
+        volume.reset(new VolumeDirectory(volumeName.c_str(), device.get()));
         device.release();
     
     }

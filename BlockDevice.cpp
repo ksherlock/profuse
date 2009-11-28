@@ -114,6 +114,7 @@ ProDOSOrderDiskImage::ProDOSOrderDiskImage(MappedFile *file) :
 ProDOSOrderDiskImage *ProDOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = new MappedFile(name, blocks * 512);
+    file->setBlocks(blocks);
     return new ProDOSOrderDiskImage(file);
 }
 
@@ -154,6 +155,7 @@ DOSOrderDiskImage *DOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = new MappedFile(name, blocks * 512);
     file->setEncoding(MappedFile::DOSOrder);
+    file->setBlocks(blocks);
     return new DOSOrderDiskImage(file);
 }
 

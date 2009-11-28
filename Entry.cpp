@@ -52,7 +52,11 @@ unsigned Entry::ValidName(const char *name)
     
     for (length = 1; length < 17; ++length)
     {
-        if (!isalnumdot(name[length])) return 0;
+        char c = name[length];
+        if (isalnumdot(c)) continue;
+        if (c == 0) break;
+
+        return 0;        
     }
     
     if (length > 15) return 0;

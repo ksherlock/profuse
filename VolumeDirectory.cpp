@@ -58,12 +58,11 @@ VolumeDirectory::VolumeDirectory(const char *name, BlockDevice *device) :
         device->write(i, buffer.buffer());
     }
 
-    // TODO -- create/write the volume entry....
-
+    
     // allocate blocks for the bitmap itself
     unsigned bb = bitmap->bitmapBlocks();    
     for (unsigned i = 0; i < bb; ++i)
-        bitmap->allocBlock(i);
+        bitmap->allocBlock(_bitmapPointer + i);
     
     // now write the bitmap...
     const uint8_t *bm = (const uint8_t *)bitmap->bitmap();
