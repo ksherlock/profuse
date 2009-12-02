@@ -36,7 +36,7 @@ MappedFile::MappedFile(const char *name, bool readOnly)
      
     if (fd < 0)
     {
-        throw Exception(__METHOD__ ": Unable to open file.", errno);
+        throw POSIXException(__METHOD__ ": Unable to open file.", errno);
     }
     // init may throw; auto_fd guarantees the file will be closed if that happens.
     init(fd, readOnly);
@@ -63,12 +63,12 @@ MappedFile::MappedFile(const char *name, size_t size)
     auto_fd fd(::open(name, O_CREAT | O_TRUNC | O_RDWR, 0644));
     
     if (fd < 0)
-        throw Exception(__METHOD__ ": Unable to create file.", errno);
+        throw POSIXException(__METHOD__ ": Unable to create file.", errno);
     
     // TODO -- is ftruncate portable?
     if (::ftruncate(fd, _size) < 0)
     {
-        throw Exception(__METHOD__ ": Unable to truncate file.", errno);    
+        throw POSIXException(__METHOD__ ": Unable to truncate file.", errno);    
     }
     
     //_map = ::mmap(NULL, _size, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, _fd, 0);
@@ -80,7 +80,7 @@ MappedFile::MappedFile(const char *name, size_t size)
         MAP_FILE | MAP_SHARED
     );
     
-    if (map == MAP_FAILED) throw Exception(__METHOD__ ": Unable to map file.", errno);
+    if (map == MAP_FAILED) throw POSIXException(__METHOD__ ": Unable to map file.", errno);
 
     _fd = fd.release();
     _map = map.release();
@@ -110,7 +110,7 @@ void MappedFile::init(int f, bool readOnly)
     _size = ::lseek(f, 0, SEEK_END);
     
     if (_size < 0)
-        throw Exception(__METHOD__ ": Unable to determine file size.", errno);
+        throw POSIXException(__METHOD__ ": Unable to determine file size.", errno);
         
 /*
     _map = ::mmap(NULL, _size, readOnly ? PROT_READ : PROT_READ | PROT_WRITE, 
@@ -123,7 +123,7 @@ void MappedFile::init(int f, bool readOnly)
         readOnly ? MAP_FILE : MAP_FILE |  MAP_SHARED
     );
   
-    if (map == MAP_FAILED) throw Exception(__METHOD__ ": Unable to map file.", errno);
+    if (map == MAP_FAILED) throw POSIXException(__METHOD__ ": Unable to map file.", errno);
     
     _fd = f;
     _map = map.release();
@@ -227,7 +227,7 @@ void MappedFile::sync()
     if (_readOnly) return;
     
     if (::msync(_map, _size, MS_SYNC) < 0)
-        throw Exception(__METHOD__ ": msync error.", errno);
+        throw POSIXException(__METHOD__ ": msync error.", errno);
 }
 
 void MappedFile::reset()

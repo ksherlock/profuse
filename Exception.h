@@ -11,18 +11,34 @@ class Exception : public std::exception
 public:
     Exception(const char *cp);
     Exception(const std::string &str);
-    Exception(const char *cp, int error);
-    Exception(const std::string& string, int error);
+
     
     virtual ~Exception() throw ();
     
     virtual const char *what();
     
-    int error() const;
+    int error() const { return _error; }
+
+protected:
+    Exception(const char *cp, int error);
+    Exception(const std::string& string, int error);
+
 private:
     int _error;
     std::string _string;
 
+};
+
+class POSIXException : public Exception {
+public:
+    POSIXException(const char *cp, int error);
+    POSIXException(const std::string& string, int error);
+};
+
+class ProDOSException : public Exception {
+public:
+    ProDOSException(const char *cp, int error);
+    ProDOSException(const std::string& string, int error);
 };
 
 inline Exception::Exception(const char *cp):
@@ -49,10 +65,27 @@ inline Exception::Exception(const std::string& string, int error):
 {
 }
 
-inline int Exception::error() const
+inline POSIXException::POSIXException(const char *cp, int error) :
+    Exception(cp, error)
 {
-    return _error;
 }
+
+inline POSIXException::POSIXException(const std::string& string, int error) :
+    Exception(string, error)
+{
+}
+
+inline ProDOSException::ProDOSException(const char *cp, int error) :
+    Exception(cp, error)
+{
+}
+
+inline ProDOSException::ProDOSException(const std::string& string, int error) :
+    Exception(string, error)
+{
+}
+
+
 
 }
 

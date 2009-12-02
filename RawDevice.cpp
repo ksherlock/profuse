@@ -36,7 +36,7 @@ void RawDevice::devSize(int fd)
     struct dk_minfo minfo;
 
     if (::ioctl(fd, DKIOCGMEDIAINFO, &minfo) < 0)
-        throw Exception(__METHOD__ ": Unable to determine device size.", errno);
+        throw POSIXException(__METHOD__ ": Unable to determine device size.", errno);
     
     _size = minfo.dki_lbsize * minfo.dki_capacity;
     _blockSize = 512; // not really, but whatever.
@@ -55,11 +55,11 @@ void RawDevice::devSize(int fd)
     uint64_t blockCount; // 64 bit
     
     if (::ioctl(fd, DKIOCGETBLOCKSIZE, &blockSize) < 0)
-        throw Exception(__METHOD__ ": Unable to determine block size.", errno);
+        throw POSIXException(__METHOD__ ": Unable to determine block size.", errno);
     
     
     if (::ioctl(fd, DKIOCGETBLOCKCOUNT, &blockCount) < 0)
-        throw Exception(__METHOD__ ": Unable to determine block count.", errno);
+        throw POSIXException(__METHOD__ ": Unable to determine block count.", errno);
         
     _blockSize = blockSize;
     _size = _blockSize * blockCount;
@@ -79,7 +79,7 @@ void RawDevice::devSize(int fd)
     int blocks;
 
     if (::ioctl(fd, BLKGETSIZE, &blocks) < 0)
-        throw Exception(__METHOD__ ": Unable to determine device size.", errno);
+        throw POSIXException(__METHOD__ ": Unable to determine device size.", errno);
     
     _size = 512 * blocks;
     _blockSize = 512; // 
@@ -110,7 +110,7 @@ RawDevice::RawDevice(const char *name, bool readOnly)
     }
      
     if (fd < 0)
-        throw Exception(__METHOD__ ": Unable to open device.", errno);
+        throw POSIXException(__METHOD__ ": Unable to open device.", errno);
 
     _fd = -1;
 
@@ -147,8 +147,10 @@ void RawDevice::read(unsigned block, void *bp)
     
     // TODO -- EINTR?
     if (ok != 512)
-        throw Exception(__METHOD__ ": Error reading block.", 
-            ok < 0 ? errno : 0);
+        throw ok < 0
+            ? POSIXException(__METHOD__ ": Error reading block.", errno)
+            : Exception(__METHOD__ ": Error reading block.");
+
     
     
 }
@@ -166,8 +168,9 @@ void RawDevice::write(unsigned block, const void *bp)
     size_t ok = ::pwrite(_fd, bp, 512, block * 512);
     
     if (ok != 512)
-        throw Exception(__METHOD__ ": Error writing block.", 
-            ok < 0 ? errno : 0);
+        throw ok < 0 
+            ? POSIXException(__METHOD__ ": Error writing block.", errno)
+            : Exception(__METHOD__ ": Error writing block.");
 }
 
 
@@ -184,5 +187,5 @@ void RawDevice::sync()
     if (_readOnly) return;
     
     if (::fsync(_fd) < 0)
-        throw Exception(__METHOD__ ": fsync error.", errno);
+        throw POSIXException(__METHOD__ ": fsync error.", errno);
 }
