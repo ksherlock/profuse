@@ -131,6 +131,8 @@ protected:
 
     std::vector<FileEntry *> _children;
     std::vector<unsigned> _entryBlocks;
+    
+    void loadChildren(BlockDevice *, unsigned block);
         
 private:
 
@@ -149,7 +151,10 @@ private:
 class VolumeDirectory: public Directory {
 public:
 
-    VolumeDirectory(const char *name, BlockDevice *device);
+    static VolumeDirectory *Create(const char *name, BlockDevice *device);
+    static VolumeDirectory *Create(BlockDevice *);
+
+
     virtual ~VolumeDirectory();
 
     unsigned bitmapPointer() const { return _bitmapPointer; }
@@ -162,7 +167,12 @@ public:
     virtual void write(Buffer *);
 
     BlockDevice *device() const { return _device; }
+    
 private:
+
+    VolumeDirectory(const char *name, BlockDevice *device);
+    VolumeDirectory(BlockDevice *device, const void *bp);
+
     Bitmap *_bitmap;
     BlockDevice *_device;
     

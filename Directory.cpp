@@ -5,7 +5,7 @@
 #include "Entry.h"
 #include "Buffer.h"
 #include "Endian.h"
-
+#include "BlockDevice.h"
 #include "Exception.h"
 
 
@@ -68,4 +68,40 @@ void Directory::setAccess(unsigned access)
     
     // todo -- mark dirty? update block?
 }
+
+
+
+void Directory::loadChildren(BlockDevice *device, unsigned block)
+{
+    uint8_t buffer[512];
+    unsigned next;
+    bool first = true;
+    unsigned offset;
+    
+    // set of already-visited blocks?
+    
+    while(block)
+    {
+        device->read(block, buffer);
+        
+        next = Read16(buffer, 2);
+    
+        _entryBlocks.push_back(block);
+        
+        offset = 4;
+        if (!first)
+        {
+            // storage type 0 is deleted, don't load...
+            
+        }
+            
+    
+    
+        first = false;
+        block = next;
+    }
+
+
+}
+
 

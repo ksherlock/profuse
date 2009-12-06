@@ -275,7 +275,7 @@ int main(int argc, char **argv)
     
         // VolumeDirectory assumes ownership of device,
         // but doesn't release it on exception.
-        volume.reset(new VolumeDirectory(volumeName.c_str(), device.get()));
+        volume.reset(VolumeDirectory::Create(volumeName.c_str(), device.get()));
         device.release();
     
     }

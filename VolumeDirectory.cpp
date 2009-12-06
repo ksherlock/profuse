@@ -15,6 +15,25 @@ using namespace LittleEndian;
 
 #pragma mark VolumeDirectory
 
+
+VolumeDirectory *VolumeDirectory::Create(const char *name, BlockDevice *device)
+{
+    return new VolumeDirectory(name, device);
+}
+
+VolumeDirectory *VolumeDirectory::Create(BlockDevice *device)
+{
+    uint8_t block[512];
+    // always block 2.
+    
+    device->read(2, block);
+    
+    return new VolumeDirectory(device, block);
+}
+
+
+
+
 VolumeDirectory::VolumeDirectory(const char *name, BlockDevice *device) :
     Directory(VolumeHeader, name)
 {    
@@ -72,6 +91,46 @@ VolumeDirectory::VolumeDirectory(const char *name, BlockDevice *device) :
     }
     
     _device = device;
+    _bitmap = bitmap.release();
+}
+
+
+VolumeDirectory::VolumeDirectory(BlockDevice *device, const void *bp) :
+    Directory(bp),
+    _modification(0,0)
+{
+#undef __METHOD__
+#define __METHOD__ "VolumeDirectory::VolumeDirectory"
+
+    // + 4 to skip over the block poitners.
+    std::auto_ptr<Bitmap> bitmap;
+    const void *vp = 4 + (const uint8_t *)bp;
+ 
+ 
+    if (storageType() != VolumeHeader)
+        throw ProDOSException(__METHOD__ ": Invalid storage type.", 0x4b);
+        
+        
+    
+    _modification = DateTime(Read16(vp, 0x12), Read16(vp, 0x14));
+
+    _bitmapPointer = Read16(vp, 0x23);
+
+    _totalBlocks = Read16(vp, 0x25);
+    
+
+    // verify totalBlocks <=  device->blocks() ?
+    
+    if (_bitmapPointer >= _totalBlocks)
+        throw ProDOSException(__METHOD__ ": Invalid bitmap pointer.", 0x5a);
+
+
+    // bitmap pointer...
+    bitmap.reset(new Bitmap(device, _bitmapPointer, _totalBlocks));
+
+
+    // parse the directory header....
+
     _bitmap = bitmap.release();
 }
 
