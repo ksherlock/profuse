@@ -41,6 +41,8 @@ enum StorageType {
 
 class Entry {
 public:
+
+
     virtual ~Entry();
 
     virtual void write(Buffer *) = 0;
@@ -108,6 +110,18 @@ private:
 
 class Directory : public Entry {
 public:
+
+    enum {
+    
+        OffsetCreation = 0x18,
+        OffsetVersion = 0x1c,
+        OffsetMinVersion = 0x1d,
+        OffsetAccess = 0x1e,
+        OffsetEntryLength = 0x1f,
+        OffsetEntriesPerBlock = 0x20,
+        OffsetFileCount = 0x21
+    };
+
     virtual ~Directory();
     
 
@@ -151,6 +165,14 @@ private:
 class VolumeDirectory: public Directory {
 public:
 
+    enum {
+        OffsetLastMod = 0x12,
+        OffsetFileNameCaseFlag = 0x16
+        
+        OffsetBitmapPointer = 0x23,
+        OffsetTotalBlocks = 0x25
+    };
+
     static VolumeDirectory *Create(const char *name, BlockDevice *device);
     static VolumeDirectory *Create(BlockDevice *);
 
@@ -182,11 +204,21 @@ private:
     
     // inode / free inode list?
 
+    
+
 };
 
 
 class SubDirectory : public Directory {
 public:
+
+    enum {
+        OffsetPasswordEnabled = 0x10,
+        OffsetParentPointer = 0x23,
+        OffsetParentEntryNumber = 0x25,
+        OffsetParentEntryLength = 0x26
+    };
+
     SubDirectory(FileEntry *);
 private:
     unsigned _parentPointer;
@@ -197,6 +229,26 @@ private:
 
 class FileEntry : public Entry {
 public:
+    
+    enum {
+        OffsetFileType = 0x10,
+        OffsetKeyPointer = 0x11,
+        OffsetBlocksUsed = 0x13,
+        OffsetEOF = 0x15,
+        OffsetCreation = 0x18,
+        
+        OffsetVersion = 0x1c,
+        OffsetMinVersion = 0x1d,
+        
+        OffsetFileNameCaseFlag = 0x1c,
+        
+        OffsetAccess = 0x1e,
+        OffsetAuxType = 0x1f,
+        OffsetLastMod = 0x21,
+        OffsetHeaderPointer = 0x25
+    
+    };
+
 
     unsigned fileType() const { return _fileType; }
     unsigned auxType() const { return _auxType; }
@@ -210,6 +262,10 @@ public:
     DateTime modification() const { return _modification; }
 
 private:
+
+    void *acquirePointer();
+    void releasePointer();
+
     unsigned _fileType;
     unsigned _keyPointer;
     unsigned _blocksUsed;
