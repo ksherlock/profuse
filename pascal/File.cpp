@@ -191,13 +191,25 @@ int FileEntry::read(uint8_t *buffer, unsigned size, unsigned offset)
     }
 }
 
-#if 0
 
-unsigned File::fileSize() {
-    return (_lastBlock - _firstBlock - 1) * 512 + _lastByte;
+unsigned FileEntry::dataFileSize()
+{
+    return blocks() * 512 - 512 + _lastByte;
 }
 
-int File::read(uint8_t *buffer, unsigned size, unsigned offset)
+unsigned FileEntry::textFileSize()
+{
+    if (!_pageLength()) textInit();
+    return _fileSize;  
+}
+
+
+
+#if 0
+
+
+
+int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
 {
     uint8_t tmp[512];
     

@@ -115,12 +115,12 @@ class FileEntry : public Entry {
     int dataRead(uint8_t *buffer, unsigned size, unsigned offset); 
        
     // for text files.
+    void textInit();
     unsigned textFileSize();
     int textRead(uint8_t *buffer, unsigned size, unsigned offset);
     
     unsigned textReadPage(unsigned block, uint8_t *in);
     unsigned textDecodePage(unsigned block, uint8_t *out);    
-    
     
     std::vector<unsigned> *_pageLength;
     unsigned _fileSize;
