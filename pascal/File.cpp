@@ -142,7 +142,7 @@ FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
     return i < _files.size() ? _files[i] : NULL;
 }
 
-#if 0
+
 
 #pragma mark -
 #pragma mark FileEntry
@@ -150,9 +150,48 @@ FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
 FileEntry::FileEntry(void *vp) :
     Entry(vp)
 {
-
-
+    _status = Read8(vp, 0x05) & 0x01;
+    _fileNameLength = Read8(vp, 0x06);
+    std::memset(_fileName, 0, 16);
+    std::memcpy(_fileName, 0x07 + (uint8_t *)vp, _fileNameLength);
+    _lastByte = Read16(vp, 0x16);
+    _modification = DateRec(Read16(vp, 0x18));
 }
+
+FileEntry::~FileEntry()
+{
+    delete _pageLength;
+}
+
+
+unsigned FileEntry::fileSize()
+{
+    switch(fileKind())
+    {
+    case kTextFile:
+        return textFileSize();
+        break;
+    default:
+        return dataFileSize();
+        break;
+    }
+}
+
+
+int FileEntry::read(uint8_t *buffer, unsigned size, unsigned offset)
+{
+    switch(fileKind())
+    {
+    case kTextFile:
+        return textRead(buffer, size, offset);
+        break;
+    default:
+        return dataRead(buffer, size, offset);
+        break;
+    }
+}
+
+#if 0
 
 unsigned File::fileSize() {
     return (_lastBlock - _firstBlock - 1) * 512 + _lastByte;

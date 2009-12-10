@@ -11,6 +11,19 @@ namespace ProFUSE {
 
 namespace Pascal {
 
+
+enum {
+    kUntypedFile,
+    kBadBlockFile,
+    kCodeFile,
+    kTextFile,
+    kInfoFile,
+    kDataFile,
+    kGrafFile,
+    kFotoFile,
+    kSecureDir
+};
+
 class FileEntry;
 
 class Entry {
@@ -97,13 +110,19 @@ class FileEntry : public Entry {
     unsigned _lastByte;
     DateRec _modification;
     
+    // non-text files
+    unsigned dataFileSize();
+    int dataRead(uint8_t *buffer, unsigned size, unsigned offset); 
+       
     // for text files.
+    unsigned textFileSize();
+    int textRead(uint8_t *buffer, unsigned size, unsigned offset);
     
-    unsigned readTextPage(unsigned block, uint8_t *in);
-    unsigned decodeTextPage(unsigned block, uint8_t *out);    
+    unsigned textReadPage(unsigned block, uint8_t *in);
+    unsigned textDecodePage(unsigned block, uint8_t *out);    
     
     
-    std::vector<unsigned> *_pageLengths;
+    std::vector<unsigned> *_pageLength;
     unsigned _fileSize;
     
 };
