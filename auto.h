@@ -17,6 +17,13 @@ public:
   operator T*() const { return _t; }
   T& operator[](int index) { return _t[index]; }
 
+  void reset(T *t)
+  {
+    if (t == _t) return;
+    if (_t) delete[] _t;
+    _t = t;
+  }
+
 private:
   T *_t;
 };

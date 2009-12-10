@@ -48,7 +48,7 @@ VolumeEntry::VolumeEntry()
     _fileNameLength = 0;
     std::memset(_fileName, 0, 8);
     _lastVolumeBlock = 0;
-    _numberOfFiles = 0;
+    _fileCount = 0;
     _accessTime = 0;
     
     setInode(1);
@@ -65,7 +65,7 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
     
     device->read(2, buffer.get());
 
-    init(tmp);
+    init(buffer.get());
 
     // todo -- verify reasonable values.
     blockCount = blocks();
@@ -84,7 +84,7 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
 
     try
     {    
-        for (unsigned i = 1; i < _numberFiles; ++i)
+        for (unsigned i = 1; i < _fileCount; ++i)
         {
             std::auto_ptr<FileEntry> child;
             
@@ -96,7 +96,7 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
     } 
     catch (...)
     {
-        std::vector<FileEntry *>iterator iter;
+        std::vector<FileEntry *>::iterator iter;
         for(iter = _files.begin(); iter != _files.end(); ++iter)
         {
             if (*iter) delete *iter;
@@ -109,7 +109,7 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
 
 VolumeEntry::~VolumeEntry()
 {
-    std::vector<FileEntry *>iterator iter;
+    std::vector<FileEntry *>::iterator iter;
     for(iter = _files.begin(); iter != _files.end(); ++iter)
     {
         if (*iter) delete *iter;
@@ -128,9 +128,9 @@ void VolumeEntry::init(void *vp)
     std::memcpy(_fileName, 7 + (uint8_t *)vp, _fileNameLength);
     
     _lastVolumeBlock = Read16(vp, 0x0e);
-    _numberFile = Read16(vp, 0x10);
+    _fileCount = Read16(vp, 0x10);
     _accessTime = Read16(vp, 0x12);
-    _bootDate = DateRec(Read16(vp, 0x14);
+    _lastBoot = DateRec(Read16(vp, 0x14));
     
     setInode(1);
     _inodeGenerator = 1; 
@@ -139,10 +139,10 @@ void VolumeEntry::init(void *vp)
 
 FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
 {
-    return i < _files.length() ? _files[i] : NULL;
+    return i < _files.size() ? _files[i] : NULL;
 }
 
-
+#if 0
 
 #pragma mark -
 #pragma mark FileEntry
@@ -357,3 +357,5 @@ void TextFile::init()
         _pageSize.push_back(size);
     }
 }
+
+#endif

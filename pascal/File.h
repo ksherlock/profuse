@@ -7,7 +7,7 @@
 
 namespace ProFUSE {
     class BlockDevice;
-};
+}
 
 namespace Pascal {
 
@@ -19,9 +19,10 @@ public:
     
     virtual ~Entry();
 
+    unsigned blocks() const { return _firstBlock - _lastBlock; }
+
     unsigned firstBlock() const { return _firstBlock; }
     unsigned lastBlock() const { return _lastBlock; }
-    unsigned blocks() const { return _firstBlock - lastBlock; }
     
     unsigned fileKind() const { return _fileKind; }
     
@@ -39,7 +40,7 @@ protected:
     unsigned _fileKind;
     
     unsigned _inode;
-}
+};
 
 
 class VolumeEntry : public Entry {
@@ -50,18 +51,21 @@ public:
     virtual ~VolumeEntry();
 
     const char *name() const { return _fileName; }
-    unsigned fileCount() const { return _numberFiles; }
+    unsigned fileCount() const { return _fileCount; }
     
     Pascal::DateRec lastBoot() const { return _lastBoot; }
     
     FileEntry *fileAtIndex(unsigned i) const;
 
 private:
-
+    VolumeEntry();
+    
+    void init(void *);
+    
     unsigned _fileNameLength;
     char _fileName[8];
     unsigned _lastVolumeBlock;
-    unsigned _numberFiles;
+    unsigned _fileCount;
     unsigned _accessTime;
     Pascal::DateRec _lastBoot;
 
