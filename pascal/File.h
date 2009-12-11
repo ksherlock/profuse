@@ -34,7 +34,7 @@ public:
     
     virtual ~Entry();
 
-    unsigned blocks() const { return _firstBlock - _lastBlock; }
+    unsigned blocks() const { return _lastBlock - _firstBlock; }
 
     unsigned firstBlock() const { return _firstBlock; }
     unsigned lastBlock() const { return _lastBlock; }
@@ -75,6 +75,7 @@ public:
 
     const char *name() const { return _fileName; }
     unsigned fileCount() const { return _fileCount; }
+    unsigned volumeBlocks() const { return _lastVolumeBlock; }
     
     Pascal::DateRec lastBoot() const { return _lastBoot; }
     

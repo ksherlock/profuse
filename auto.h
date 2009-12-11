@@ -73,9 +73,10 @@ private:
 class auto_map
 {
 public:
-  auto_map(int fd, size_t size, int prot, int flags) :
+  auto_map(void *addr, size_t size, int prot, int flags, int fd, off_t offset)
+    :  
     _size(size), 
-    _map(::mmap(NULL, size, prot, flags, fd, 0))
+    _map(::mmap(addr, size, prot, flags, fd, offset))
   { }
 
   ~auto_map() 

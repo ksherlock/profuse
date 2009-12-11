@@ -75,10 +75,12 @@ MappedFile::MappedFile(const char *name, size_t size)
     //_map = ::mmap(NULL, _size, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, _fd, 0);
     
     auto_map map(
-        fd, 
+        NULL,
         _size, 
         PROT_READ | PROT_WRITE, 
-        MAP_FILE | MAP_SHARED
+        MAP_FILE | MAP_SHARED,
+        fd,
+        0
     );
     
     if (map == MAP_FAILED) throw POSIXException(__METHOD__ ": Unable to map file.", errno);
@@ -117,13 +119,22 @@ void MappedFile::init(int f, bool readOnly)
     _map = ::mmap(NULL, _size, readOnly ? PROT_READ : PROT_READ | PROT_WRITE, 
         MAP_FILE | MAP_SHARED, fd, 0);
 */
+    ::lseek(f, 0, SEEK_SET);
+    
+    
     auto_map map(
-        f, 
+        NULL,
         _size,
         readOnly ?  PROT_READ  : PROT_READ | PROT_WRITE, 
-        readOnly ? MAP_FILE : MAP_FILE |  MAP_SHARED
+        MAP_FILE |  MAP_SHARED, //readOnly ? MAP_FILE : MAP_FILE |  MAP_SHARED,
+        f,
+        0
     );
-  
+    
+    /*
+     _map = ::mmap(NULL, _size, readOnly ? PROT_READ : PROT_READ | PROT_WRITE, 
+        MAP_FILE | MAP_SHARED, f, 0);
+    */     
     if (map == MAP_FAILED) throw POSIXException(__METHOD__ ": Unable to map file.", errno);
     
     _fd = f;
