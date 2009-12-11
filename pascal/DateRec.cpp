@@ -8,8 +8,8 @@ using namespace Pascal;
 DateRec::DateRec(unsigned val)
 {
     // yyyy yyym mmmm dddd
-    _day = val & 0xf;
-    _month = (val >> 4) & 0x1f;
+    _month = val & 0xf;
+    _day = (val >> 4) & 0x1f;
     _year = (val >> 9) & 0x7f;
 }
 

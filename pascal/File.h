@@ -115,6 +115,9 @@ class FileEntry : public Entry {
     virtual ~FileEntry();
 
     unsigned fileSize();
+    
+    unsigned lastByte() const { return _lastByte; }
+    
     int  read(uint8_t *buffer, unsigned size, unsigned offset);
     
     const char *name() const { return _fileName; }

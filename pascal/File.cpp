@@ -77,7 +77,12 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
     init(buffer.get());
 
     // todo -- verify reasonable values.
+    
+    //printf("%u %u\n", blocks(), _lastBlock - _firstBlock);
+    
+    // why the fuck didn't this work????
     blockCount = blocks();
+    
     if (blockCount > 1)
     {
         buffer.reset(new uint8_t[512 * blockCount]);
@@ -95,10 +100,11 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
     try
     {    
         
-        for (unsigned i = 1; i < _fileCount; ++i)
+        for (unsigned i = 1; i <= _fileCount; ++i)
         {
             std::auto_ptr<FileEntry> child;
             
+            //
             child.reset(new FileEntry(buffer.get() + i * 0x1a));
             
             child->setInode(++_inodeGenerator);
