@@ -1,5 +1,6 @@
 #include "MappedFile.h"
 #include "Exception.h"
+
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -236,5 +237,6 @@ void MappedFile::reset()
     _blocks = 0;
     _encoding = ProDOSOrder;
 }
+
 
 

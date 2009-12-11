@@ -3,8 +3,9 @@
 #include "../Endian.h"
 #include "../BlockDevice.h"
 
+#include <algorithm>
 #include <cstring>
-#include <memory.h>
+#include <memory>
 
 using namespace LittleEndian;
 using namespace Pascal;
@@ -156,6 +157,9 @@ FileEntry::FileEntry(void *vp) :
     std::memcpy(_fileName, 0x07 + (uint8_t *)vp, _fileNameLength);
     _lastByte = Read16(vp, 0x16);
     _modification = DateRec(Read16(vp, 0x18));
+    
+    _fileSize = 0;
+    _pageLength = NULL;
 }
 
 FileEntry::~FileEntry()
@@ -180,6 +184,11 @@ unsigned FileEntry::fileSize()
 
 int FileEntry::read(uint8_t *buffer, unsigned size, unsigned offset)
 {
+    unsigned fsize = fileSize();
+    
+    if (offset + size > fsize) size = fsize - offset;
+    if (offset >= fsize) return 0;
+    
     switch(fileKind())
     {
     case kTextFile:
@@ -199,7 +208,7 @@ unsigned FileEntry::dataFileSize()
 
 unsigned FileEntry::textFileSize()
 {
-    if (!_pageLength()) textInit();
+    if (!_pageLength) textInit();
     return _fileSize;  
 }
 
@@ -213,14 +222,9 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
 {
     uint8_t tmp[512];
     
-    unsigned fileSize = fileSize();
     unsigned count = 0;
     unsigned block = 0;
-    
-    if (offset >= fileSize) return 0;
-    
-    if (offset + size > fileSize) size = fileSize - offset;
-    
+        
     block = _startBlock + (offset / 512);
     
     // returned value (count) is equal to size at this point.
@@ -274,7 +278,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
 
 
 
-int TextFile::read(uint8_t *buffer, unsigned size, unsigned offset)
+int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
 {
     unsigned page = 0;
     unsigned to = 0;
@@ -285,9 +289,8 @@ int TextFile::read(uint8_t *buffer, unsigned size, unsigned offset)
     auto_array<uint8_t> tmp;
     unsigned tmpSize = 0;
     
-    if (offset >= _fileSize) return 0;
-    if (offset + size > _fileSize) size = _fileSize - offset;
-    
+    if (!_pageLength) textInit();
+
 
     // find the first page.    
     for (page = 1; page < l; ++page)
@@ -341,7 +344,7 @@ int TextFile::read(uint8_t *buffer, unsigned size, unsigned offset)
 
 
 
-unsigned TextFile::decodePage(unsigned block, uint8_t *out)
+unsigned FileEntry::textDecodePage(unsigned block, uint8_t *out)
 {
     uint8_t buffer[1024];
     unsigned size = 0;
@@ -371,7 +374,7 @@ unsigned TextFile::decodePage(unsigned block, uint8_t *out)
     return size;
 }
 
-unsigned TextFile::readPage(unsigned block, uint8_t *in)
+unsigned FileEntry::textReadPage(unsigned block, uint8_t *in)
 {
     // reads up to 2 blocks.
     // assumes block within _startBlock ... _endBlock - 1
@@ -394,7 +397,7 @@ unsigned TextFile::readPage(unsigned block, uint8_t *in)
 
 
 
-void TextFile::init()
+void FileEntry::textInit()
 {
     // calculate the file size and page offsets.
 

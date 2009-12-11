@@ -8,7 +8,6 @@
 namespace ProFUSE {
 
 
-
 class MappedFile {
 public:
 
@@ -44,10 +43,12 @@ public:
     bool readOnly() const { return _readOnly; }
     size_t fileSize() const { return _size; }  
     void *fileData() const { return _map; }
-    
+    void *imageData() const { return _offset + (uint8_t *)_map; }
 
 
 private:
+
+
     MappedFile& operator=(const MappedFile& other);
     
     void init(int fd, bool readOnly);

@@ -1,9 +1,15 @@
-#include "BlockCache.h"
-#include "BlockDevice.h"
-#include "auto.h"
 
 #include <algorithm>
+#include <cerrno>
 
+#include <sys/types.h>
+#include <sys/mman.h>
+
+
+#include "BlockDevice.h"
+#include "BlockCache.h"
+#include "Exception.h"
+#include "auto.h"
 
 
 /*
@@ -15,15 +21,64 @@
 
 using namespace ProFUSE;
 
-typedef std::vector<BlockDescriptor>::iterator BDIter;
+#pragma mark -
+#pragma mark AbstractBlockCache
 
-const unsigned CacheSize = 16; 
+AbstractBlockCache::~AbstractBlockCache()
+{
+}
 
-BlockCache::BlockCache(BlockDevice *device)
+#pragma mark -
+#pragma mark MappedBlockCache
+
+MappedBlockCache::MappedBlockCache(void *data, unsigned blocks)
+{
+    _blocks = blocks;
+    _data = (uint8_t *)_data;
+}
+
+void MappedBlockCache::write()
+{
+    // TODO...
+}
+
+void *MappedBlockCache::load(unsigned block)
+{
+#undef __METHOD__
+#define __METHOD__ "MappedBlockCache::load"
+    
+    if (block >= _blocks)
+        throw Exception(__METHOD__ ": Invalid block.");
+        
+    
+    return _data + block * 512;
+}
+void MappedBlockCache::unload(unsigned block, bool dirty)
+{
+#undef __METHOD__
+#define __METHOD__ "MappedBlockCache::unload"
+
+    if (!dirty) return;
+    if (::msync(_data + block * 512, 512, MS_ASYNC) < 0)
+    {
+        throw POSIXException(__METHOD__ ": msync failed.", errno);
+    }
+}
+
+
+#pragma mark -
+#pragma mark BlockCache
+
+typedef std::vector<BlockCache::BlockDescriptor>::iterator BDIter;
+
+
+
+BlockCache::BlockCache(BlockDevice *device, unsigned size)
 {
     _device = device;
     _ts = 0;
-    _blocks.reserve(CacheSize);
+    _cacheSize = std::max(16u, size);
+    _blocks.reserve(_cacheSize);
 }
 
 BlockCache::~BlockCache()
@@ -34,8 +89,21 @@ BlockCache::~BlockCache()
     }
 }
 
+void BlockCache::write()
+{
+    for (BDIter iter = _blocks.begin(); iter != _blocks.end(); ++iter)
+    {
+        if (iter->dirty)
+        {
+            _device->write(iter->block, iter->data);
+            iter->dirty = false;
+        }
+    }
+}
 
-void *BlockCache::acquire(unsigned block)
+
+
+void *BlockCache::load(unsigned block)
 {
     unsigned mints = -1;
     unsigned freeCount = 0;
@@ -57,6 +125,7 @@ void *BlockCache::acquire(unsigned block)
         {
             ++iter->count;
             iter->ts = _ts;
+                
             return iter->data;
         }
         
@@ -72,11 +141,14 @@ void *BlockCache::acquire(unsigned block)
     }
     
     
-    if (freeCount && (_blocks.size() >= CacheSize))
+    if (freeCount && (_blocks.size() >= _cacheSize))
     {
+        // re-use old buffer.
+        
         oldest->block = block;
         oldest->count = 1;
         oldest->ts = _ts;
+        oldest->dirty = false;
         
         _device->read(block, oldest->data);
         return oldest->data;
@@ -84,7 +156,7 @@ void *BlockCache::acquire(unsigned block)
     
 
     auto_array<uint8_t> buffer(new uint8_t[512]);
-    BlockDescriptor bd = { block, 1, _ts, buffer.get() };
+    BlockDescriptor bd = { block, 1, _ts, false, buffer.get() };
     
     _device->read(block, buffer.get());    
 
@@ -95,20 +167,23 @@ void *BlockCache::acquire(unsigned block)
 }
 
 
-void BlockCache::release(unsigned block)
+void BlockCache::unload(unsigned block, bool dirty)
 {
 
     for (BDIter iter = _blocks.begin(); iter != _blocks.end(); ++iter)
     {
         if (iter->block == block)
         {
+            iter->dirty = dirty || iter->dirty;
             if (!--iter->count)
             {
-                _device->write(block, iter->data);
-                
+                if (iter->dirty)
+                {
+                    _device->write(block, iter->data);
+                    iter->dirty = false;
+                }
                 // trim back if too many entries.
-                
-                if (_blocks.size() > CacheSize)
+                if (_blocks.size() > _cacheSize)
                 {
                     delete[] iter->data;
                     _blocks.erase(iter);

@@ -1,4 +1,5 @@
 #include "BlockDevice.h"
+#include "BlockCache.h"
 #include "Exception.h"
 #include "MappedFile.h"
 
@@ -12,10 +13,12 @@
 
 using namespace ProFUSE;
 
-
+#pragma mark -
+#pragma mark BlockDevice
 
 BlockDevice::~BlockDevice()
 {
+    delete _cache;
 }
 
 void BlockDevice::zeroBlock(unsigned block)
@@ -26,7 +29,23 @@ void BlockDevice::zeroBlock(unsigned block)
     write(block, bp);
 }
 
+AbstractBlockCache *BlockDevice::blockCache()
+{
+    if (!_cache)
+    {
+        _cache = createBlockCache();
+    }
+    return _cache;
+}
 
+AbstractBlockCache *BlockDevice::createBlockCache()
+{
+    return new BlockCache(this);
+}
+
+
+
+#pragma mark -
 #pragma mark DiskImage
 
 DiskImage::DiskImage(const char *name, bool readOnly) :
@@ -98,6 +117,15 @@ void DiskImage::sync()
     throw Exception(__METHOD__ ": File not set."); 
 }
 
+
+
+AbstractBlockCache *DiskImage::createBlockCache()
+{
+    if (_file->encoding() == MappedFile::ProDOSOrder)
+        return new MappedBlockCache(_file->imageData(), _file->blocks());
+        
+    return BlockDevice::createBlockCache();
+}
 
 
 ProDOSOrderDiskImage::ProDOSOrderDiskImage(const char *name, bool readOnly) :
