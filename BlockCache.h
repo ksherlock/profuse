@@ -16,8 +16,8 @@ public:
     
     virtual void write() = 0;
     
-    virtual void *load(unsigned block);
-    virtual void unload(unsigned block, bool dirty);
+    virtual void *load(unsigned block) = 0;
+    virtual void unload(unsigned block, bool dirty) = 0;
     
     void unload(unsigned block) { unload(block, false); }
 };

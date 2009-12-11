@@ -5,6 +5,7 @@ newfs_prodos: \
  newfs_prodos.o \
  Exception.o \
  BlockDevice.o \
+ BlockCache.o \
  UniversalDiskImage.o \
  DiskCopy42Image.o \
  DavexDiskImage.o \

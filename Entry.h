@@ -167,7 +167,7 @@ public:
 
     enum {
         OffsetLastMod = 0x12,
-        OffsetFileNameCaseFlag = 0x16
+        OffsetFileNameCaseFlag = 0x16,
         
         OffsetBitmapPointer = 0x23,
         OffsetTotalBlocks = 0x25

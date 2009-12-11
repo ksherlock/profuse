@@ -2,6 +2,7 @@
 #include "../auto.h"
 #include "../Endian.h"
 #include "../BlockDevice.h"
+#include "../BlockCache.h"
 
 #include <algorithm>
 #include <cstring>
@@ -19,6 +20,7 @@ Entry::Entry()
     _lastBlock = 0;
     _fileKind = 0;
     _inode = 0;
+    _parent = NULL;
 }
 
 Entry::Entry(void *vp)
@@ -53,7 +55,10 @@ VolumeEntry::VolumeEntry()
     _accessTime = 0;
     
     setInode(1);
+    
     _inodeGenerator = 1; 
+    _cache = NULL;
+    _device = NULL;
 }
 
 VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
@@ -63,6 +68,9 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
     
     // read the header block, then load up all the header 
     // blocks.
+    
+    _device = device;
+    _cache = device->blockCache();
     
     device->read(2, buffer.get());
 
@@ -83,8 +91,10 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
     // now load up all the children.
     // if this throws, memory could be lost...
 
+    
     try
     {    
+        
         for (unsigned i = 1; i < _fileCount; ++i)
         {
             std::auto_ptr<FileEntry> child;
@@ -92,6 +102,7 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
             child.reset(new FileEntry(buffer.get() + i * 0x1a));
             
             child->setInode(++_inodeGenerator);
+            child->_parent = this;
             _files.push_back(child.release());
         } 
     } 
@@ -106,6 +117,7 @@ VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
         throw;
     }
 
+
 }
 
 VolumeEntry::~VolumeEntry()
@@ -115,6 +127,9 @@ VolumeEntry::~VolumeEntry()
     {
         if (*iter) delete *iter;
     }
+    
+    // _blockCache does not need deleting.
+    delete _device;
 }
 
 
@@ -145,6 +160,25 @@ FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
 
 
 
+void *VolumeEntry::loadBlock(unsigned block)
+{
+    return _cache->load(block);
+}
+void VolumeEntry::unloadBlock(unsigned block, bool dirty)
+{
+    return _cache->unload(block, dirty);
+}
+
+void VolumeEntry::readBlock(unsigned block, void *buffer)
+{
+    _device->read(block, buffer);
+}
+void VolumeEntry::writeBlock(unsigned block, void *buffer)
+{
+    _device->write(block, buffer);
+}
+
+
 #pragma mark -
 #pragma mark FileEntry
 
@@ -159,12 +193,12 @@ FileEntry::FileEntry(void *vp) :
     _modification = DateRec(Read16(vp, 0x18));
     
     _fileSize = 0;
-    _pageLength = NULL;
+    _pageSize = NULL;
 }
 
 FileEntry::~FileEntry()
 {
-    delete _pageLength;
+    delete _pageSize;
 }
 
 
@@ -208,13 +242,12 @@ unsigned FileEntry::dataFileSize()
 
 unsigned FileEntry::textFileSize()
 {
-    if (!_pageLength) textInit();
+    if (!_pageSize) textInit();
     return _fileSize;  
 }
 
 
 
-#if 0
 
 
 
@@ -225,7 +258,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
     unsigned count = 0;
     unsigned block = 0;
         
-    block = _startBlock + (offset / 512);
+    block = _firstBlock + (offset / 512);
     
     // returned value (count) is equal to size at this point.
     // (no partial reads).
@@ -238,7 +271,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
     {
         unsigned bytes = std::min(offset % 512, size);
         
-        _device->read(block++, tmp);
+        parent()->readBlock(block++, tmp);
         
         std::memcpy(buffer, tmp + 512 - bytes, bytes);
         
@@ -253,7 +286,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
      
      while (size >= 512)
      {
-        _device->read(block++, buffer);
+        parent()->readBlock(block++, buffer);
         
         buffer += 512;
         count += 512;
@@ -265,7 +298,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
      */
     if (size)
     {
-        _device->read(block, tmp);
+        parent()->readBlock(block, tmp);
         std::memcpy(buffer, tmp, size);
         
         count += size; 
@@ -282,30 +315,33 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
 {
     unsigned page = 0;
     unsigned to = 0;
-    unsigned l = _pageSize.length();
     unsigned block;
+    unsigned l;
     unsigned count = 0;
     
     auto_array<uint8_t> tmp;
     unsigned tmpSize = 0;
     
-    if (!_pageLength) textInit();
+    if (!_pageSize) textInit();
+    
+    l = _pageSize->size();
 
 
     // find the first page.    
     for (page = 1; page < l; ++page)
     {
-        if (to + _pageSize[page] > offset)
+        unsigned pageSize = (*_pageSize)[page];
+        if (to + pageSize > offset)
         {
             break;
         }
         
-        to += _pageSize[i];
+        to += pageSize;
     }
     
     --page;
 
-    block = _startBlock + 2 + (page * 2);
+    block = _firstBlock + 2 + (page * 2);
     
     
     // offset not needed anymore,
@@ -314,16 +350,18 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
     
     while (size)
     {
-        unsigned pageSize = _pageSize[page];
-        if (pageSize > tmp)
+        unsigned pageSize = (*_pageSize)[page];
+        unsigned bytes = std::min(size, pageSize - offset);
+        
+        if (pageSize > tmpSize)
         {
             tmp.reset(new uint8_t[pageSize]);
             tmpSize = pageSize;            
         }
         
-        bytes = std::min(size, pageSize - offset);
         
-        decodePage(block, tmp.get());
+        // can decode straight to buffer if size >= bytes && offset = 0.
+        textDecodePage(block, tmp.get());
         
         
         std::memcpy(buffer, tmp.get() + offset, bytes);
@@ -348,7 +386,7 @@ unsigned FileEntry::textDecodePage(unsigned block, uint8_t *out)
 {
     uint8_t buffer[1024];
     unsigned size = 0;
-    unsigned bytes = readPage(block, buffer);
+    unsigned bytes = textReadPage(block, buffer);
     
     for (unsigned i = 0; i < bytes; ++i)
     {
@@ -361,7 +399,7 @@ unsigned FileEntry::textDecodePage(unsigned block, uint8_t *out)
             // 16, n -> n-32 spaces.
             unsigned x = buffer[++i] - 32;
             
-            if (out) for(unsigned i = 0; i < x; ++i) *out++ = ' ';
+            if (out) for (unsigned i = 0; i < x; ++i) *out++ = ' ';
             size += x;
         }
         else
@@ -377,17 +415,16 @@ unsigned FileEntry::textDecodePage(unsigned block, uint8_t *out)
 unsigned FileEntry::textReadPage(unsigned block, uint8_t *in)
 {
     // reads up to 2 blocks.
-    // assumes block within _startBlock ... _endBlock - 1
-    unsigned size = 0;
+    // assumes block within _startBlock ... _lastBlock - 1
 
-    _device->read(block, in); 
-    if (block + 1 == _endBlock)
+    parent()->readBlock(block, in); 
+    if (block + 1 == _lastBlock)
     {
         return _lastByte;
     }
     
-    _device->read(block + 1, in + 512);
-    if (block +2 == _endBlock)
+    parent()->readBlock(block + 1, in + 512);
+    if (block +2 == _lastBlock)
     {
         return 512 + _lastByte;
     }
@@ -401,15 +438,14 @@ void FileEntry::textInit()
 {
     // calculate the file size and page offsets.
 
-    _pageSize.reserve((_endBlock - _startBlock - 2) / 2);
+    _pageSize->reserve((_lastBlock - _firstBlock + 1 - 2) / 2);
 
     _fileSize = 0;
-    for (unsigned block = _startBlock + 2; block < _endBlock; block += 2)
+    for (unsigned block = _firstBlock + 2; block < _lastBlock; block += 2)
     {
-        unsigned size = decodePage(block, NULL);
+        unsigned size = textDecodePage(block, NULL);
         _fileSize += size;
-        _pageSize.push_back(size);
+        _pageSize->push_back(size);
     }
 }
 
-#endif

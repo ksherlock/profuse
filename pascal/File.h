@@ -7,6 +7,7 @@
 
 namespace ProFUSE {
     class BlockDevice;
+    class AbstractBlockCache;
 }
 
 namespace Pascal {
@@ -25,6 +26,7 @@ enum {
 };
 
 class FileEntry;
+class VolumeEntry;
 
 class Entry {
     
@@ -42,6 +44,9 @@ public:
     unsigned inode() const { return _inode; }
     void setInode(unsigned inode) { _inode = inode; }
 
+    VolumeEntry *parent() { return _parent; }
+
+
 protected:
   
     Entry();
@@ -53,6 +58,11 @@ protected:
     unsigned _fileKind;
     
     unsigned _inode;
+
+private:
+    friend class VolumeEntry;
+    VolumeEntry *_parent;
+
 };
 
 
@@ -70,6 +80,13 @@ public:
     
     FileEntry *fileAtIndex(unsigned i) const;
 
+
+    void *loadBlock(unsigned block);
+    void unloadBlock(unsigned block, bool dirty = false);
+
+    void readBlock(unsigned block, void *);
+    void writeBlock(unsigned block, void *);
+
 private:
     VolumeEntry();
     
@@ -84,7 +101,9 @@ private:
 
     std::vector<FileEntry *> _files;
     unsigned _inodeGenerator;
-
+    
+    ProFUSE::BlockDevice *_device;
+    ProFUSE::AbstractBlockCache *_cache;
 };
 
 
@@ -122,7 +141,7 @@ class FileEntry : public Entry {
     unsigned textReadPage(unsigned block, uint8_t *in);
     unsigned textDecodePage(unsigned block, uint8_t *out);    
     
-    std::vector<unsigned> *_pageLength;
+    std::vector<unsigned> *_pageSize;
     unsigned _fileSize;
     
 };
