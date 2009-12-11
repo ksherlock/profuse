@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <memory>
 
+#include <unistd.h>
+
 #include "File.h"
 #include "DateRec.h"
 #include "../BlockDevice.h"
@@ -142,10 +144,45 @@ void list(Pascal::VolumeEntry *volume, bool extended)
 }
 
 
+void usage()
+{
+    std::printf(
+        "Pascal File Manager v 0.0\n\n"
+        "Usage: fileman [-h] [-f format] action diskimage\n"
+        "Options:\n"
+        "  -h            Show usage information.\n"
+        "  -f format     Specify disk format.  Valid values are:\n"
+        "                 po: ProDOS order disk image\n"
+        "                 do: DOS Order disk image\n"
+        "\n"
+        "Actions:\n"
+        "  L            List files\n"
+        "  E            List files (extended)\n"  
+    );
+
+}
+
 int main(int argc, char **argv)
 {
     std::auto_ptr<Pascal::VolumeEntry> volume;
     std::auto_ptr<ProFUSE::BlockDevice> device;
+    
+    std::string format;
+    
+    while ((int c = ::getopt(argc, argv, "f:h")) != -1)
+    {
+        switch(c)
+        {
+        case 'f':
+            format = optarg;
+            break;
+            
+        case 'h':
+        case '?':
+            usage();
+            exit();
+        }
+    }
     
     
     const char *file = argv[1];
