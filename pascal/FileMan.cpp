@@ -7,10 +7,14 @@
 
 
 #include <cstdio>
+#include <cstring>
+#include <cstdlib>
+
 #include <algorithm>
 #include <memory>
 
 #include <unistd.h>
+#include <strings.h>
 
 #include "File.h"
 #include "DateRec.h"
@@ -64,7 +68,7 @@ void printUnusedRecord(unsigned block, unsigned size)
     std::printf("< UNUSED >      %4u            %4u\n", size, block);
 }
 
-void list(Pascal::VolumeEntry *volume, bool extended)
+int list(Pascal::VolumeEntry *volume, bool extended)
 {
     unsigned fileCount = volume->fileCount();
     unsigned used = volume->blocks();
@@ -125,7 +129,9 @@ void list(Pascal::VolumeEntry *volume, bool extended)
 
     if (extended && (lastBlock != volumeSize))
     {
-        printUnusedRecord(lastBlock, volumeSize - lastBlock);
+        unsigned size = volumeSize - lastBlock;
+        max = std::max(max, size);    
+        printUnusedRecord(lastBlock, size);
     }    
     
     
@@ -140,6 +146,7 @@ void list(Pascal::VolumeEntry *volume, bool extended)
         max
     );
  
+    return 0;
 
 }
 
@@ -148,7 +155,7 @@ void usage()
 {
     std::printf(
         "Pascal File Manager v 0.0\n\n"
-        "Usage: fileman [-h] [-f format] action diskimage\n"
+        "Usage: fileman [-h] [-f format] diskimage action\n"
         "Options:\n"
         "  -h            Show usage information.\n"
         "  -f format     Specify disk format.  Valid values are:\n"
@@ -166,11 +173,13 @@ int main(int argc, char **argv)
 {
     std::auto_ptr<Pascal::VolumeEntry> volume;
     std::auto_ptr<ProFUSE::BlockDevice> device;
+    int c;
     
     std::string format;
     
-    while ((int c = ::getopt(argc, argv, "f:h")) != -1)
+    while ((c = ::getopt(argc, argv, "f:h")) != -1)
     {
+        std::printf("%c\n", c);
         switch(c)
         {
         case 'f':
@@ -180,23 +189,35 @@ int main(int argc, char **argv)
         case 'h':
         case '?':
             usage();
-            exit();
+            std::exit(0);
         }
     }
     
+
+    argc -= optind;
+    argv += optind;
     
-    const char *file = argv[1];
+    if (argc != 2)
+    {
+        usage();
+        std::exit(1);
+    }
+    
+    
+    const char *file = argv[0];
+    const char *action = argv[1];
     
     try {
     
-    device.reset( new ProFUSE::DOSOrderDiskImage(file, true));
+        device.reset( new ProFUSE::DOSOrderDiskImage(file, true));
+        
+        volume.reset( new Pascal::VolumeEntry(device.get()));
+        
+        device.release();
     
-    volume.reset( new Pascal::VolumeEntry(device.get()));
-    
-    device.release();
-
-    list(volume.get(), true);
-    
+        if (!::strcasecmp("E", action)) return list(volume.get(), true);
+        if (!::strcasecmp("L", action)) return list(volume.get(), false);
+        
     }
     catch (ProFUSE::Exception& e)
     {
