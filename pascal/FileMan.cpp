@@ -57,11 +57,18 @@ const char *FileType(unsigned ft)
     return "";
 }
 
+void printUnusedRecord(unsigned block, unsigned size)
+{
+    std::printf("< UNUSED >      %4u            %4u\n", size, block);
+}
+
 void list(Pascal::VolumeEntry *volume, bool extended)
 {
     unsigned fileCount = volume->fileCount();
     unsigned used = volume->blocks();
     unsigned max = 0;
+    unsigned volumeSize = volume->volumeBlocks();
+    unsigned lastBlock = volume->lastBlock();
     
     std::fprintf(stdout, "%s:\n", volume->name()); 
     
@@ -74,10 +81,22 @@ void list(Pascal::VolumeEntry *volume, bool extended)
         
         //TODO -- include gaps.
         
+        if (lastBlock != e->firstBlock())
+        {
+            unsigned size = e->firstBlock() - lastBlock;
+            max = std::max(max, size);
+        
+            if (extended)
+            {
+                printUnusedRecord(lastBlock, size);
+            }
+        }
+        lastBlock = e->lastBlock();
+        
         if (extended)
         {
         
-             std::fprintf(stdout, "%-15s %4u %2u-%s-%2u %5u %5u  %s\n",
+             std::printf("%-15s %4u %2u-%s-%2u %5u %5u  %s\n",
                 e->name(), 
                 e->blocks(),
                 dt.day(),
@@ -91,7 +110,7 @@ void list(Pascal::VolumeEntry *volume, bool extended)
         }
         else
         {
-            std::fprintf(stdout, "%-15s %4u %2u-%s-%2u\n",
+            std::printf("%-15s %4u %2u-%s-%2u\n",
                 e->name(), 
                 e->blocks(),
                 dt.day(),
@@ -100,10 +119,13 @@ void list(Pascal::VolumeEntry *volume, bool extended)
             ); 
         }
         used += e->blocks();
-        max = std::max(max, e->blocks());
     }
-    // TODO -- largest refers to largest unused block,
-    // not the largest file.
+
+    if (extended && (lastBlock != volumeSize))
+    {
+        printUnusedRecord(lastBlock, volumeSize - lastBlock);
+    }    
+    
     
     std::fprintf(stdout, 
         "%u/%u files<listed/in-dir>, "
@@ -112,10 +134,10 @@ void list(Pascal::VolumeEntry *volume, bool extended)
         "%u in largest\n",
         fileCount, fileCount,
         used,
-        volume->volumeBlocks() - used,
+        volumeSize- used,
         max
     );
-    
+ 
 
 }
 
