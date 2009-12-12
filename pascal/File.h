@@ -10,6 +10,10 @@ namespace ProFUSE {
     class AbstractBlockCache;
 }
 
+namespace LittleEndian {
+    class IOBuffer;
+}
+
 namespace Pascal {
 
 
@@ -48,6 +52,10 @@ public:
 
 
 protected:
+    
+    unsigned static ValidName(const char *name, unsigned maxSize);
+  
+    virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
   
     Entry();
     Entry(void *);
@@ -70,6 +78,10 @@ class VolumeEntry : public Entry {
 
 public:
 
+    // create new 
+    VolumeEntry(const char *name, ProFUSE::BlockDevice *);
+    
+    // open existing
     VolumeEntry(ProFUSE::BlockDevice *);
     virtual ~VolumeEntry();
 
@@ -80,6 +92,9 @@ public:
     Pascal::Date lastBoot() const { return _lastBoot; }
     
     FileEntry *fileAtIndex(unsigned i) const;
+    
+    void addChild(FileEntry *child, unsigned blocks);
+
 
 
     void *loadBlock(unsigned block);
@@ -87,6 +102,12 @@ public:
 
     void readBlock(unsigned block, void *);
     void writeBlock(unsigned block, void *);
+
+
+    static ValidName(const char *);
+    
+protected:
+    virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
 
 private:
     VolumeEntry();
@@ -111,6 +132,7 @@ private:
 class FileEntry : public Entry {
     public:
     
+    FileEntry(const char *name, unsigned fileKind);
     FileEntry(void *vp);
     virtual ~FileEntry();
 
@@ -118,12 +140,20 @@ class FileEntry : public Entry {
     
     unsigned lastByte() const { return _lastByte; }
     
-    int  read(uint8_t *buffer, unsigned size, unsigned offset);
+    int read(uint8_t *buffer, unsigned size, unsigned offset);
+    int write(uint8_t *buffer, unsigned size, unsigned offset);
     
     const char *name() const { return _fileName; }
     Date modification() const { return _modification; }    
     
+    static ValidName(const char *);
+
+    
     protected:
+    
+    virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
+    
+    private:    
     
     unsigned _status;
     

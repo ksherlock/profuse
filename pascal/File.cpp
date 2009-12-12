@@ -4,6 +4,8 @@
 #include "../BlockDevice.h"
 #include "../BlockCache.h"
 
+#include "IOBuffer.h"
+
 #include <algorithm>
 #include <cstring>
 #include <memory>
@@ -11,8 +13,53 @@
 using namespace LittleEndian;
 using namespace Pascal;
 
+static bool isalpha(char c)
+{
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z') ;
+}
+
+static bool isalnumdot(char c)
+{
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z')
+        || (c >= '0' && c <='9')
+        || (c == '.') ;
+
+}
+
+static bool islower(char c)
+{
+    return c >= 'a' && c <= 'z';
+}
+
+
+inline char tolower(char c) { return c | 0x20; }
+inline char toupper(char c) { return c & ~0x20; }
+
+
+
 #pragma mark -
 #pragma mark DirEntry
+
+unsigned Entry::ValidName(const char *cp, unsigned maxLength)
+{
+    unsigned length;
+    
+    if (!cp || !*cp) return 0;
+    
+    if (!isalpaha(*cp)) return 0;
+    
+    for (length = 1; cp[length]; ++length)
+    {
+        if (length >= maxLength) return 0; 
+
+        if (!isalnumdot(cp[length])) return 0;
+    }
+    
+    return length;
+
+}
 
 Entry::Entry()
 {
@@ -42,9 +89,21 @@ void Entry::init(void *vp)
     _inode = 0;
 }
 
+void Entry::writeDirectoryEntry(IOBuffer *b)
+{
+    b->write16(_firstBlock);
+    b->write16(_lastBlock);
+    b->write8(_fileKind);
+}
+
 
 #pragma mark -
 #pragma mark VolumeEntry
+
+unsigned VolumeEntry::ValidName(const char *cp)
+{
+    return Entry::ValidName(cp, 7);
+}
 
 VolumeEntry::VolumeEntry()
 {
@@ -60,6 +119,54 @@ VolumeEntry::VolumeEntry()
     _cache = NULL;
     _device = NULL;
 }
+
+VolumeEntry::VolumeEntry(const char *name, ProFUSE::BlockDevice *device)
+{
+#undef __METHOD__
+#define __METHOD__ "VolumeEntry::VolumeEntry"
+
+    unsigned length;
+    length = ValidName(name);
+    
+    if (!length)
+        throw Exception(__METHOD__ ": Invalid volume name.");
+    
+    _firstBlock = 2;
+    _lastBlock = 6;
+    _fileKind = kUntypedFile;
+    _inode = 1;
+    _inodeGenerator = 1;
+    
+    _fileNameLength = length;
+    
+    std::memset(_fileName, 0, sizeof(_fileName));
+    for (unsigned i = 0; i < _fileNameLength; ++i)
+    {
+        _fileName[i] = toupper(name[i]);
+    }
+    
+    _lastVolumeBlock = device->blocks();
+    _fileCount = 0;
+    _accessTime = 0;
+    _lastBoot = Date.Today(); 
+    
+    _cache = device->blockCache();
+    _device = device;
+    
+    for (unsigned i = 2; i < 6; ++i)
+    {
+        device->zeroBlock(i);
+    }
+    
+    void *vp = _blockCache->lock(2);
+    IOBuffer b(vp, 0x1a);
+    
+    write(&b);
+        
+    _blockCache->unlock(2, true);
+    
+}
+
 
 VolumeEntry::VolumeEntry(ProFUSE::BlockDevice *device)
 {
@@ -185,8 +292,29 @@ void VolumeEntry::writeBlock(unsigned block, void *buffer)
 }
 
 
+
+void VolumeEntry::writeDirectoryEntry(IOBuffer *b)
+{
+    Entry::writeDirectoryEntry(b);
+    
+    b->write8(0); // reserved
+    b->write8(_fileNameLength);
+    b->writeBytes(_fileName, 7);
+    b->write16(_fileCount);
+    b->write16(_accessTime);
+    b->write16((unsigned)_lastBoot);
+    
+    // rest is reserved.
+    b->writeZero(4);
+}
+
 #pragma mark -
 #pragma mark FileEntry
+
+unsigned FileEntry::ValidName(const char *cp)
+{
+    return Entry::ValidName(cp, 15);
+}
 
 FileEntry::FileEntry(void *vp) :
     Entry(vp)
@@ -197,6 +325,31 @@ FileEntry::FileEntry(void *vp) :
     std::memcpy(_fileName, 0x07 + (uint8_t *)vp, _fileNameLength);
     _lastByte = Read16(vp, 0x16);
     _modification = Date(Read16(vp, 0x18));
+    
+    _fileSize = 0;
+    _pageSize = NULL;
+}
+
+FileEntry::FileEntry(const char *name, unsigned fileKind)
+{
+#undef __METHOD__
+#define __METHOD__ "FileEntry::FileEntry"
+
+    unsigned length = ValidName(name);
+    
+    if (!length)
+        throw Exception(__METHOD__ ": Invalid file name.");
+        
+    _fileKind = kind;
+    _status = 0;
+    
+    _fileNameLength = length;
+    std::memset(_fileName, 0, sizeof(_fileName));
+    for (unsigned i = 0; i < length; ++i)
+        _fileName[i] = toupper(name[i]);
+    
+    _modification = Date::Today();
+    _lastByte = 0;
     
     _fileSize = 0;
     _pageSize = NULL;
@@ -221,6 +374,16 @@ unsigned FileEntry::fileSize()
     }
 }
 
+void FileEntry::writeDirectoryEntry(IOBuffer *b)
+{
+    Entry::writeDirectoryEntry(b);
+    
+    b->write8(_status ? 0x01 : 0x00);
+    b->write8(_fileNameLength);
+    b->writeBytes(_fileName, 15);
+    b->write16(_lastByte);
+    b->write16(_modification);
+}
 
 int FileEntry::read(uint8_t *buffer, unsigned size, unsigned offset)
 {
