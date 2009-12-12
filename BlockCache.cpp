@@ -4,7 +4,7 @@
 
 #include <sys/types.h>
 #include <sys/mman.h>
-
+#include <unistd.h>
 
 #include "BlockDevice.h"
 #include "BlockCache.h"
@@ -34,7 +34,7 @@ AbstractBlockCache::~AbstractBlockCache()
 MappedBlockCache::MappedBlockCache(void *data, unsigned blocks)
 {
     _blocks = blocks;
-    _data = (uint8_t *)_data;
+    _data = (uint8_t *)data;
 }
 
 void MappedBlockCache::write()
@@ -59,7 +59,14 @@ void MappedBlockCache::unload(unsigned block, bool dirty)
 #define __METHOD__ "MappedBlockCache::unload"
 
     if (!dirty) return;
-    if (::msync(_data + block * 512, 512, MS_ASYNC) < 0)
+    
+    // msync must be page-size aligned.
+    unsigned pagesize = ::getpagesize();
+    unsigned offset = block * 512;
+    void *address = _data + offset / pagesize * pagesize;
+    unsigned length = offset % pagesize + 512;
+    
+    if (::msync(address, length, MS_ASYNC) < 0)
     {
         throw POSIXException(__METHOD__ ": msync failed.", errno);
     }

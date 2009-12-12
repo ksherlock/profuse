@@ -9,11 +9,13 @@
 
 #include <algorithm>
 #include <cstring>
+#include <cctype.h>
 #include <memory>
 
 using namespace LittleEndian;
 using namespace Pascal;
 
+/*
 static bool isalpha(char c)
 {
     return (c >= 'A' && c <= 'Z')
@@ -37,7 +39,7 @@ static bool islower(char c)
 
 inline char tolower(char c) { return c | 0x20; }
 inline char toupper(char c) { return c & ~0x20; }
-
+*/
 
 
 #pragma mark -
@@ -45,22 +47,41 @@ inline char toupper(char c) { return c & ~0x20; }
 
 unsigned Entry::ValidName(const char *cp, unsigned maxLength)
 {
-    unsigned length;
-    
+
+    // any printable char except:
+    // white space
+    // $ = ? , (file only)
+    // : (volume only)
     if (!cp || !*cp) return 0;
     
-    if (!isalpha(*cp)) return 0;
-    
-    for (length = 1; cp[length]; ++length)
+    for (unsigned i = 0;  ; ++i)
     {
-        if (length >= maxLength) return 0; 
-
-        if (!isalnumdot(cp[length])) return 0;
-    }
+        unsigned c = cp[i];
+        if (c == 0) return i - 1;
+        if (i > maxLength) return 0;
     
-    return length;
+        switch(c)
+        {
+
+        case ':':
+            if (maxLength == 7) return 0;
+            break;
+        case '$':
+        case '=':
+        case ',':
+        case '?':
+            if (maxLength == 15) return 0;
+            break;
+            
+        default:
+            if (!std::isascii(c)) return 0;
+            if (!std::isgraph(c)) return 0;
+        }
+    }
+
 
 }
+
 
 Entry::Entry()
 {
@@ -103,6 +124,10 @@ void Entry::writeDirectoryEntry(IOBuffer *b)
 
 unsigned VolumeEntry::ValidName(const char *cp)
 {
+    // 7 chars max.  Legal values: ascii, printable, 
+    // no space/tab,
+    // no $=?,:
+    
     return Entry::ValidName(cp, 7);
 }
 
@@ -132,7 +157,7 @@ VolumeEntry::VolumeEntry(const char *name, ProFUSE::BlockDevice *device)
     if (!length)
         throw ProFUSE::Exception(__METHOD__ ": Invalid volume name.");
     
-    _firstBlock = 2;
+    _firstBlock = 0;
     _lastBlock = 6;
     _fileKind = kUntypedFile;
     _inode = 1;
@@ -143,7 +168,7 @@ VolumeEntry::VolumeEntry(const char *name, ProFUSE::BlockDevice *device)
     std::memset(_fileName, 0, sizeof(_fileName));
     for (unsigned i = 0; i < _fileNameLength; ++i)
     {
-        _fileName[i] = toupper(name[i]);
+        _fileName[i] = std::toupper(name[i]);
     }
     
     _lastVolumeBlock = device->blocks();
@@ -301,6 +326,7 @@ void VolumeEntry::writeDirectoryEntry(IOBuffer *b)
     b->write8(0); // reserved
     b->write8(_fileNameLength);
     b->writeBytes(_fileName, 7);
+    b->write16(_lastVolumeBlock);
     b->write16(_fileCount);
     b->write16(_accessTime);
     b->write16(_lastBoot);
@@ -347,7 +373,7 @@ FileEntry::FileEntry(const char *name, unsigned fileKind)
     _fileNameLength = length;
     std::memset(_fileName, 0, sizeof(_fileName));
     for (unsigned i = 0; i < length; ++i)
-        _fileName[i] = toupper(name[i]);
+        _fileName[i] = std::toupper(name[i]);
     
     _modification = Date::Today();
     _lastByte = 0;

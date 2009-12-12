@@ -41,7 +41,7 @@ namespace LittleEndian {
         void writeBytes(const void *value, unsigned count)
         {
             std::memcpy(_offset + (uint8_t *)_buffer, value, count);
-            _size += count; 
+            _offset += count; 
         }
         
         void writeZero(unsigned count)
