@@ -53,7 +53,7 @@ public:
 
 protected:
     
-    unsigned static ValidName(const char *name, unsigned maxSize);
+    static unsigned ValidName(const char *name, unsigned maxSize);
   
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
   
@@ -104,7 +104,7 @@ public:
     void writeBlock(unsigned block, void *);
 
 
-    static ValidName(const char *);
+    unsigned static ValidName(const char *);
     
 protected:
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
@@ -146,7 +146,7 @@ class FileEntry : public Entry {
     const char *name() const { return _fileName; }
     Date modification() const { return _modification; }    
     
-    static ValidName(const char *);
+    unsigned static ValidName(const char *);
 
     
     protected:

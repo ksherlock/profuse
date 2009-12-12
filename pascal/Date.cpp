@@ -1,5 +1,6 @@
 #include "Date.h"
 #include <cstring>
+#include <stdint.h>
 
 using namespace Pascal;
 
@@ -28,7 +29,7 @@ Date::operator std::time_t() const {
     return std::mktime(&tm);
 }
 
-Date::operator unsigned() const {
+Date::operator uint16_t() const {
     // year must be 0 .. 127
     return (_year << 9) | (_day << 4) | _month;
 }
@@ -40,5 +41,5 @@ Date Date::Today()
 
     ::localtime_r(&t, &tm);
 
-    return Date(tm.tm_year, tm.tm_month, tm.tm_mday);
+    return Date(tm.tm_year, tm.tm_mon, tm.tm_mday);
 }

@@ -3,6 +3,7 @@
 
 #include "../Endian.h"
 
+#include <cstring>
 namespace LittleEndian {
     
     class IOBuffer {
@@ -37,7 +38,7 @@ namespace LittleEndian {
             _offset += 4;
         }
         
-        void writeBytes(const void *value, unsigned count);
+        void writeBytes(const void *value, unsigned count)
         {
             std::memcpy(_offset + (uint8_t *)_buffer, value, count);
             _size += count; 
@@ -56,7 +57,7 @@ namespace LittleEndian {
         unsigned offset() const { return _offset; }
         void setOffset(unsigned offset) { _offset = offset; }
         
-        unsinged size() const { return _size; }
+        unsigned size() const { return _size; }
         
         private:
         void *_buffer;

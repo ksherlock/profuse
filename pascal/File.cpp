@@ -3,6 +3,7 @@
 #include "../Endian.h"
 #include "../BlockDevice.h"
 #include "../BlockCache.h"
+#include "../Exception.h"
 
 #include "IOBuffer.h"
 
@@ -48,7 +49,7 @@ unsigned Entry::ValidName(const char *cp, unsigned maxLength)
     
     if (!cp || !*cp) return 0;
     
-    if (!isalpaha(*cp)) return 0;
+    if (!isalpha(*cp)) return 0;
     
     for (length = 1; cp[length]; ++length)
     {
@@ -129,7 +130,7 @@ VolumeEntry::VolumeEntry(const char *name, ProFUSE::BlockDevice *device)
     length = ValidName(name);
     
     if (!length)
-        throw Exception(__METHOD__ ": Invalid volume name.");
+        throw ProFUSE::Exception(__METHOD__ ": Invalid volume name.");
     
     _firstBlock = 2;
     _lastBlock = 6;
@@ -148,7 +149,7 @@ VolumeEntry::VolumeEntry(const char *name, ProFUSE::BlockDevice *device)
     _lastVolumeBlock = device->blocks();
     _fileCount = 0;
     _accessTime = 0;
-    _lastBoot = Date.Today(); 
+    _lastBoot = Date::Today(); 
     
     _cache = device->blockCache();
     _device = device;
@@ -158,12 +159,12 @@ VolumeEntry::VolumeEntry(const char *name, ProFUSE::BlockDevice *device)
         device->zeroBlock(i);
     }
     
-    void *vp = _blockCache->lock(2);
+    void *vp = _cache->load(2);
     IOBuffer b(vp, 0x1a);
     
-    write(&b);
+    writeDirectoryEntry(&b);
         
-    _blockCache->unlock(2, true);
+    _cache->unload(2, true);
     
 }
 
@@ -302,7 +303,7 @@ void VolumeEntry::writeDirectoryEntry(IOBuffer *b)
     b->writeBytes(_fileName, 7);
     b->write16(_fileCount);
     b->write16(_accessTime);
-    b->write16((unsigned)_lastBoot);
+    b->write16(_lastBoot);
     
     // rest is reserved.
     b->writeZero(4);
@@ -338,9 +339,9 @@ FileEntry::FileEntry(const char *name, unsigned fileKind)
     unsigned length = ValidName(name);
     
     if (!length)
-        throw Exception(__METHOD__ ": Invalid file name.");
+        throw ProFUSE::Exception(__METHOD__ ": Invalid file name.");
         
-    _fileKind = kind;
+    _fileKind = fileKind;
     _status = 0;
     
     _fileNameLength = length;

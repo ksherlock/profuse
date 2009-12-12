@@ -2,6 +2,7 @@
 #define __PASCAL_DATE_H__
 
 #include <ctime>
+#include <stdint.h>
 
 namespace Pascal {
 
@@ -15,7 +16,7 @@ public:
     Date(unsigned);
     
     operator std::time_t() const;
-    operator unsigned() const;
+    operator uint16_t() const;
     
     unsigned month() const { return _month; }
     unsigned day() const { return _day; }
