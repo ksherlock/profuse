@@ -19,6 +19,46 @@
 #include "File.h"
 #include "DateRec.h"
 #include "../BlockDevice.h"
+#include "../DiskCopy42Image.h"
+
+
+unsigned parseFormat(const char *type, unsigned defv = 0)
+{
+    if (type == 0 || *type == 0) return defv;
+    
+    if (::strcasecmp(type, "2mg") == 0)
+        return '2IMG';
+    if (::strcasecmp(type, "2img") == 0)
+        return '2IMG';
+    if (::strcasecmp(type, "dc42") == 0)
+        return 'DC42';
+    if (::strcasecmp(type, "po") == 0)
+        return 'PO__';
+    if (::strcasecmp(type, "do") == 0)
+        return 'DO__';
+    if (::strcasecmp(type, "dsk") == 0)
+        return 'DO__';
+    if (::strcasecmp(type, "davex") == 0)
+        return 'DVX_';
+                    
+    return defv;
+}
+
+// return the filename extension, NULL if none.
+const char *extname(const char *src)
+{
+    if (!src) return NULL;
+    unsigned l = std::strlen(src);
+    
+    for (unsigned i = 0; i < l; ++i)
+    {
+        char c = src[l - 1 - i];
+        if (c == '/') return NULL;
+        if (c == '.') return src + l - i;
+    }
+    
+    return NULL;
+}
 
 
 const char *MonthName(unsigned m)
@@ -63,9 +103,40 @@ const char *FileType(unsigned ft)
     return "";
 }
 
-void printUnusedRecord(unsigned block, unsigned size)
+void printUnusedEntry(unsigned block, unsigned size)
 {
     std::printf("< UNUSED >      %4u            %4u\n", size, block);
+}
+
+void printFileEntry(Pascal::FileEntry *e, bool extended)
+{
+    Pascal::DateRec dt = e->modification();
+
+    if (extended)
+    {
+         std::printf("%-15s %4u %2u-%s-%2u %5u %5u  %s\n",
+            e->name(), 
+            e->blocks(),
+            dt.day(),
+            MonthName(dt.month()),
+            dt.year() % 100,
+            e->firstBlock(),
+            e->lastByte(),
+            FileType(e->fileKind())
+        ); 
+   
+    }
+    else
+    {
+        std::printf("%-15s %4u %2u-%s-%2u\n",
+            e->name(), 
+            e->blocks(),
+            dt.day(),
+            MonthName(dt.month()),
+            dt.year() % 100
+        ); 
+    }
+
 }
 
 int list(Pascal::VolumeEntry *volume, bool extended)
@@ -83,9 +154,6 @@ int list(Pascal::VolumeEntry *volume, bool extended)
         Pascal::FileEntry *e = volume->fileAtIndex(i);
         if (!e) continue;
         
-        Pascal::DateRec dt = e->modification();
-        
-        //TODO -- include gaps.
         
         if (lastBlock != e->firstBlock())
         {
@@ -94,36 +162,13 @@ int list(Pascal::VolumeEntry *volume, bool extended)
         
             if (extended)
             {
-                printUnusedRecord(lastBlock, size);
+                printUnusedEntry(lastBlock, size);
             }
         }
+        
+        printFileEntry(e, extended);
+        
         lastBlock = e->lastBlock();
-        
-        if (extended)
-        {
-        
-             std::printf("%-15s %4u %2u-%s-%2u %5u %5u  %s\n",
-                e->name(), 
-                e->blocks(),
-                dt.day(),
-                MonthName(dt.month()),
-                dt.year() % 100,
-                e->firstBlock(),
-                e->lastByte(),
-                FileType(e->fileKind())
-            ); 
-       
-        }
-        else
-        {
-            std::printf("%-15s %4u %2u-%s-%2u\n",
-                e->name(), 
-                e->blocks(),
-                dt.day(),
-                MonthName(dt.month()),
-                dt.year() % 100
-            ); 
-        }
         used += e->blocks();
     }
 
@@ -131,7 +176,7 @@ int list(Pascal::VolumeEntry *volume, bool extended)
     {
         unsigned size = volumeSize - lastBlock;
         max = std::max(max, size);    
-        printUnusedRecord(lastBlock, size);
+        printUnusedEntry(lastBlock, size);
     }    
     
     
@@ -142,12 +187,11 @@ int list(Pascal::VolumeEntry *volume, bool extended)
         "%u in largest\n",
         fileCount, fileCount,
         used,
-        volumeSize- used,
+        volumeSize - used,
         max
     );
  
     return 0;
-
 }
 
 
@@ -155,7 +199,7 @@ void usage()
 {
     std::printf(
         "Pascal File Manager v 0.0\n\n"
-        "Usage: fileman [-h] [-f format] diskimage action\n"
+        "Usage: fileman [-h] [-f format] action diskimage\n"
         "Options:\n"
         "  -h            Show usage information.\n"
         "  -f format     Specify disk format.  Valid values are:\n"
@@ -173,9 +217,13 @@ int main(int argc, char **argv)
 {
     std::auto_ptr<Pascal::VolumeEntry> volume;
     std::auto_ptr<ProFUSE::BlockDevice> device;
+  
+    const char *format = NULL;
+    unsigned fmt = 0;
+    
     int c;
     
-    std::string format;
+    
     
     while ((c = ::getopt(argc, argv, "f:h")) != -1)
     {
@@ -204,12 +252,33 @@ int main(int argc, char **argv)
     }
     
     
-    const char *file = argv[0];
-    const char *action = argv[1];
+    const char *file = argv[1];
+    const char *action = argv[0];
+    
+    if (format == NULL) format = extname(file);
+    
+    fmt = parseFormat(format, 'PO__');
+    
     
     try {
     
-        device.reset( new ProFUSE::DOSOrderDiskImage(file, true));
+        switch(fmt)
+        {
+        case 'DO__':
+            device.reset( new ProFUSE::DOSOrderDiskImage(file, true) );
+            break;
+        case 'PO__':
+            device.reset( new ProFUSE::ProDOSOrderDiskImage(file, true) );
+            break;
+        case 'DC42':
+            device.reset( new ProFUSE::DiskCopy42Image(file, true) );
+            break;
+            
+        default:
+            std::fprintf(stderr, "Unable to determine format.  Please use -f flag.\n");
+            exit(2);
+        }
+    
         
         volume.reset( new Pascal::VolumeEntry(device.get()));
         
