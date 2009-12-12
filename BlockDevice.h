@@ -11,8 +11,10 @@ namespace ProFUSE {
 class MappedFile;
 class AbstractBlockCache;
 
+
 class BlockDevice {
 public:
+
     virtual ~BlockDevice();
     
     virtual void read(unsigned block, void *bp) = 0;
@@ -38,6 +40,8 @@ private:
 
 class DiskImage : public BlockDevice {
 public:
+
+    static unsigned ImageType(const char *type, unsigned defv = 0);
 
     virtual ~DiskImage();
         

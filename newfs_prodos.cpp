@@ -211,7 +211,7 @@ int main(int argc, char **argv)
                 format = parseFormat(optarg);
                 if (format == 0)
                 {
-                    std::fprintf(stderr, "Error: `%s' is not a supposed disk image format.\n", optarg);
+                    std::fprintf(stderr, "Error: `%s' is not a supported disk image format.\n", optarg);
                     return -1;
                 }
             }

@@ -48,6 +48,49 @@ AbstractBlockCache *BlockDevice::createBlockCache()
 #pragma mark -
 #pragma mark DiskImage
 
+unsigned DiskImage::ImageType(const char *type, unsigned defv)
+{
+    const char *tmp;
+    
+    if (type == 0 || *type == 0) return defv;
+    
+    // type could be a filename, in which case we check the extension.
+    tmp = std::strrchr(type, '.');
+    if (tmp) type = tmp + 1;
+    if (*type == 0) return defv;
+    
+    
+    if (::strcasecmp(type, "2mg") == 0)
+        return '2IMG';
+    if (::strcasecmp(type, "2img") == 0)
+        return '2IMG';
+        
+    if (::strcasecmp(type, "dc42") == 0)
+        return 'DC42';
+        
+    if (::strcasecmp(type, "po") == 0)
+        return 'PO__';
+    if (::strcasecmp(type, "dmg") == 0)
+        return 'PO__';
+        
+    if (::strcasecmp(type, "dsk") == 0)
+        return 'DO__';
+    if (::strcasecmp(type, "do") == 0)
+        return 'DO__';
+        
+    if (::strcasecmp(type, "davex") == 0)
+        return 'DVX_';
+        
+    /*
+    // not supported yet.        
+    if (::strcasecmp(tmp, "sdk") == 0)
+        return 'SDK_';
+    */      
+    return defv;
+}
+
+
+
 DiskImage::DiskImage(const char *name, bool readOnly) :
     _file(NULL)
 {
