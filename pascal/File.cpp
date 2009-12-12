@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <cctype.h>
+#include <cctype>
 #include <memory>
 
 using namespace LittleEndian;
@@ -74,7 +74,7 @@ unsigned Entry::ValidName(const char *cp, unsigned maxLength)
             break;
             
         default:
-            if (!std::isascii(c)) return 0;
+            if (!::isascii(c)) return 0;
             if (!std::isgraph(c)) return 0;
         }
     }
