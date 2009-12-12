@@ -1,11 +1,11 @@
-#include "DateRec.h"
+#include "Date.h"
 #include <cstring>
 
 using namespace Pascal;
 
 
 
-DateRec::DateRec(unsigned val)
+Date::Date(unsigned val)
 {
     // yyyy yyym mmmm dddd
     _month = val & 0xf;
@@ -13,7 +13,7 @@ DateRec::DateRec(unsigned val)
     _year = (val >> 9) & 0x7f;
 }
 
-DateRec::operator std::time_t() const {
+Date::operator std::time_t() const {
     struct tm tm;
     
     if (_day == 0 || _month == 0) return (std::time_t)-1;
@@ -26,4 +26,19 @@ DateRec::operator std::time_t() const {
     tm.tm_isdst = -1;
     
     return std::mktime(&tm);
+}
+
+Date::operator unsigned() const {
+    // year must be 0 .. 127
+    return (_year << 9) | (_day << 4) | _month;
+}
+
+Date Date::Today()
+{
+    struct tm tm;
+    std::time_t t = std::time(NULL); 
+
+    ::localtime_r(&t, &tm);
+
+    return Date(tm.tm_year, tm.tm_month, tm.tm_mday);
 }

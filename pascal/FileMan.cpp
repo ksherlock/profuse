@@ -17,7 +17,7 @@
 #include <strings.h>
 
 #include "File.h"
-#include "DateRec.h"
+#include "Date.h"
 #include "../BlockDevice.h"
 #include "../DiskCopy42Image.h"
 
@@ -110,7 +110,7 @@ void printUnusedEntry(unsigned block, unsigned size)
 
 void printFileEntry(Pascal::FileEntry *e, bool extended)
 {
-    Pascal::DateRec dt = e->modification();
+    Pascal::Date dt = e->modification();
 
     if (extended)
     {

@@ -152,7 +152,7 @@ void VolumeEntry::init(void *vp)
     _lastVolumeBlock = Read16(vp, 0x0e);
     _fileCount = Read16(vp, 0x10);
     _accessTime = Read16(vp, 0x12);
-    _lastBoot = DateRec(Read16(vp, 0x14));
+    _lastBoot = Date(Read16(vp, 0x14));
     
     setInode(1);
     _inodeGenerator = 1; 
@@ -196,7 +196,7 @@ FileEntry::FileEntry(void *vp) :
     std::memset(_fileName, 0, 16);
     std::memcpy(_fileName, 0x07 + (uint8_t *)vp, _fileNameLength);
     _lastByte = Read16(vp, 0x16);
-    _modification = DateRec(Read16(vp, 0x18));
+    _modification = Date(Read16(vp, 0x18));
     
     _fileSize = 0;
     _pageSize = NULL;

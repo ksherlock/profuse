@@ -1,18 +1,21 @@
-#ifndef __DATEREC_H__
-#define __DATEREC_H__
+#ifndef __PASCAL_DATE_H__
+#define __PASCAL_DATE_H__
 
 #include <ctime>
 
 namespace Pascal {
 
-class  DateRec {
+class  Date {
 public:
 
-    DateRec();
-    DateRec(unsigned yy, unsigned mm, unsigned dd);
-    DateRec(unsigned);
+    static Date Today();
+
+    Date();
+    Date(unsigned yy, unsigned mm, unsigned dd);
+    Date(unsigned);
     
     operator std::time_t() const;
+    operator unsigned() const;
     
     unsigned month() const { return _month; }
     unsigned day() const { return _day; }
@@ -25,14 +28,14 @@ private:
 };
 
 
-inline DateRec::DateRec()
+inline Date::Date()
 {
     _year = 0;
     _month = 0;
     _day = 0;
 }
 
-inline DateRec::DateRec(unsigned yy, unsigned mm, unsigned dd)
+inline Date::Date(unsigned yy, unsigned mm, unsigned dd)
 {
     _year = yy;
     _month = mm;

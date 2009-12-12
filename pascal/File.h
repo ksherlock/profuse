@@ -1,7 +1,7 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include "DateRec.h"
+#include "Date.h"
 
 #include <vector>
 
@@ -77,7 +77,7 @@ public:
     unsigned fileCount() const { return _fileCount; }
     unsigned volumeBlocks() const { return _lastVolumeBlock; }
     
-    Pascal::DateRec lastBoot() const { return _lastBoot; }
+    Pascal::Date lastBoot() const { return _lastBoot; }
     
     FileEntry *fileAtIndex(unsigned i) const;
 
@@ -98,7 +98,7 @@ private:
     unsigned _lastVolumeBlock;
     unsigned _fileCount;
     unsigned _accessTime;
-    Pascal::DateRec _lastBoot;
+    Pascal::Date _lastBoot;
 
     std::vector<FileEntry *> _files;
     unsigned _inodeGenerator;
@@ -121,7 +121,7 @@ class FileEntry : public Entry {
     int  read(uint8_t *buffer, unsigned size, unsigned offset);
     
     const char *name() const { return _fileName; }
-    DateRec modification() const { return _modification; }    
+    Date modification() const { return _modification; }    
     
     protected:
     
@@ -131,7 +131,7 @@ class FileEntry : public Entry {
     char _fileName[16];
     
     unsigned _lastByte;
-    DateRec _modification;
+    Date _modification;
     
     // non-text files
     unsigned dataFileSize();
