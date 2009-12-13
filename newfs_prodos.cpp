@@ -82,41 +82,6 @@ unsigned parseBlocks(const char *cp)
     return (unsigned)blocks;
 }
 
-unsigned parseFormat(const char *type, unsigned defv = 0)
-{
-    if (type == 0 || *type == 0) return defv;
-    
-    if (::strcasecmp(type, "2mg") == 0)
-        return '2IMG';
-    if (::strcasecmp(type, "2img") == 0)
-        return '2IMG';
-    if (::strcasecmp(type, "dc42") == 0)
-        return 'DC42';
-    if (::strcasecmp(type, "po") == 0)
-        return 'PO__';
-    if (::strcasecmp(type, "do") == 0)
-        return 'DO__';
-    if (::strcasecmp(type, "davex") == 0)
-        return 'DVX_';
-                    
-    return defv;
-}
-
-// return the filename extension, NULL if none.
-const char *extname(const char *src)
-{
-    if (!src) return NULL;
-    unsigned l = std::strlen(src);
-    
-    for (unsigned i = 0; i < l; ++i)
-    {
-        char c = src[l - 1 - i];
-        if (c == '/') return NULL;
-        if (c == '.') return src + l - i;
-    }
-    
-    return NULL;
-}
 
 // return the basename, without an extension.
 std::string filename(const std::string& src)
@@ -208,7 +173,7 @@ int main(int argc, char **argv)
         
         case 'f':
             {
-                format = parseFormat(optarg);
+                format = DiskImage::ImageType(optarg);
                 if (format == 0)
                 {
                     std::fprintf(stderr, "Error: `%s' is not a supported disk image format.\n", optarg);
@@ -239,7 +204,7 @@ int main(int argc, char **argv)
             volumeName = "Untitled";
     }
     
-    if (format == 0) format = parseFormat(extname(fname));
+    if (format == 0) format = DiskImage::ImageType(fname, '2IMG');
     
     
     try
