@@ -153,6 +153,7 @@ bool make_mount_dir(std::string name, std::string &path)
 
 int main(int argc, char **argv)
 {
+    extern void init_ops(fuse_lowlevel_ops *ops);
 
 
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
@@ -164,26 +165,7 @@ int main(int argc, char **argv)
     int foreground = false;
     int multithread = false;
 	
-    std::memset(&pascal_ops, 0, sizeof(pascal_ops));
-
-
-    
-    // returns pascal.filekind, text encoding.
-    pascal_ops.listxattr = pascal_listxattr;
-    pascal_ops.getxattr = pascal_getxattr;
-    
-    // volume is a dir.
-    pascal_ops.opendir = pascal_opendir;
-    pascal_ops.releasedir = pascal_releasedir;
-    pascal_ops.readdir = pascal_readdir;
-    
-    
-    pascal_ops.lookup = pascal_lookup;
-    pascal_ops.getattr = pascal_getattr;
-    
-    pascal_ops.open = pascal_open;
-    pascal_ops.release = pascal_release;
-    pascal_ops.read = pascal_read;
+    init_ops(&pascal_ops);
 
 
     // scan the argument list, looking for the name of the disk image.
