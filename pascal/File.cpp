@@ -57,8 +57,8 @@ unsigned Entry::ValidName(const char *cp, unsigned maxLength)
     for (unsigned i = 0;  ; ++i)
     {
         unsigned c = cp[i];
-        if (c == 0) return i - 1;
-        if (i > maxLength) return 0;
+        if (c == 0) return i;
+        if (i >= maxLength) return 0;
     
         switch(c)
         {
