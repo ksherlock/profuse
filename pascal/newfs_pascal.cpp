@@ -209,7 +209,7 @@ int main(int argc, char **argv)
             
         default:
             std::fprintf(stderr, "Error: Unsupported diskimage format.\n");
-            return-1;
+            return -1;
         }
         
         
