@@ -56,6 +56,13 @@ enum {
     PASCAL_OPT_VERBOSE
 };
 
+struct options {
+    char *format;
+    int readOnly;
+    int readWrite;
+
+};
+
 static struct fuse_opt pascal_options[] = {
     FUSE_OPT_KEY("-h",             PASCAL_OPT_HELP),
     FUSE_OPT_KEY("--help",         PASCAL_OPT_HELP),
@@ -182,6 +189,7 @@ int main(int argc, char **argv)
     if (!fFormat)
         fFormat = ProFUSE::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
     
+    
     try {
         std::auto_ptr<ProFUSE::BlockDevice> device;
        
@@ -205,20 +213,25 @@ int main(int argc, char **argv)
             exit(1);
         }
 
+        
         fVolume  = new Pascal::VolumeEntry(device.get());
         device.release();
+        
 
     }
     catch (ProFUSE::POSIXException &e)
     {
         std::fprintf(stderr, "%s\n", e.what());
         std::fprintf(stderr, "%s\n", std::strerror(e.error()));
+        return -1;
     }    
     catch (ProFUSE::Exception &e)
     {
         std::fprintf(stderr, "%s\n", e.what());
+        return -1;
     }
     
+    return 0;
     
     
     #ifdef __APPLE__

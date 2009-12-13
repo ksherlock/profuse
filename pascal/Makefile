@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS += -Wall -O2 -g
+CPPFLAGS += -Wall -O2 -g -fexceptions
 LDFLAGS += -L/usr/local/lib -lfuse
 
 newfs_pascal: \
