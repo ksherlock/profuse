@@ -1,6 +1,12 @@
 CC = g++
-CPPFLAGS += -Wall -O2 -g -fexceptions
-LDFLAGS += -L/usr/local/lib -lfuse
+CPPFLAGS += -Wall -O2 -g -fexceptions \
+ -D__FreeBSD__=10 \
+ -D_FILE_OFFSET_BITS=64 \
+ -D__DARWIN_64_BIT_INO_T=1 \
+ -DHAVE_STAT_BIRTHTIME
+ 
+LDFLAGS += -L/usr/local/lib -lfuse_ino64
+
 
 newfs_pascal: \
  newfs_pascal.o \
