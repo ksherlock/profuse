@@ -16,6 +16,10 @@ using namespace ProFUSE;
 #pragma mark -
 #pragma mark BlockDevice
 
+BlockDevice::BlockDevice()
+{
+    _cache = NULL;
+}
 BlockDevice::~BlockDevice()
 {
     delete _cache;

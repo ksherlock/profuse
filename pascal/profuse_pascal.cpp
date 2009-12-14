@@ -27,9 +27,6 @@
 Pascal::VolumeEntry *fVolume = NULL;
 std::string fDiskImage;
 
-unsigned fFormat = 0;
-bool fVerbose = false;
-bool fReadOnly = true;
 
 void usage()
 {
@@ -60,8 +57,10 @@ struct options {
     char *format;
     int readOnly;
     int readWrite;
+    int verbose;
+} options;
 
-};
+#define PASCAL_OPT_KEY(T, P, V) {T, offsetof(struct options, P), V}
 
 static struct fuse_opt pascal_options[] = {
     FUSE_OPT_KEY("-h",             PASCAL_OPT_HELP),
@@ -70,12 +69,12 @@ static struct fuse_opt pascal_options[] = {
     FUSE_OPT_KEY("-V",             PASCAL_OPT_VERSION),
     FUSE_OPT_KEY("--version",      PASCAL_OPT_VERSION),
     
-    FUSE_OPT_KEY("-v",             PASCAL_OPT_VERBOSE),
+    PASCAL_OPT_KEY("-v", verbose, 1),
     
-    FUSE_OPT_KEY("-w",             PASCAL_OPT_WRITE),
-    FUSE_OPT_KEY("rw",             PASCAL_OPT_WRITE),
+    PASCAL_OPT_KEY("-w", readWrite, 1),
+    PASCAL_OPT_KEY("rw", readWrite, 1),
     
-    FUSE_OPT_KEY("-f=",            PASCAL_OPT_FORMAT),
+    PASCAL_OPT_KEY("-f %s", format, 0),
     
     {0, 0, 0}
 };
@@ -94,23 +93,7 @@ static int pascal_option_proc(void *data, const char *arg, int key, struct fuse_
             // TODO
             exit(0);
             break;
-        case PASCAL_OPT_VERBOSE:
-            fVerbose = true;
-            return 0;
-            break;
-        
-        case PASCAL_OPT_WRITE:
-            fReadOnly = false;
-            return 0;
-        
-        case PASCAL_OPT_FORMAT:
-            fFormat = ProFUSE::DiskImage::ImageType(arg);
-            if (fFormat == 0)
-            {
-                std::fprintf(stderr, "Invalid image format: ``%s''\n",
-                    arg);
-            }
-            return 0;
+
         
         case FUSE_OPT_KEY_NONOPT:
             if (fDiskImage.empty())
@@ -161,13 +144,14 @@ bool make_mount_dir(std::string name, std::string &path)
 int main(int argc, char **argv)
 {
     extern void init_ops(fuse_lowlevel_ops *ops);
-
+    struct options options = { 0 };
 
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 	struct fuse_chan *ch;
 	char *mountpoint = NULL;
 	int err = -1;
 	std::string mountPath;
+	unsigned format;
 
     int foreground = false;
     int multithread = false;
@@ -176,7 +160,7 @@ int main(int argc, char **argv)
 
 
     // scan the argument list, looking for the name of the disk image.
-    if (fuse_opt_parse(&args, NULL ,pascal_options, pascal_option_proc) == -1)
+    if (fuse_opt_parse(&args, &options ,pascal_options, pascal_option_proc) == -1)
         exit(1);
     
     if (fDiskImage.empty())
@@ -186,25 +170,29 @@ int main(int argc, char **argv)
     }
 
     // default prodos-order disk image.
-    if (!fFormat)
-        fFormat = ProFUSE::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
+    format = ProFUSE::DiskImage::ImageType(options.format);
     
+    if (!format)
+        format = ProFUSE::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
+    
+    
+    bool readOnly = true;
     
     try {
         std::auto_ptr<ProFUSE::BlockDevice> device;
        
-        switch(fFormat)
+        switch(format)
         {
         case 'DC42':
-            device.reset(new ProFUSE::DiskCopy42Image(fDiskImage.c_str(), fReadOnly));
+            device.reset(new ProFUSE::DiskCopy42Image(fDiskImage.c_str(), readOnly));
             break;
             
         case 'PO__':
-            device.reset(new ProFUSE::ProDOSOrderDiskImage(fDiskImage.c_str(), fReadOnly));
+            device.reset(new ProFUSE::ProDOSOrderDiskImage(fDiskImage.c_str(), readOnly));
             break;
             
         case 'DO__':
-            device.reset(new ProFUSE::DOSOrderDiskImage(fDiskImage.c_str(), fReadOnly));
+            device.reset(new ProFUSE::DOSOrderDiskImage(fDiskImage.c_str(), readOnly));
             break;
         
         
@@ -231,7 +219,6 @@ int main(int argc, char **argv)
         return -1;
     }
     
-    return 0;
     
     
     #ifdef __APPLE__
@@ -247,8 +234,13 @@ int main(int argc, char **argv)
     }
     #endif  
 
-    if (fReadOnly)
+    if (!options.readOnly)
         fuse_opt_add_arg(&args, "-ordonly");
+        
+    if (options.readWrite)
+    {
+        std::fprintf(stderr, "Warning:  write support is not yet enabled.\n");
+    }
 
     if (fuse_parse_cmdline(&args, &mountpoint, &multithread, &foreground) == -1)
     {

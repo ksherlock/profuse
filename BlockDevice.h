@@ -30,6 +30,7 @@ public:
     AbstractBlockCache *blockCache();
 
 protected:
+    BlockDevice();
     virtual AbstractBlockCache *createBlockCache();
 
 private:
