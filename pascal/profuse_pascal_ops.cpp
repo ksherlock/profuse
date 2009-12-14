@@ -8,10 +8,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-
+/*
 #define __FreeBSD__ 10 
 #define __DARWIN_64_BIT_INO_T 1 
 #define _FILE_OFFSET_BITS 64 
+*/
 #define FUSE_USE_VERSION 27
 
 #include <fuse/fuse_opt.h>
@@ -146,7 +147,7 @@ static void pascal_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, si
 
         if (attr == "user.charset")
         {
-            static const char *data="ascii";
+            static const char data[]="ascii";
             static unsigned dataSize = sizeof(data) - 1;
 
             RETURN_XATTR(data, dataSize)
@@ -154,7 +155,7 @@ static void pascal_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, si
         
         if (attr == "com.apple.TextEncoding")
         {
-            static const char *data = "us-ascii;1536";
+            static const char data[] = "us-ascii;1536";
             static unsigned dataSize = sizeof(data) - 1;
 
             RETURN_XATTR(data, dataSize)
@@ -190,7 +191,7 @@ static void pascal_releasedir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_i
 {
     std::printf("pascal_releasedir\n");
 
-    // nop.
+    fuse_reply_err(req, 0);
 }
 
 static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi)
@@ -201,12 +202,47 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
     auto_array<uint8_t> buffer(new uint8_t[size]);
     unsigned count = volume->fileCount();
 
+
     struct stat st;
     unsigned currentSize = 0;
 
     std::memset(&st, 0, sizeof(st));
     
-    for (unsigned i = off; i < count; ++i)
+    // . && .. entries.
+    
+    if (off == 0)
+    {
+        unsigned tmp;
+        
+        st.st_mode = S_IFDIR | 0555;
+        st.st_ino = 1;
+        
+        tmp = fuse_add_direntry(req, NULL, 0, ".", NULL, 0);
+        
+        ERROR(tmp + currentSize > size, ERANGE)
+
+        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, ".", &st, ++off);
+        currentSize += tmp;
+    }
+    if (off == 1)
+    {
+        unsigned tmp;
+        
+        st.st_mode = S_IFDIR | 0555;
+        st.st_ino = 1;
+        
+        tmp = fuse_add_direntry(req, NULL, 0, "..", NULL, 0);
+        
+        if (tmp + currentSize > size)
+        {
+            fuse_reply_buf(req, (char *)buffer.get(), currentSize);
+        }
+
+        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, "..", &st, ++off);
+        currentSize += tmp;
+    }
+    
+    for (unsigned i = off - 2; i < count; ++i)
     {
         unsigned tmp;
         
@@ -222,11 +258,11 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
         
         if (tmp + currentSize > size) break;
     
-        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, file->name(), &st, i + 1);
+        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, file->name(), &st, ++off);
         currentSize += tmp;
     }
     
-    fuse_reply_buf(req, currentSize ? (char *)buffer.get() : NULL, currentSize);
+    fuse_reply_buf(req, (char *)buffer.get(), currentSize);
     
 }
 
@@ -260,7 +296,7 @@ static void stat(VolumeEntry *volume, struct stat *st)
     
     time_t t = volume->lastBoot();
     
-        st->st_ino = volume->inode();
+    st->st_ino = volume->inode();
     st->st_nlink = 1 + volume->fileCount();
     st->st_mode = S_IFDIR | 0555;
     st->st_size = volume->blocks() * 512;
@@ -308,7 +344,7 @@ static void pascal_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
 
 static void pascal_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-    std::printf("pascal_getattr\n");
+    std::printf("pascal_getattr %u\n", (unsigned)ino);
 
     struct stat st;
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
@@ -324,6 +360,7 @@ static void pascal_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
     file = findChild(volume, ino);
     
     ERROR(file == NULL, ENOENT)
+    printf("\t%s\n", file->name());
     
     stat(file, &st);
     fuse_reply_attr(req, &st, 0.0);    
@@ -358,7 +395,7 @@ static void pascal_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 {
     std::printf("pascal_release\n");
 
-    // nop
+    fuse_reply_err(req, 0);
 }
 
 
@@ -366,7 +403,7 @@ static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, 
 {
     std::printf("pascal_read\n");
 
-    VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
+    //VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
     FileEntry *file = (FileEntry *)fi->fh;
     
     try
@@ -394,6 +431,8 @@ void init_ops(fuse_lowlevel_ops *ops)
 
     std::memset(ops, 0, sizeof(fuse_lowlevel_ops));
 
+    ops->init = pascal_init;
+    ops->destroy = pascal_destroy;
     
     // returns pascal.filekind, text encoding.
     ops->listxattr = pascal_listxattr;

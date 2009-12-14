@@ -633,13 +633,14 @@ unsigned FileEntry::textReadPage(unsigned block, uint8_t *in)
 void FileEntry::textInit()
 {
     // calculate the file size and page offsets.
-
+    _pageSize = new std::vector<unsigned>;
     _pageSize->reserve((_lastBlock - _firstBlock + 1 - 2) / 2);
 
     _fileSize = 0;
     for (unsigned block = _firstBlock + 2; block < _lastBlock; block += 2)
     {
         unsigned size = textDecodePage(block, NULL);
+        printf("%u: %u\n", block, size);
         _fileSize += size;
         _pageSize->push_back(size);
     }
