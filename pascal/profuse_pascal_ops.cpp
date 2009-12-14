@@ -210,57 +210,59 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
     
     // . && .. entries.
     
-    if (off == 0)
-    {
-        unsigned tmp;
-        
-        st.st_mode = S_IFDIR | 0555;
-        st.st_ino = 1;
-        
-        tmp = fuse_add_direntry(req, NULL, 0, ".", NULL, 0);
-        
-        ERROR(tmp + currentSize > size, ERANGE)
-
-        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, ".", &st, ++off);
-        currentSize += tmp;
-    }
-    if (off == 1)
-    {
-        unsigned tmp;
-        
-        st.st_mode = S_IFDIR | 0555;
-        st.st_ino = 1;
-        
-        tmp = fuse_add_direntry(req, NULL, 0, "..", NULL, 0);
-        
-        if (tmp + currentSize > size)
+    do {
+        if (off == 0)
         {
-            fuse_reply_buf(req, (char *)buffer.get(), currentSize);
+            unsigned tmp;
+            
+            st.st_mode = S_IFDIR | 0555;
+            st.st_ino = 1;
+            
+            tmp = fuse_add_direntry(req, NULL, 0, ".", NULL, 0);
+            
+            if (tmp + currentSize > size) break;
+    
+            fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, ".", &st, ++off);
+            currentSize += tmp;
         }
-
-        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, "..", &st, ++off);
-        currentSize += tmp;
-    }
-    
-    for (unsigned i = off - 2; i < count; ++i)
-    {
-        unsigned tmp;
         
-        FileEntry *file = volume->fileAtIndex(i);
-        if (file == NULL) break; //?
+        if (off == 1)
+        {
+            unsigned tmp;
+            
+            st.st_mode = S_IFDIR | 0555;
+            st.st_ino = 1;
+            
+            tmp = fuse_add_direntry(req, NULL, 0, "..", NULL, 0);
+            
+            if (tmp + currentSize > size) break;
     
-        // only these fields are used.
-        st.st_mode = S_IFREG | 0444;
-        st.st_ino = file->inode();
+            fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, "..", &st, ++off);
+            currentSize += tmp;
+        }
+    
+        for (unsigned i = off - 2; i < count; ++i)
+        {
+            unsigned tmp;
+            
+            FileEntry *file = volume->fileAtIndex(i);
+            if (file == NULL) break; //?
         
-    
-        tmp = fuse_add_direntry(req, NULL, 0, file->name(), NULL, 0);
+            // only these fields are used.
+            st.st_mode = S_IFREG | 0444;
+            st.st_ino = file->inode();
+            
         
-        if (tmp + currentSize > size) break;
+            tmp = fuse_add_direntry(req, NULL, 0, file->name(), NULL, 0);
+            
+            if (tmp + currentSize > size) break;
+        
+            fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, file->name(), &st, ++off);
+            currentSize += tmp;
+        }
     
-        fuse_add_direntry(req, (char *)buffer.get() + currentSize, size, file->name(), &st, ++off);
-        currentSize += tmp;
-    }
+    } while (false);
+    
     
     fuse_reply_buf(req, (char *)buffer.get(), currentSize);
     
@@ -401,7 +403,7 @@ static void pascal_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 
 static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi)
 {
-    std::printf("pascal_read\n");
+    std::printf("pascal_read %u %u %u\n", (unsigned)ino, (unsigned)size, (unsigned)off);
 
     //VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
     FileEntry *file = (FileEntry *)fi->fh;
@@ -411,15 +413,17 @@ static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, 
         auto_array<uint8_t> buffer(new uint8_t[size]);
         unsigned rsize = file->read(buffer.get(), size, off);
         
-        fuse_reply_buf(req, (const char *)(buffer.get()), rsize);
+        fuse_reply_buf(req, (char *)(buffer.get()), rsize);
         return;
     }
     catch (ProFUSE::POSIXException &e)
     {
+        printf("posix error...\n");
         ERROR(true, e.error());
     }
     catch( ... )
     {
+        printf("error...\n");
         ERROR(true, EIO)
     }
     

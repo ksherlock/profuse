@@ -524,7 +524,7 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
 
 
     // find the first page.    
-    for (page = 1; page < l; ++page)
+    for (page = 0; page < l; ++page)
     {
         unsigned pageSize = (*_pageSize)[page];
         if (to + pageSize > offset)
@@ -535,7 +535,6 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
         to += pageSize;
     }
     
-    --page;
 
     block = _firstBlock + 2 + (page * 2);
     
@@ -582,27 +581,38 @@ unsigned FileEntry::textDecodePage(unsigned block, uint8_t *out)
 {
     uint8_t buffer[1024];
     unsigned size = 0;
+    bool dle = false;
+    
     unsigned bytes = textReadPage(block, buffer);
     
     for (unsigned i = 0; i < bytes; ++i)
     {
         uint8_t c = buffer[i];
         
-        if (!c) break;
-        if (c == 16 && i != bytes - 1)
+        if (!c) continue;
+        
+        
+        if (dle)
         {
-            // DLE
-            // 16, n -> n-32 spaces.
-            unsigned x = buffer[++i] - 32;
-            
-            if (out) for (unsigned i = 0; i < x; ++i) *out++ = ' ';
-            size += x;
+            if (c > 32)
+            {
+                unsigned x = c - 32;
+                size += x;
+                if (out) for (unsigned j = 0; j < x; ++j)
+                    *out++ = ' ';
+            }
+            dle = false;
+            continue;
         }
-        else
-        {
-            if (out) *out++ = c;
-            size += 1;
-        }
+        if (c == 16) { dle = true; continue; }
+        
+        //if (c & 0x80) continue; // ascii only.
+        
+
+        if (c == 0x0d) c = 0x0a; // convert to unix format.
+        if (out) *out++ = c;
+        size += 1;
+
     }
     
     return size;
