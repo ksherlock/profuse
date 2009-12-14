@@ -33,12 +33,17 @@ void usage()
     std::printf("profuse_pascal 0.1\n\n");
     std::printf(
         "usage:\n"
-        "profuse_pascal [-w] [-f format] [-o options] diskimage [mountpoint]\n"
-        "  -w               mount writable [not yet]\n"
-        "  -f format        specify the disk image format. Valid values are:\n"
-        "                   dc42  DiskCopy 4.2 Image\n"
-        "                   do    DOS Order Disk Image\n"
-        "                   po    ProDOS Order Disk Image (default)\n"
+        "profuse_pascal [options] diskimage [mountpoint]\n"
+        "Options:\n"
+        "  -d                debug\n"
+        "  -r                readonly\n"
+        "  -w                mount writable [not yet]\n"
+        "  -v                verbose\n"
+        "  --format=format   specify the disk image format. Valid values are:\n"
+        "                    dc42  DiskCopy 4.2 Image\n"
+        "                    do    DOS Order Disk Image\n"
+        "                    po    ProDOS Order Disk Image (default)\n"
+        "  -o opt1,opt2...   other mount parameters.\n"
     );
 }
 
@@ -74,7 +79,8 @@ static struct fuse_opt pascal_options[] = {
     PASCAL_OPT_KEY("-w", readWrite, 1),
     PASCAL_OPT_KEY("rw", readWrite, 1),
     
-    PASCAL_OPT_KEY("-f %s", format, 0),
+    PASCAL_OPT_KEY("--format=%s", format, 0),
+    PASCAL_OPT_KEY("format=%s", format, 0),
     
     {0, 0, 0}
 };
@@ -170,8 +176,12 @@ int main(int argc, char **argv)
     }
 
     // default prodos-order disk image.
-    format = ProFUSE::DiskImage::ImageType(options.format);
-    
+    if (options.format)
+    {
+        format = ProFUSE::DiskImage::ImageType(options.format);
+        if (!format)
+            std::fprintf(stderr, "Warning: Unknown image type ``%s''\n", options.format);
+    }
     if (!format)
         format = ProFUSE::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
     
@@ -233,6 +243,8 @@ int main(int argc, char **argv)
         
     }
     #endif  
+
+    fuse_opt_add_arg(&args, "-ofsname=PascalFS");
 
     if (!options.readOnly)
         fuse_opt_add_arg(&args, "-ordonly");
