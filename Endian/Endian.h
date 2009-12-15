@@ -14,24 +14,11 @@ namespace LittleEndian {
         return (p[0]);        
     }
     
-    inline uint16_t Read16(const void *vp)
-    {
-        const uint8_t *p = (const uint8_t *)vp;
-        return p[0] | (p[1] << 8);        
-    }
+    uint16_t Read16(const void *vp);
 
-    inline uint32_t Read24(const void *vp)
-    {
-        const uint8_t *p = (const uint8_t *)vp;
-        return (p[0]) | (p[1] << 8) | (p[2] << 16);        
-    }
+    uint32_t Read24(const void *vp);
 
-
-    inline uint32_t Read32(const void *vp)
-    {
-        const uint8_t *p = (const uint8_t *)vp;
-        return (p[0]) | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);  
-    }
+    uint32_t Read32(const void *vp);
    
     
     inline uint8_t Read8(const void *vp, unsigned offset)
@@ -62,29 +49,12 @@ namespace LittleEndian {
         p[0] = x;        
     }
 
-    inline void Write16(void *vp, uint16_t x)
-    {
-        uint8_t *p = (uint8_t *)vp;
-        p[0] = (x) & 0xff;
-        p[1] = (x >> 8) & 0xff;   
-    }
+    void Write16(void *vp, uint16_t x);
 
-    inline void Write24(void *vp, uint32_t x)
-    {
-        uint8_t *p = (uint8_t *)vp;
-        p[0] = (x) & 0xff;
-        p[1] = (x >> 8) & 0xff;     
-        p[2] = (x >> 16) & 0xff;     
-    }
-    
-    inline void Write32(void *vp, uint32_t x)
-    {
-        uint8_t *p = (uint8_t *)vp;
-        p[0] = (x) & 0xff;
-        p[1] = (x >> 8) & 0xff;     
-        p[2] = (x >> 16) & 0xff;   
-        p[3] = (x >> 24) & 0xff;        
-    }
+    void Write24(void *vp, uint32_t x);
+
+    void Write32(void *vp, uint32_t x);
+
     
     inline void Write8(void *vp, unsigned offset, uint8_t x)
     {
@@ -118,24 +88,11 @@ namespace BigEndian {
         return p[0];        
     }
     
-    inline uint16_t Read16(const void *vp)
-    {
-        const uint8_t *p = (const uint8_t *)vp;
-        return (p[0] << 8) | (p[1]);        
-    }
+    uint16_t Read16(const void *vp);
 
-    inline uint32_t Read24(const void *vp)
-    {
-        const uint8_t *p = (const uint8_t *)vp;
-        return (p[0] << 16) | (p[1] << 8) | (p[2]);        
-    }
+    uint32_t Read24(const void *vp);
 
-
-    inline uint32_t Read32(const void *vp)
-    {
-        const uint8_t *p = (const uint8_t *)vp;
-        return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | (p[3]);  
-    }
+    uint32_t Read32(const void *vp);
    
     
     inline uint8_t Read8(const void *vp, unsigned offset)
@@ -167,30 +124,13 @@ namespace BigEndian {
         p[0] = x;        
     }
 
-    inline void Write16(void *vp, uint16_t x)
-    {
-        uint8_t *p = (uint8_t *)vp;
-        p[0] = (x >> 8) & 0xff;
-        p[1] = (x) & 0xff;   
-    }
+    void Write16(void *vp, uint16_t x);
 
-    inline void Write24(void *vp, uint32_t x)
-    {
-        uint8_t *p = (uint8_t *)vp;
-        p[0] = (x >> 16) & 0xff;
-        p[1] = (x >> 8) & 0xff;     
-        p[2] = (x) & 0xff;     
-    }
-    
-    inline void Write32(void *vp, uint32_t x)
-    {
-        uint8_t *p = (uint8_t *)vp;
-        p[0] = (x >> 24) & 0xff;
-        p[1] = (x >> 16) & 0xff;     
-        p[2] = (x >> 8) & 0xff;   
-        p[3] = (x) & 0xff;        
-    }
-    
+    void Write24(void *vp, uint32_t x);
+
+    void Write32(void *vp, uint32_t x);
+
+
     inline void Write8(void *vp, unsigned offset, uint8_t x)
     {
         Write8(offset + (uint8_t *)vp, x);
