@@ -3,6 +3,8 @@
 
 #include <pthread.h>
 
+namespace ProFUSE {
+
 class Lock {
 public:
     Lock();
@@ -24,5 +26,8 @@ public:
 private:
     Lock &_lock;
 };
+
+
+}
 
 #endif

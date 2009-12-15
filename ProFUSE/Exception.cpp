@@ -1,5 +1,5 @@
 
-#include "Exception.h"
+#include <ProFUSE/Exception.h>
 
 using namespace ProFUSE;
 

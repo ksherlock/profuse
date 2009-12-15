@@ -1,4 +1,6 @@
-#include "Lock.h"
+#include <ProfUSE/Lock.h>
+
+using namespace ProFUSE;
 
 Lock::Lock()
 {

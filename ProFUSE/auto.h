@@ -1,6 +1,8 @@
 #ifndef __AUTO_H__
 #define __AUTO_H__
 
+namespace ProFUSE {
+
 template <class T>
 class auto_array
 {
@@ -94,6 +96,7 @@ private:
 };
 #endif
 
+}
 
 #endif
 
