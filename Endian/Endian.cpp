@@ -1,4 +1,4 @@
-#include "Endian.h"
+#include <Endian/Endian.h>
 
 namespace LittleEndian {
 

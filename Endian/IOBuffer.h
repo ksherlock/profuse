@@ -1,7 +1,7 @@
 #ifndef __IOBUFFER_H__
 #define __IOBUFFER_H__
 
-#include "Endian.h"
+#include <Endian/Endian.h>
 #include <cstring>
 
 namespace LittleEndian {
@@ -9,7 +9,7 @@ namespace LittleEndian {
 }
 
 namespace BigEndian {
-#inclue "IOBuffer.t.cpp"
+#include "IOBuffer.t.cpp"
 }
 
 #endif
