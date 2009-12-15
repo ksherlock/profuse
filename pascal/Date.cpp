@@ -1,4 +1,4 @@
-#include "Date.h"
+#include <Pascal/Date.h>
 #include <cstring>
 
 using namespace Pascal;
@@ -25,6 +25,9 @@ Date::operator std::time_t() const {
     tm.tm_year = _year; 
     tm.tm_isdst = -1;
     
+    // ProDOS standard for dealing w/ y2k.
+    if (_year <= 39) tm.tm_year += 100;
+    
     return std::mktime(&tm);
 }
 
@@ -40,5 +43,5 @@ Date Date::Today()
 
     ::localtime_r(&t, &tm);
 
-    return Date(tm.tm_year, tm.tm_mon + 1, tm.tm_mday);
+    return Date(tm.tm_year % 100, tm.tm_mon + 1, tm.tm_mday);
 }

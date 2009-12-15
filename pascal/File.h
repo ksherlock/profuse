@@ -1,7 +1,7 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include "Date.h"
+#include <Pascal/Date.h>
 
 #include <vector>
 
@@ -79,10 +79,10 @@ class VolumeEntry : public Entry {
 public:
 
     // create new 
-    VolumeEntry(const char *name, ProFUSE::BlockDevice *);
+    VolumeEntry(const char *name, Device::BlockDevice *);
     
     // open existing
-    VolumeEntry(ProFUSE::BlockDevice *);
+    VolumeEntry(Device::BlockDevice *);
     virtual ~VolumeEntry();
 
     const char *name() const { return _fileName; }
@@ -124,8 +124,8 @@ private:
     std::vector<FileEntry *> _files;
     unsigned _inodeGenerator;
     
-    ProFUSE::BlockDevice *_device;
-    ProFUSE::AbstractBlockCache *_cache;
+    Device::BlockDevice *_device;
+    Device::AbstractBlockCache *_cache;
 };
 
 
