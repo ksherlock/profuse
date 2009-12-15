@@ -1,6 +1,6 @@
 #include "Endian.h"
 
-using namespace LittleEndian {
+namespace LittleEndian {
 
 
     uint16_t Read16(const void *vp)
@@ -54,7 +54,7 @@ using namespace LittleEndian {
 
 }
 
-using namespace BigEndian {
+namespace BigEndian {
 
 
     inline uint16_t Read16(const void *vp)
