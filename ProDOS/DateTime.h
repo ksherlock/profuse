@@ -4,7 +4,7 @@
 #include <ctime>
 #include <stdint.h>
 
-namespace ProFUSE {
+namespace ProDOS {
 
 class DateTime
 {

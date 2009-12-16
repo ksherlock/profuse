@@ -1,11 +1,12 @@
-#include "DateTime.h"
 
 
 #include <cstdio>
 #include <ctime>
 #include <cstring>
 
-using namespace ProFUSE;
+#include <ProDOS/DateTime.h>
+
+using namespace ProDOS;
 
 /*
  *  date is a 16 bit value:
