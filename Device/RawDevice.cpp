@@ -20,12 +20,15 @@
 #include <sys/dkio.h>
 #endif
 
+#include <Device/RawDevice.h>
 
-#include "RawDevice.h"
-#include "auto.h"
-#include "Exception.h"
+#include <ProFUSE/auto.h>
+#include <ProFUSE/Exception.h>
 
-using namespace ProFUSE;
+using namespace Device;
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
 
 #ifdef __SUN__
 void RawDevice::devSize(int fd)
@@ -100,7 +103,7 @@ RawDevice::RawDevice(const char *name, bool readOnly)
 
     // open read-only, verify if device is readable, and then try to upgrade to read/write?
 
-    auto_fd fd;
+    ProFUSE::auto_fd fd;
     
     if (!readOnly) fd.reset(::open(name, O_RDWR));
     if (fd < 0)

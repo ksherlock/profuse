@@ -1,7 +1,3 @@
-#include "BlockDevice.h"
-#include "BlockCache.h"
-#include "Exception.h"
-#include "MappedFile.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -11,7 +7,18 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-using namespace ProFUSE;
+
+#include <Device/BlockDevice.h>
+#include <Device/BlockCache.h>
+#include <Device/MappedFile.h>
+
+#include <ProFUSE/Exception.h>
+
+
+using namespace Device;
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
 
 #pragma mark -
 #pragma mark BlockDevice

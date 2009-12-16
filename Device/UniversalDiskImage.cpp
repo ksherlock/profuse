@@ -1,10 +1,16 @@
-#include "UniversalDiskImage.h"
-#include "MappedFile.h"
-#include "Buffer.h"
-#include "Endian.h"
+#include <Device/UniversalDiskImage.h>
+#include <Device/MappedFile.h>
 
-using namespace ProFUSE;
+#include <Endian/Endian.h>
+#include <Endian/IOBuffer.h>
+
+#include <ProFUSE/Exception.h>
+
+using namespace Device;
 using namespace LittleEndian;
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
 
 UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
     DiskImage(name, readOnly)
@@ -27,35 +33,37 @@ UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
     // 64-byte header.
     MappedFile *file = new MappedFile(name, blocks * 512 + 64);
 
-    Buffer header(64);
+    uint8_t tmp[64];
+    
+    IOBuffer header(tmp, 64);
     
 
     // magic + creator
-    header.pushBytes("2IMGPRFS", 8); 
+    header.writeBytes("2IMGPRFS", 8); 
     
     // header size.
-    header.push16le(64);
+    header.write16(64);
     
     // version
-    header.push16le(1);
+    header.write16(1);
     
     //image format -- ProDOS order
-    header.push32le(1); 
+    header.write32(1); 
     
     // flags
-    header.push32le(0);
+    header.write32(0);
     
     // # blocks. s/b 0 unless prodos-order
-    header.push32le(blocks);
+    header.write32(blocks);
     
     // offset to disk data
-    header.push32le(64);
+    header.write32(64);
     
     // data length
-    header.push32le(512 * blocks);
+    header.write32(512 * blocks);
     
     // comment offset, creator, reserved -- 0.
-    header.resize(64);
+    header.setOffset(64, true);
     
     std::memcpy(file->fileData(), header.buffer(), 64);
     

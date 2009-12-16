@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#include "BlockDevice.h"
+#include <Device/BlockDevice.h>
 
-namespace ProFUSE {
+namespace Device {
 
 // /dev/xxx
 

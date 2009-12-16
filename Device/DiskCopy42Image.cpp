@@ -1,14 +1,21 @@
-#include "DiskCopy42Image.h"
-#include "MappedFile.h"
-#include "Buffer.h"
-#include "Endian.h"
+
 
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
 
-using namespace ProFUSE;
+#include <Device/DiskCopy42Image.h>
+#include <Device/MappedFile.h>
+
+#include <Endian/Endian.h>
+#include <Endian/IOBuffer.h>
+
+using namespace Device;
 using namespace BigEndian;
+
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
 
 DiskCopy42Image::DiskCopy42Image(MappedFile *f) :
     DiskImage(f),
@@ -97,30 +104,32 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const 
     file->setOffset(84);
     file->setBlocks(blocks);
     
-    Buffer header(84);
+    uint8_t tmp[84];
+    IOBuffer header(tmp, 84);
     
     // name -- 64byte pstring.
     
     if (vname == NULL) vname = "Untitled"; 
     unsigned l = std::strlen(vname);
-    header.push8(std::min(l, 63u));
-    header.pushBytes(vname, std::min(l, 63u));
+    header.write8(std::min(l, 63u));
+    header.writeBytes(vname, std::min(l, 63u));
 
-    header.resize(64);
+    //header.resize(64);
+    header.setOffset(64, true);
     
     // data size -- number of bytes
-    header.push32be(blocks * 512);
+    header.write32(blocks * 512);
     
     // tag size
-    header.push32be(0);
+    header.write32(0);
     
     // data checksum
     // if data is 0, will be 0.
     //header.push32be(Checksum(file->fileData(), blocks * 512));
-    header.push32be(0);
+    header.write32(0);
     
     // tag checksum
-    header.push32be(0);
+    header.write32(0);
     
     // disk format.
     /*
@@ -130,7 +139,7 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const 
      * 3 = 1440k
      * 0xff = other
      */
-    header.push8(DiskFormat(blocks));
+    header.write8(DiskFormat(blocks));
     
     // formatbyte
     /*
@@ -138,10 +147,10 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const 
      * 0x22 = >400k mac
      * 0x24 = 800k appleII
      */
-    header.push8(FormatByte(blocks));
+    header.write8(FormatByte(blocks));
     
     // private
-    header.push16be(0x100);
+    header.write16(0x100);
     
     std::memcpy(file->fileData(), header.buffer(), 84);
     file->sync();

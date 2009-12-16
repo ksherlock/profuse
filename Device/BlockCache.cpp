@@ -6,10 +6,11 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "BlockDevice.h"
-#include "BlockCache.h"
-#include "Exception.h"
-#include "auto.h"
+#include <Device/BlockDevice.h>
+#include <Device/BlockCache.h>
+
+#include <ProFUSE/Exception.h>
+#include <ProFUSE/auto.h>
 
 
 /*
@@ -19,7 +20,10 @@
 
 
 
-using namespace ProFUSE;
+using namespace Device;
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
 
 #pragma mark -
 #pragma mark AbstractBlockCache
@@ -162,7 +166,7 @@ void *BlockCache::load(unsigned block)
     }
     
 
-    auto_array<uint8_t> buffer(new uint8_t[512]);
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
     BlockDescriptor bd = { block, 1, _ts, false, buffer.get() };
     
     _device->read(block, buffer.get());    

@@ -1,6 +1,3 @@
-#include "MappedFile.h"
-#include "Exception.h"
-
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -9,10 +6,14 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#include "auto.h"
+#include <Device/MappedFile.h>
 
-using namespace ProFUSE;
+#include <ProFUSE/Exception.h>
+#include <ProFUSE/auto.h>
 
+using namespace Device;
+using ProFUSE::POSIXException;
+using ProFUSE::Exception;
 
 
 MappedFile::MappedFile(const char *name, bool readOnly)
@@ -23,7 +24,7 @@ MappedFile::MappedFile(const char *name, bool readOnly)
     
     // if unable to open as read/write, open as read-only.
     
-    auto_fd fd;
+    ProFUSE::auto_fd fd;
     
     if (!readOnly)
     {
@@ -61,7 +62,7 @@ MappedFile::MappedFile(const char *name, size_t size)
     _readOnly = false;
     _encoding = ProDOSOrder;
     
-    auto_fd fd(::open(name, O_CREAT | O_TRUNC | O_RDWR, 0644));
+    ProFUSE::auto_fd fd(::open(name, O_CREAT | O_TRUNC | O_RDWR, 0644));
     
     if (fd < 0)
         throw POSIXException(__METHOD__ ": Unable to create file.", errno);
@@ -74,7 +75,7 @@ MappedFile::MappedFile(const char *name, size_t size)
     
     //_map = ::mmap(NULL, _size, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, _fd, 0);
     
-    auto_map map(
+    ProFUSE::auto_map map(
         NULL,
         _size, 
         PROT_READ | PROT_WRITE, 
@@ -101,8 +102,7 @@ void MappedFile::init(int f, bool readOnly)
     #undef __METHOD__
     #define __METHOD__ "MappedFile::init"
     
-    //auto_fd fd(f);
-
+    
     _fd = -1;
     _map = MAP_FAILED;    
     _offset = 0;
@@ -122,7 +122,7 @@ void MappedFile::init(int f, bool readOnly)
     ::lseek(f, 0, SEEK_SET);
     
     
-    auto_map map(
+    ProFUSE::auto_map map(
         NULL,
         _size,
         readOnly ?  PROT_READ  : PROT_READ | PROT_WRITE, 

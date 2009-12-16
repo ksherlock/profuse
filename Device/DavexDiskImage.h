@@ -1,9 +1,11 @@
+#ifndef __DAVEXDISKIMAGE_H__
+#define __DAVEXDISKIMAGE_H__
 
-
-#include "BlockDevice.h"
 #include <string>
 
-namespace ProFUSE {
+#include <Device/BlockDevice.h>
+
+namespace Device {
 
 // only supports 1 file; may be split over multiple files.
 
@@ -29,3 +31,5 @@ private:
 
 
 }
+
+#endif

@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "Exception.h"
+#include <ProFUSE/Exception.h>
 
-namespace ProFUSE {
+namespace Device {
 
 class MappedFile;
 class AbstractBlockCache;

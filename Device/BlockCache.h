@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <vector>
 
-namespace ProFUSE {
+namespace Device {
 
 class BlockDevice;
 

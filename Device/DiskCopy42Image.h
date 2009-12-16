@@ -1,11 +1,11 @@
 #ifndef __DISKCOPY42IMAGE_H__
 #define __DISKCOPY42IMAGE_H__
 
-#include "BlockDevice.h"
+#include <Device/BlockDevice.h>
 
 #include <stdint.h>
 
-namespace ProFUSE {
+namespace Device {
 
 class DiskCopy42Image : public DiskImage {
 public:

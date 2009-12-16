@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <cstdlib>
 
-namespace ProFUSE {
+namespace Device {
 
 
 class MappedFile {

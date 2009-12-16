@@ -1,7 +1,3 @@
-#include "DavexDiskImage.h"
-#include "MappedFile.h"
-#include "Buffer.h"
-#include "Endian.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -11,8 +7,18 @@
 #include <cstdio>
 #include <algorithm>
 
-using namespace ProFUSE;
+#include <Device/DavexDiskImage.h>
+#include <Device/MappedFile.h>
+
+#include <Endian/Endian.h>
+#include <Endian/IOBuffer.h>
+
+
+using namespace Device;
 using namespace LittleEndian;
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
 
 /*
  http://www.umich.edu/~archive/apple2/technotes/ftn/FTN.E0.8004
@@ -99,50 +105,51 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
 #define __METHOD__ "DavexDiskImage::Create"
 
     uint8_t *data;
+    uint8_t tmp[512];
+    IOBuffer header(tmp,512);
+
     
     MappedFile *file = new MappedFile(name, blocks * 512 + 512);
     
     data = (uint8_t *)file->fileData();
-
-    Buffer header(512);
-    
-    header.pushBytes(IdentityCheck, 16);
+        
+    header.writeBytes(IdentityCheck, 16);
     // file Format
-    header.push8(0);
+    header.write8(0);
     //version
-    header.push8(0);
+    header.write8(0);
     // version
-    header.push8(0x10);
+    header.write8(0x10);
     
     // reserved.
-    header.resize(32);
+    header.setOffset(32, true);
     
     //deviceNum
-    header.push8(1);
+    header.write8(1);
     
     // total blocks
-    header.push32le(blocks);
+    header.write32(blocks);
 
     // unused blocks
-    header.push32le(0);
+    header.write32(0);
     
     // volume Name
     if (!vname || !*vname) vname = "Untitled";
     unsigned l = std::strlen(vname);
-    header.push8(std::min(l, 15u));
-    header.pushBytes(vname, std::min(l, 15u));
+    header.write8(std::min(l, 15u));
+    header.writeBytes(vname, std::min(l, 15u));
     
     // name + reserved.
-    header.resize(64);
+    header.setOffset(64, true);
         
     // file number
-    header.push8(1);
+    header.write8(1);
     
     //starting block
-    header.push32le(0);
+    header.write32(0);
     
     // reserved
-    header.resize(512);
+    header.setOffset(512, true);
     
     
     std::memcpy(file->fileData(), header.buffer(), 512);

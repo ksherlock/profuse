@@ -2,10 +2,10 @@
 #define __UNIVERSALDISKIMAGE_H__
 
 
-#include "BlockDevice.h"
+#include <Device/BlockDevice.h>
 #include <stdint.h>
 
-namespace ProFUSE {
+namespace Device {
 
 class UniversalDiskImage : public DiskImage {
 public:
