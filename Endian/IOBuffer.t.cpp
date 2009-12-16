@@ -38,18 +38,26 @@
         
         void writeZero(unsigned count)
         {
-            uint8_t *cp = _offset + (uint8_t *)_buffer;
-            for (unsigned i = 0; i < count; ++i)
-            {
-                cp[i] = 0;
-            }
+            std::memset(_offset + (uint8_t *)_buffer, 0, count);
+
             _offset += count;
         }
         
         unsigned offset() const { return _offset; }
         void setOffset(unsigned offset) { _offset = offset; }
         
+        void setOffset(unsigned offset, bool zero)
+        {
+            if (zero && offset > _offset)
+            {
+                writeZero(offset - _offset);
+            }
+            else setOffset(offset);
+        }
+        
         unsigned size() const { return _size; }
+        
+        void *buffer() const { return _buffer; }
         
         private:
         void *_buffer;
