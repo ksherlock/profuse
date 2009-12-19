@@ -1,6 +1,6 @@
 #include <Pascal/File.h>
 
-#include <ProfUSE/auto.h>
+#include <ProFUSE/auto.h>
 #include <ProFUSE/Exception.h>
 
 #include <Endian/Endian.h>
@@ -11,6 +11,9 @@
 
 #pragma mark -
 #pragma mark VolumeEntry
+
+using namespace LittleEndian;
+using namespace Pascal;
 
 unsigned VolumeEntry::ValidName(const char *cp)
 {
@@ -86,7 +89,7 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
 
 VolumeEntry::VolumeEntry(Device::BlockDevice *device)
 {
-    auto_array<uint8_t> buffer(new uint8_t[512]);
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
     unsigned blockCount;
     
     // read the header block, then load up all the header 

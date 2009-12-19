@@ -1,17 +1,21 @@
+
+#include <algorithm>
+#include <cstring>
+#include <cctype>
+#include <memory>
+
 #include <Pascal/File.h>
 
 #include <ProfUSE/auto.h>
 #include <ProFUSE/Exception.h>
 
 #include <Endian/Endian.h>
+#include <Endian/IOBuffer.h>
 
 #include <Device/BlockDevice.h>
 #include <Device/BlockCache.h>
 
-#include <algorithm>
-#include <cstring>
-#include <cctype>
-#include <memory>
+
 
 using namespace LittleEndian;
 using namespace Pascal;
@@ -197,7 +201,7 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
     unsigned l;
     unsigned count = 0;
     
-    auto_array<uint8_t> tmp;
+    ProFUSE::auto_array<uint8_t> tmp;
     unsigned tmpSize = 0;
     
     if (!_pageSize) textInit();
