@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace ProFUSE {
+namespace Device {
     class BlockDevice;
     class AbstractBlockCache;
 }

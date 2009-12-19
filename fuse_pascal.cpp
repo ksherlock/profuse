@@ -18,11 +18,12 @@
 #include <fuse/fuse_lowlevel.h>
 
 
-#include "File.h"
-#include "../BlockDevice.h"
-#include "../Exception.h"
-#include "../MappedFile.h"
-#include "../DiskCopy42Image.h"
+#include <Pascal/File.h>
+#include <ProFUSE/Exception.h>
+
+#include <Device/BlockDevice.h>
+#include <Device/MappedFile.h>
+#include <Device/DiskCopy42Image.h>
 
 Pascal::VolumeEntry *fVolume = NULL;
 std::string fDiskImage;
@@ -102,6 +103,7 @@ static int pascal_option_proc(void *data, const char *arg, int key, struct fuse_
 
         
         case FUSE_OPT_KEY_NONOPT:
+            // first arg is the disk image.
             if (fDiskImage.empty())
             {
                 fDiskImage = arg;
@@ -120,9 +122,12 @@ bool make_mount_dir(std::string name, std::string &path)
 {
     path = "";
     
-    if (name.find('/') != std::string::npos) return false;
-    if (name.find('\\') != std::string::npos) return false;
-    if (name.find(':') != std::string::npos) return false;
+    if (name.find('/') != std::string::npos
+        || name.find('\\') != std::string::npos
+        || name.find(':') != std::string::npos )
+    {
+        name = "Pascal Volume";
+    }
     
     path = "";
     path = "/Volumes/" + name;
@@ -134,10 +139,7 @@ bool make_mount_dir(std::string name, std::string &path)
         path = "/Volumes/" + name + " " + (char)('a' + i);
         
         rmdir(path.c_str());
-        if (mkdir(path.c_str(), 0777) == 0) return true;
-        
-        
-        
+        if (mkdir(path.c_str(), 0777) == 0) return true;   
     }
     
     path = "";
@@ -178,31 +180,31 @@ int main(int argc, char **argv)
     // default prodos-order disk image.
     if (options.format)
     {
-        format = ProFUSE::DiskImage::ImageType(options.format);
+        format = Device::DiskImage::ImageType(options.format);
         if (!format)
             std::fprintf(stderr, "Warning: Unknown image type ``%s''\n", options.format);
     }
     if (!format)
-        format = ProFUSE::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
+        format = Device::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
     
     
     bool readOnly = true;
     
     try {
-        std::auto_ptr<ProFUSE::BlockDevice> device;
+        std::auto_ptr<Device::BlockDevice> device;
        
         switch(format)
         {
         case 'DC42':
-            device.reset(new ProFUSE::DiskCopy42Image(fDiskImage.c_str(), readOnly));
+            device.reset(new Device::DiskCopy42Image(fDiskImage.c_str(), readOnly));
             break;
             
         case 'PO__':
-            device.reset(new ProFUSE::ProDOSOrderDiskImage(fDiskImage.c_str(), readOnly));
+            device.reset(new Device::ProDOSOrderDiskImage(fDiskImage.c_str(), readOnly));
             break;
             
         case 'DO__':
-            device.reset(new ProFUSE::DOSOrderDiskImage(fDiskImage.c_str(), readOnly));
+            device.reset(new Device::DOSOrderDiskImage(fDiskImage.c_str(), readOnly));
             break;
         
         
@@ -278,8 +280,8 @@ int main(int argc, char **argv)
         se = fuse_lowlevel_new(&args, &pascal_ops, sizeof(pascal_ops), fVolume);
         
         if (se) do {
-            foreground = 1;
-            multithread = 0;
+            //foreground = 1;
+            //multithread = 0;
             
             err = fuse_daemonize(foreground); // todo
             if (err < 0 ) break;

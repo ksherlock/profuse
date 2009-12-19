@@ -8,11 +8,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-/*
+
 #define __FreeBSD__ 10 
 #define __DARWIN_64_BIT_INO_T 1 
 #define _FILE_OFFSET_BITS 64 
-*/
+
 #define FUSE_USE_VERSION 27
 
 #include <fuse/fuse_opt.h>
@@ -20,10 +20,9 @@
 
 
 
-
-#include "File.h"
-#include "../auto.h"
-#include "../Exception.h"
+#include <Pascal/File.h>
+#include <ProFUSE/auto.h>
+#include <ProFUSE/Exception.h>
 
 #define NO_ATTR() \
 { \
@@ -64,11 +63,21 @@ static void pascal_init(void *userdata, struct fuse_conn_info *conn)
 {
     std::printf("pascal_init\n");
     // nop
+    
+    // text files have a non-thread safe index.
+    // which is initialized via read() or fileSize()
+    VolumeEntry *volume = (VolumeEntry *)userdata;
+    for (unsigned i = 0, l = volume->fileCount(); i < l; ++i)
+    {
+        volume->fileAtIndex(i)->fileSize();
+    }
+
 }
 
 static void pascal_destroy(void *userdata)
 {
     std::printf("pascal_destroy\n");
+
     // nop
 }
 
@@ -199,7 +208,7 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
     std::printf("pascal_readdir %u, %u, %u\n", (unsigned)ino, (unsigned)size, (unsigned)off);
 
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    auto_array<uint8_t> buffer(new uint8_t[size]);
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[size]);
     unsigned count = volume->fileCount();
 
 
@@ -208,7 +217,7 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
 
     std::memset(&st, 0, sizeof(st));
     
-    // . && .. entries.
+        // . and .. need to be added in here but are handled by the fs elsewhere.
     
     do {
         if (off == 0)
@@ -408,9 +417,11 @@ static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, 
     //VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
     FileEntry *file = (FileEntry *)fi->fh;
     
+
+    
     try
     {
-        auto_array<uint8_t> buffer(new uint8_t[size]);
+        ProFUSE::auto_array<uint8_t> buffer(new uint8_t[size]);
         unsigned rsize = file->read(buffer.get(), size, off);
         
         fuse_reply_buf(req, (char *)(buffer.get()), rsize);
