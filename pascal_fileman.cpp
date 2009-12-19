@@ -16,49 +16,12 @@
 #include <unistd.h>
 #include <strings.h>
 
-#include "File.h"
-#include "Date.h"
-#include "../BlockDevice.h"
-#include "../DiskCopy42Image.h"
+#include <Pascal/File.h>
+#include <Pascal/Date.h>
+#include <Device/BlockDevice.h>
+#include <Device/DiskCopy42Image.h>
 
 
-unsigned parseFormat(const char *type, unsigned defv = 0)
-{
-    if (type == 0 || *type == 0) return defv;
-    
-    if (::strcasecmp(type, "2mg") == 0)
-        return '2IMG';
-    if (::strcasecmp(type, "2img") == 0)
-        return '2IMG';
-    if (::strcasecmp(type, "dc42") == 0)
-        return 'DC42';
-    if (::strcasecmp(type, "po") == 0)
-        return 'PO__';
-    if (::strcasecmp(type, "do") == 0)
-        return 'DO__';
-    if (::strcasecmp(type, "dsk") == 0)
-        return 'DO__';
-    if (::strcasecmp(type, "davex") == 0)
-        return 'DVX_';
-                    
-    return defv;
-}
-
-// return the filename extension, NULL if none.
-const char *extname(const char *src)
-{
-    if (!src) return NULL;
-    unsigned l = std::strlen(src);
-    
-    for (unsigned i = 0; i < l; ++i)
-    {
-        char c = src[l - 1 - i];
-        if (c == '/') return NULL;
-        if (c == '.') return src + l - i;
-    }
-    
-    return NULL;
-}
 
 
 const char *MonthName(unsigned m)
@@ -218,7 +181,6 @@ int main(int argc, char **argv)
     std::auto_ptr<Pascal::VolumeEntry> volume;
     std::auto_ptr<ProFUSE::BlockDevice> device;
   
-    const char *format = NULL;
     unsigned fmt = 0;
     
     int c;
@@ -231,7 +193,12 @@ int main(int argc, char **argv)
         switch(c)
         {
         case 'f':
-            format = optarg;
+            fmt = Device::DiskImage::ImageType(optarg);
+            if (!fmt)
+            {
+                std::fprintf(stderr, "Error: Invalid file format: ``%s''.\n",
+                    optarg);
+            }
             break;
             
         case 'h':
@@ -255,10 +222,8 @@ int main(int argc, char **argv)
     const char *file = argv[1];
     const char *action = argv[0];
     
-    if (format == NULL) format = extname(file);
-    
-    fmt = parseFormat(format, 'PO__');
-    
+    if (!fmt) fmt = Device::DiskImage::ImageType(optarg, 'PO__');
+        
     
     try {
     
