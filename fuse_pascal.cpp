@@ -277,8 +277,10 @@ int main(int argc, char **argv)
     {
         struct fuse_session* se;
 
-        se = fuse_lowlevel_new(&args, &pascal_ops, sizeof(pascal_ops), fVolume);
+        std::printf("Mounting ``%s'' on ``%s''\n", fVolume->name(), mountpoint);
         
+        se = fuse_lowlevel_new(&args, &pascal_ops, sizeof(pascal_ops), fVolume);
+
         if (se) do {
             //foreground = 1;
             //multithread = 0;
