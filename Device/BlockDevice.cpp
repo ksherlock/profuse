@@ -54,6 +54,30 @@ AbstractBlockCache *BlockDevice::createBlockCache()
     return new BlockCache(this);
 }
 
+bool BlockDevice::mapped()
+{
+    return false;
+}
+
+void BlockDevice::sync(unsigned block)
+{
+    sync();
+}
+
+void BlockDevice::sync(TrackSector ts)
+{
+    sync();
+}
+
+void *BlockDevice::read(unsigned block)
+{
+    return NULL;
+}
+
+void *BlockDevice::read(TrackSector ts)
+{
+    return NULL;
+}
 
 
 #pragma mark -

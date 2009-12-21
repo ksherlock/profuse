@@ -146,17 +146,40 @@ void RawDevice::read(unsigned block, void *bp)
     // sun -- use pread
     // apple - read full native block(s) ?
 
-    size_t ok = ::pread(_fd, bp, 512, block * 512);
+    off_t offset = block * 512;    
+    size_t ok = ::pread(_fd, bp, 512, offset);
     
     // TODO -- EINTR?
     if (ok != 512)
         throw ok < 0
             ? POSIXException(__METHOD__ ": Error reading block.", errno)
             : Exception(__METHOD__ ": Error reading block.");
-
-    
-    
 }
+
+
+void RawDevice::read(TrackSector ts, void *bp)
+{
+#undef __METHOD__
+#define __METHOD__ "RawDevice::read"
+
+    unsigned block = ts.track * 8 + ts.sector / 2;
+    if (block >= _blocks) throw Exception(__METHOD__ ": Invalid block number.");
+    if (bp == 0) throw Exception(__METHOD__ ": Invalid address."); 
+
+    // sun -- use pread
+    // apple - read full native block(s) ?
+
+    off_t offset = (ts.track * 16 + ts.sector) * 256;    
+    size_t ok = ::pread(_fd, bp, 256, offset);
+    
+    // TODO -- EINTR?
+    if (ok != 256)
+        throw ok < 0
+            ? POSIXException(__METHOD__ ": Error reading block.", errno)
+            : Exception(__METHOD__ ": Error reading block.");
+}
+
+
 void RawDevice::write(unsigned block, const void *bp)
 {
 #undef __METHOD__
@@ -167,10 +190,33 @@ void RawDevice::write(unsigned block, const void *bp)
     if (_readOnly)
         throw Exception(__METHOD__ ": File is readonly.");
 
-    
-    size_t ok = ::pwrite(_fd, bp, 512, block * 512);
+
+    off_t offset = block * 512;    
+    size_t ok = ::pwrite(_fd, bp, 512, offset);
     
     if (ok != 512)
+        throw ok < 0 
+            ? POSIXException(__METHOD__ ": Error writing block.", errno)
+            : Exception(__METHOD__ ": Error writing block.");
+}
+
+
+void RawDevice::write(TrackSector ts, const void *bp)
+{
+#undef __METHOD__
+#define __METHOD__ "RawDevice::write"
+
+    unsigned block = ts.track * 8 + ts.sector / 2;
+    if (block > _blocks) throw Exception(__METHOD__ ": Invalid block number.");
+
+    if (_readOnly)
+        throw Exception(__METHOD__ ": File is readonly.");
+
+
+    off_t offset = (ts.track * 16 + ts.sector) * 256;    
+    size_t ok = ::pwrite(_fd, bp, 256, offset);
+    
+    if (ok != 256)
         throw ok < 0 
             ? POSIXException(__METHOD__ ": Error writing block.", errno)
             : Exception(__METHOD__ ": Error writing block.");
@@ -180,6 +226,11 @@ void RawDevice::write(unsigned block, const void *bp)
 bool RawDevice::readOnly()
 {
     return _readOnly;
+}
+
+bool RawDevice::mapped()
+{
+    return false;
 }
 
 void RawDevice::sync()

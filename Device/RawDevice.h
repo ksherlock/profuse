@@ -18,9 +18,13 @@ public:
     virtual ~RawDevice();
     
     virtual void read(unsigned block, void *bp);
+    virtual void read(TrackSector ts, void *bp);
+    
     virtual void write(unsigned block, const void *bp);
-
+    virtual void write(TrackSector ts, const void *bp);
+    
     virtual bool readOnly();
+    virtual bool mapped();
     virtual void sync();
     
 private:
