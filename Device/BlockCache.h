@@ -23,8 +23,8 @@ public:
     
         
     virtual void sync() = 0;
-    virtual void write(unsigned block, const void *vp) = 0;
-    
+    virtual void write(unsigned block, const void *bp);
+    virtual void read(unsigned block, void *bp);
 
     virtual void *acquire(unsigned block) = 0;
     virtual void release(unsigned block, bool dirty) = 0;
@@ -84,6 +84,7 @@ private:
     
     Entry *findEntry(unsigned block);
     void removeEntry(unsigned block);
+    void addEntry(Entry *);
     
     Entry *newEntry(unsigned block);
     
@@ -102,16 +103,12 @@ class MappedBlockCache : public BlockCache {
     virtual ~MappedBlockCache();
     
     virtual void sync() = 0;
-    virtual void write(unsigned block, const void *vp) = 0;
-    
-    virtual bool readOnly();
-    virtual unsigned blocks();
-    
+    virtual void write(unsigned block, const void *vp);
 
 
-    virtual void *acquire(unsigned block) = 0;
-    virtual void release(unsigned block, bool dirty) = 0;
-    virtual void markDirty(unsigned block) = 0;
+    virtual void *acquire(unsigned block);
+    virtual void release(unsigned block, bool dirty);
+    virtual void markDirty(unsigned block);
     
     private:
         void *_data;

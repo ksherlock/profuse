@@ -18,6 +18,34 @@
  *
  */
 
+/*
+ * The primary purpose of the block cache is not as a cache 
+ * (the OS probably does a decent job of that) but rather to
+ * simplify read/writes. Blocks will always be accessed by
+ * pointer, so any updates will be shared.
+ * For memory mapped prodos-order files, MappedBlockCache just
+ * returns a pointer to the memory.
+ * For dos-order, nibblized, or raw devices, ConcreteBlockCache
+ * uses an approach similar to minix (although the buffer pool will 
+ * expand if needed).
+ *
+ * _buffers is a vector of all buffers and only exists to make
+ * freeing them easier.
+ * _hashTable is a simple hashtable of loaded blocks.
+ * _first and _last are a double-linked list of unused blocks, stored
+ * in lru order.
+ *
+ * The Entry struct contains the buffer, the block, a dirty flag, and an in-use
+ * count as well as pointer for the hashtable and lru list.
+ * When a block is loaded, it is stored in the _hashTable.  It remains in the 
+ * hash table when the in-use count goes to 0 (it will also be added to the
+ * end of the lru list).
+ * 
+ * dirty buffers are only written to disk in 3 scenarios:
+ * a) sync() is called
+ * b) the cache is deleted
+ * c) a buffer is re-used from the lru list.
+ */
 
 
 using namespace Device;
@@ -38,6 +66,20 @@ BlockCache::~BlockCache(BlockDevice *device)
 BlockCache::~BlockCache()
 {
     delete _device;
+}
+
+void BlockCache::write(unsigned block, const void *bp)
+{
+    void *address = acquire(block);
+    std::memcpy(address, bp, 512);
+    release(block, true);
+}
+
+void BlockCache::read(unsigned block, void *bp)
+{
+    void *address = acquire(block);
+    std::memcpy(bp, address, 512);
+    release(block, false);
 }
 
 #pragma mark -
@@ -157,6 +199,30 @@ ConcreteBlockCache::sync()
 }
 
 
+void ConcreteBlockCache::write(unsigned block, const void *bp)
+{
+    FileEntry *e = findEntry();
+    
+    if (e)
+    {
+        e->dirty = true;
+        std::memcpy(e->buffer, bp, 512);
+        return;
+    }
+    
+    // returns a new entry not in the hashtable or the linked list.
+    // we add it to both.
+    e = newEntry(block);
+    
+    e->count = 0;
+    e->dirty = true;
+    
+    std::memcpy(e->buffer, bp, 512);
+    
+    addEntry(e);
+    setLast(e);
+}
+
 void ConcreteBlockCache::markDirty(unsigned block)
 {
     Entry *e = findEntry(block);
@@ -188,16 +254,13 @@ void *ConcreteBlockCache::acquire(unsigned block)
         incrementCount(e);
         return e->buffer;
     }
-
-    unsigned hash = hashFunction(block);
     
     // returns a new entry, not in hash table, not in free list.
     e = newEntry(block);
     
     _device->read(block, e->buffer);
     
-    e->nextHash = _hashTable[hash];
-    _hashTable[hash] = e;
+    addEntry(e);
     
     return e->buffer;
 }
@@ -240,17 +303,19 @@ void removeEntry(unsigned block)
             prev->nextHash = e->nextHash;
             e->nextHash = NULL;
             
-            if (e->dirty)
-            {
-                _device->write(e->block, e->buffer);
-                e->dirty = false;
-            }
-            
             break;
         }    
     }
 }
 
+
+void ConcreteBlockCache::addEntry(Entry *e)
+{
+    unsigned hash = hashFunction(e->block);
+    
+    e->nextHash = _hashTable[hash];
+    _hashTable[hash] = e;
+}
 
 // increment the count and remove from the free list
 // if necessary.
@@ -310,6 +375,12 @@ Entry *ConcreteBlockCache::newEntry(unsigned block)
             _first->prev = NULL; 
         }
 
+
+        if (e->dirty)
+        {
+            _device->write(e->block, e->buffer);
+            e->dirty = false;
+        }
         removeEntry(e->block);
     }
     else
