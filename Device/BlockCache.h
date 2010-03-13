@@ -7,65 +7,115 @@
 namespace Device {
 
 class BlockDevice;
+class MappedFile;
 
 
-
-class AbstractBlockCache {
+class BlockCache {
 public:
-    virtual ~AbstractBlockCache();
+
+    BlockCache *Create(BlockDevice *device, unsigned size = 16);
+
+    virtual ~BlockCache();
+
+    bool readOnly() { return _readOnly; }
+    unsigned blocks() { return _blocks; }
+    BlockDevice *device() { return _device; }
     
-    virtual void write() = 0;
+        
+    virtual void sync() = 0;
+    virtual void write(unsigned block, const void *vp) = 0;
     
-    virtual void *load(unsigned block) = 0;
-    virtual void unload(unsigned block, bool dirty) = 0;
+
+    virtual void *acquire(unsigned block) = 0;
+    virtual void release(unsigned block, bool dirty) = 0;
+    virtual void markDirty(unsigned block) = 0;
     
-    void unload(unsigned block) { unload(block, false); }
+    void release(unsigned block) { release(block, false); }
+
+protected:
+    BlockCache(BlockDevice *device);
+
+    BlockDevice *_device;
+private
+    unsigned _blocks;
+    bool _readOnly;
 };
 
 
-class BlockCache : public AbstractBlockCache {
+class ConcreteBlockCache : public BlockCache {
 public:
-    BlockCache(BlockDevice *device, unsigned size = 16);
-    ~BlockCache();
+    ConcreteBlockCache(BlockDevice *device, unsigned size = 16);
+    virtual ~ConcreteBlockCache();
     
-    virtual void write();
-    
-    virtual void *load(unsigned block);
-    virtual void unload(unsigned block, bool dirty);
+    virtual void sync();
+    virtual void write(unsigned block, const void *vp) = 0;
+
+
+    virtual void *acquire(unsigned block);
+    virtual void release(unsigned block, bool dirty);
+    virtual void markDirty(unsigned block);
 
 
 private:
-
-    struct BlockDescriptor {
+    struct Entry {
         unsigned block;
         unsigned count;
-        unsigned ts;
         bool dirty;
-        uint8_t *data;
+        
+        struct Entry *next;
+        struct Entry *prev;
+        struct Entry *nextHash;
+        
+        uint8_t buffer[512];
+    
     };
+
+    enum { HashTableSize = 23 };
     
+    std::vector<Entry *>_buffers;
+    
+    Entry *_hashTable[HashTableSize];
+    
+    Entry *_first;
+    Entry *_last;
 
 
-    std::vector<BlockDescriptor> _blocks;
-    BlockDevice *_device;
-    unsigned _ts;
-    unsigned _cacheSize;
+    unsigned hashFunction(unsigned block);
     
+    Entry *findEntry(unsigned block);
+    void removeEntry(unsigned block);
+    
+    Entry *newEntry(unsigned block);
+    
+    void pushEntry(Entry *);
+    
+    void setLast(Entry *);
+    
+    incrementCount(Entry *);
+    decrementCount(Entry *);
 };
 
-class MappedBlockCache : public AbstractBlockCache {
+class MappedBlockCache : public BlockCache {
     public:
     
-    MappedBlockCache(void *data, unsigned blocks);
+    MappedBlockCache(BlockDevice *, void *data);
+    virtual ~MappedBlockCache();
     
-    virtual void write();
+    virtual void sync() = 0;
+    virtual void write(unsigned block, const void *vp) = 0;
     
-    virtual void *load(unsigned block);
-    virtual void unload(unsigned block, bool dirty);    
+    virtual bool readOnly();
+    virtual unsigned blocks();
+    
+
+
+    virtual void *acquire(unsigned block) = 0;
+    virtual void release(unsigned block, bool dirty) = 0;
+    virtual void markDirty(unsigned block) = 0;
     
     private:
-        unsigned _blocks;
-        uint8_t * _data;
+        void *_data;
+    
 };
 
 } // namespace

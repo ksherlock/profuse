@@ -26,10 +26,18 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 #pragma mark -
-#pragma mark AbstractBlockCache
+#pragma mark BlockCache
 
-AbstractBlockCache::~AbstractBlockCache()
+BlockCache::~BlockCache(BlockDevice *device)
 {
+    _device = _device;
+    _blocks = device->blocks();
+    _readOnly = device->readOnly();
+}
+
+BlockCache::~BlockCache()
+{
+    delete _device;
 }
 
 #pragma mark -
@@ -78,129 +86,258 @@ void MappedBlockCache::unload(unsigned block, bool dirty)
 
 
 #pragma mark -
-#pragma mark BlockCache
+#pragma mark ConcreteBlockCache
 
-typedef std::vector<BlockCache::BlockDescriptor>::iterator BDIter;
+typedef std::vector<BlockCache::Entry *>::iterator EntryIter;
 
 
 
-BlockCache::BlockCache(BlockDevice *device, unsigned size)
+ConcreteBlockCache::ConcreteBlockCache(BlockDevice *device, unsigned size) :
+    BlockCache(device)
 {
-    _device = device;
-    _ts = 0;
-    _cacheSize = std::max(16u, size);
-    _blocks.reserve(_cacheSize);
-}
-
-BlockCache::~BlockCache()
-{
-    for (BDIter iter = _blocks.begin(); iter != _blocks.end(); ++iter)
-    {
-        if (iter->data) delete[] iter->data;
-    }
-}
-
-void BlockCache::write()
-{
-    for (BDIter iter = _blocks.begin(); iter != _blocks.end(); ++iter)
-    {
-        if (iter->dirty)
-        {
-            _device->write(iter->block, iter->data);
-            iter->dirty = false;
-        }
-    }
-}
-
-
-
-void *BlockCache::load(unsigned block)
-{
-    unsigned mints = -1;
-    unsigned freeCount = 0;
+    if (size < 16) size = 16;
     
-    BDIter oldest;
-
-
-    ++_ts;
-
-    /*
-     * keep a pointer to the oldest free entry (according to ts).
-     * and re-use if >= 16 entries. 
-     */
- 
+    std::memset(_hashTable, 0, sizeof(Entry *) * HashTableSize);
     
-    for (BDIter iter = _blocks.begin(); iter != _blocks.end(); ++iter)
+    for (unsigned i = 0; i < size; ++i)
     {
-        if (iter->block == block)
+        Entry *e = new Entry;
+        
+        std::memset(e, 0, sizeof(Entry));
+        _buffers.push_back(e);
+    }
+    _first = _last = NULL;
+    
+    _first = _buffers.front();
+    _last = _buffers.back();
+    // form a chain....
+    for (unsigned i = 0; i < size; ++i)
+    {
+        Entry *e = _buffers[i];
+        
+        if (i > 0) e->prev = _buffers[i - 1];
+        
+        if (i < size - 1) e->next = _buffers[i + 1];
+    }
+    
+}
+
+ConcreteBlockCache::~ConcreteBlockCache()
+{
+    EntryIter iter;
+    for (iter = _buffers.begin(); iter != _buffers.end(); ++iter)
+    {
+        Entry *e = *iter;
+        
+        if (e->dirty)
         {
-            ++iter->count;
-            iter->ts = _ts;
-                
-            return iter->data;
+            _device->write(e->block, e->buffer);
         }
         
-        if (iter->count == 0)
+        delete e;
+    }
+    _device->sync();
+}
+
+
+ConcreteBlockCache::sync()
+{
+    EntryIter iter;
+    for (iter = _buffers.begin(); iter != _buffers.end(); ++iter)
+    {
+        Entry *e = *iter;
+        
+        if (e->dirty)
         {
-            ++freeCount;
-            if (iter->ts < mints)
+            _device->write(e->block, e->buffer);
+            e->dirty = false;
+        }
+    }
+    _device->sync();
+}
+
+
+void ConcreteBlockCache::markDirty(unsigned block)
+{
+    Entry *e = findEntry(block);
+    
+    if (e) e->dirty = true;
+    // error otherwise?
+}
+
+
+void ConcreteBlockCache::release(unsigned block, bool dirty)
+{
+    Entry *e = findEntry(block);
+    
+    if (e)
+    {
+        if (dirty) e->dirty = true;
+        
+        decrementCount(e);
+    }
+    // error otherwise?
+}
+
+void *ConcreteBlockCache::acquire(unsigned block)
+{
+    Entry *e = findEntry(block);
+    
+    if (e)
+    {
+        incrementCount(e);
+        return e->buffer;
+    }
+
+    unsigned hash = hashFunction(block);
+    
+    // returns a new entry, not in hash table, not in free list.
+    e = newEntry(block);
+    
+    _device->read(block, e->buffer);
+    
+    e->nextHash = _hashTable[hash];
+    _hashTable[hash] = e;
+    
+    return e->buffer;
+}
+
+unsigned ConcreteBlockCache::hashFunction(unsigned block)
+{
+    return block % HashTableSize;
+}
+
+/*
+ * remove a block from the hashtable
+ * and write to dick if dirty.
+ */
+void removeEntry(unsigned block)
+{
+    Entry *e;
+    Entry *prev;
+    unsigned hash = hashFunction(block);
+    
+    e = _hashTable[hash];
+    if (!e) return;
+    
+    // head pointer, special case.
+    if (e->block == block)
+    {
+        _hashTable[hash] = e->nextHash;
+        e->nextHash = NULL;
+        
+        return;
+    }
+    
+    for(;;)
+    {
+        prev = e;
+        e = e->next;
+        
+        if (!e) break;
+        if (e->block == block)
+        {
+            prev->nextHash = e->nextHash;
+            e->nextHash = NULL;
+            
+            if (e->dirty)
             {
-                mints = iter->ts;
-                oldest = iter;
+                _device->write(e->block, e->buffer);
+                e->dirty = false;
             }
-        }
+            
+            break;
+        }    
     }
-    
-    
-    if (freeCount && (_blocks.size() >= _cacheSize))
-    {
-        // re-use old buffer.
-        
-        oldest->block = block;
-        oldest->count = 1;
-        oldest->ts = _ts;
-        oldest->dirty = false;
-        
-        _device->read(block, oldest->data);
-        return oldest->data;
-    }
-    
-
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
-    BlockDescriptor bd = { block, 1, _ts, false, buffer.get() };
-    
-    _device->read(block, buffer.get());    
-
-    _blocks.push_back(bd);
-
-    
-    return buffer.release();
 }
 
 
-void BlockCache::unload(unsigned block, bool dirty)
+// increment the count and remove from the free list
+// if necessary.
+void ConcreteBlockCache::incrementCount(Entry *e)
 {
 
-    for (BDIter iter = _blocks.begin(); iter != _blocks.end(); ++iter)
+    if (e->count == 0)
     {
-        if (iter->block == block)
+        Entry *prev = e->prev;
+        Entry *next = e->next;
+        
+        e->prev = e->next = NULL;
+
+        if (prev) prev->next = next;
+        if (next) next->prev = prev;
+        
+        if (_first == e) _first = next;
+        if (_last == e) _last = prev;
+    }
+    
+    e->count = e->count + 1;
+    
+}
+
+// decrement the count.  If it goes to 0,
+// add it as the last block entry.
+void ConcreteBlockCache::decrementCount(Entry *e)
+{
+    e->count = e->count - 1;
+    if (e->count == 0)
+    {
+        if (_last == NULL)
         {
-            iter->dirty = dirty || iter->dirty;
-            if (!--iter->count)
-            {
-                if (iter->dirty)
-                {
-                    _device->write(block, iter->data);
-                    iter->dirty = false;
-                }
-                // trim back if too many entries.
-                if (_blocks.size() > _cacheSize)
-                {
-                    delete[] iter->data;
-                    _blocks.erase(iter);
-                }                
-            }            
+            _first = _last = e;
             return;
         }
+        
+        e->prev = _last;
+        _last = e;
     }
+}
+
+Entry *ConcreteBlockCache::newEntry(unsigned block)
+{
+    Entry *e;
+    
+    if (_first)
+    {
+        e = _first;
+        if (_first == _last)
+        {
+            _first = _last = NULL;
+        }
+        else
+        {
+            _first = e->next;
+            _first->prev = NULL; 
+        }
+
+        removeEntry(e->block);
+    }
+    else
+    {
+        e = new Entry;
+        _buffers.push_back(e);
+    }
+    
+    e->next = NULL;
+    e->prev= NULL;
+    e->nextHash = NULL;
+    e->count = 1;
+    e->block = block;
+    e->dirty = false;
+
+    return e;
+}
+
+
+void ConcreteBlockCache::setLast(Entry *e)
+{
+    if (_last == NULL)
+    {
+        _first = _last = e;
+        return;
+    }
+    
+    e->prev = _last;
+    _last->next = e;
+    _last = e;
 }
