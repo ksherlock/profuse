@@ -3,15 +3,14 @@
 
 #include <sys/mman.h>
 
-#include "File.h"
+#include <File/File.h>
 
-namespace File {
 
 class MappedFile {
     public:
     
     MappedFile();
-    MappedFile(File f, int flags);
+    MappedFile(File f, bool readOnly);
     MappedFile(MappedFile&);
     
     ~MappedFile();
@@ -22,12 +21,16 @@ class MappedFile {
     void *address() const { return _address; }
     size_t length() const { return _length; }
     
+    void swap(MappedFile &);
+    void adopt(MappedFile &);
+    
     private:
+    
+    MappedFile& operator=(MappedFile &);
     
     void *_address;
     size_t _length;
 };
 
-}
 
 #endif

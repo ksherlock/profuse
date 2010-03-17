@@ -1,8 +1,14 @@
-#include "File.h"
-
+#include <algorithm>
 #include <cerrno>
 
-using namespace File;
+#include <File/File.h>
+#include <ProFUSE/Exception.h>
+
+
+
+using ProFUSE::Exception;
+using ProFUSE::POSIXException;
+
 
 File::File()
 {
@@ -22,9 +28,12 @@ File::File(File& f)
 
 File::File(const char *name, int flags)
 {
+    #undef __METHOD__
+    #define __METHOD__ "File::File"
+
     _fd = ::open(name, flags);
     if (_fd < 0)
-        throw ProFUSE::PosixException(errno);
+        throw POSIXException( __METHOD__ ": open", errno);
 }
 
 File::~File()
@@ -32,12 +41,30 @@ File::~File()
     close();
 }
 
-File::close()
+void File::close()
 {
-    int fd = _fd;
-    _fd = -1;
+    #undef __METHOD__
+    #define __METHOD__ "File::close"
+
+    if (_fd >= 0)
+    {
+        int fd = _fd;
+        _fd = -1;
     
-    if (fd >= 0 && ::close(fd) != 0)
-        throw ProFUSE::PosixException(errno);
+        if (::close(fd) != 0)
+            throw POSIXException(__METHOD__ ": close", errno);
+    }
 }
 
+
+void File::adopt(File &f)
+{
+    close();
+    _fd = f._fd;
+    f._fd = -1;
+}
+
+void File::swap(File &f)
+{
+    std::swap(_fd, f._fd);
+}
