@@ -4,11 +4,18 @@
 #include <stdint.h>
 #include <vector>
 
+class MappedFile;
+class Device::BlockDevice;
+
 namespace Device {
 
-class BlockDevice;
-class MappedFile;
 
+
+enum {
+    kBlockDirty = 1,
+    kBlockCommitNow = 2,
+    kBlockReuse = 3
+} BlockReleaseFlags;
 
 class BlockCache {
 public:
@@ -27,10 +34,11 @@ public:
     virtual void read(unsigned block, void *bp);
 
     virtual void *acquire(unsigned block) = 0;
-    virtual void release(unsigned block, bool dirty) = 0;
+    virtual void release(unsigned block, int flags) = 0 ;
     virtual void markDirty(unsigned block) = 0;
     
-    void release(unsigned block) { release(block, false); }
+    void release(unsigned block) { release(block, 0); }
+    void release(unsigned block, bool dirty)  { release(block, dirty ? kBlockDirty : 0); }
 
 protected:
     BlockCache(BlockDevice *device);
@@ -52,7 +60,7 @@ public:
 
 
     virtual void *acquire(unsigned block);
-    virtual void release(unsigned block, bool dirty);
+    virtual void release(unsigned block, int flags);
     virtual void markDirty(unsigned block);
 
 
@@ -94,25 +102,6 @@ private:
     
     incrementCount(Entry *);
     decrementCount(Entry *);
-};
-
-class MappedBlockCache : public BlockCache {
-    public:
-    
-    MappedBlockCache(BlockDevice *, void *data);
-    virtual ~MappedBlockCache();
-    
-    virtual void sync() = 0;
-    virtual void write(unsigned block, const void *vp);
-
-
-    virtual void *acquire(unsigned block);
-    virtual void release(unsigned block, bool dirty);
-    virtual void markDirty(unsigned block);
-    
-    private:
-        void *_data;
-    
 };
 
 } // namespace
