@@ -1,7 +1,7 @@
 #ifndef __MAPPED_BLOCK_CACHE_H__
 #define __MAPPED_BLOCK_CACHE_H__
 
-#include <BlockCache.h>
+#include <Cache/BlockCache.h>
 
 namespace Device {
 
@@ -11,7 +11,7 @@ class MappedBlockCache : public BlockCache {
     MappedBlockCache(BlockDevice *, void *data);
     virtual ~MappedBlockCache();
 
-    virtual void sync() = 0;
+    virtual void sync();
     virtual void write(unsigned block, const void *vp);
 
 
@@ -20,7 +20,9 @@ class MappedBlockCache : public BlockCache {
     virtual void markDirty(unsigned block);
 
     private:
-        void *_data;
+        void sync(block);
+        
+        uint8_t *_data;
         bool _dirty;
 
 };
