@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <BlockCache.h>
+#include <Cache/BlockCache.h>
 
 namespace Device {
 
@@ -56,7 +56,8 @@ private:
     void pushEntry(Entry *);
 
     void setLast(Entry *);
-
+    void setFirst(Entry *);
+    
     incrementCount(Entry *);
     decrementCount(Entry *);
 };
