@@ -7,6 +7,8 @@
 #include <unistd.h>
 
 #include <Cache/MappedBlockCache.h>
+#include <Device/BlockDevice.h>
+
 #include <ProFUSE/Exception.h>
 
 
@@ -17,7 +19,7 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-MappedBlockCache::MappedBlockCache(Device *device, void *data) :
+MappedBlockCache::MappedBlockCache(BlockDevice *device, void *data) :
     BlockCache(device)
 {
     _data = (uint8_t *)data;
@@ -42,7 +44,7 @@ void *MappedBlockCache::acquire(unsigned block)
     return _data + block * 512;
 }
 
-void MappedBlockCache::unload(unsigned block, int flags)
+void MappedBlockCache::release(unsigned block, int flags)
 {
 #undef __METHOD__
 #define __METHOD__ "MappedBlockCache::unload"
@@ -50,7 +52,7 @@ void MappedBlockCache::unload(unsigned block, int flags)
     // kBlockCommitNow implies kBlockDirty. 
     if (flags & kBlockCommitNow)
     {
-        sync(block)
+        sync(block);
         return;
     }
 
@@ -75,10 +77,14 @@ void MappedBlockCache::sync(unsigned block)
 #define __METHOD__ "MappedBlockCache::sync"
 
 
-    int pageSize = ::getpagesize();
+    int pagesize = ::getpagesize();
         
-    void *start = (_data + block * 512) % pagesize;
-    void *end = (_data + 512 + block * 512) % pagesize;
+    void *start = _data + block * 512;
+    void *end = _data + 512 + block * 512;
+
+
+    start = (void *)((ptrdiff_t)start / pagesize * pagesize);
+    end = (void *)((ptrdiff_t)end / pagesize * pagesize);
 
     if (::msync(start, pagesize, MS_SYNC) != 0)
         throw POSIXException(__METHOD__ ": msync", errno);

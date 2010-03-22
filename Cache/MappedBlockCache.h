@@ -20,7 +20,7 @@ class MappedBlockCache : public BlockCache {
     virtual void markDirty(unsigned block);
 
     private:
-        void sync(block);
+        void sync(unsigned block);
         
         uint8_t *_data;
         bool _dirty;
@@ -29,4 +29,5 @@ class MappedBlockCache : public BlockCache {
 
 } // namespace
 
+#endif
 
