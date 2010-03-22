@@ -54,7 +54,7 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-typedef std::vector<BlockCache::Entry *>::iterator EntryIter;
+typedef std::vector<ConcreteBlockCache::Entry *>::iterator EntryIter;
 
 
 
@@ -106,7 +106,7 @@ ConcreteBlockCache::~ConcreteBlockCache()
 }
 
 
-ConcreteBlockCache::sync()
+void ConcreteBlockCache::sync()
 {
     EntryIter iter;
     for (iter = _buffers.begin(); iter != _buffers.end(); ++iter)
@@ -125,7 +125,7 @@ ConcreteBlockCache::sync()
 
 void ConcreteBlockCache::write(unsigned block, const void *bp)
 {
-    FileEntry *e = findEntry();
+    Entry *e = findEntry(block);
     
     if (e)
     {
@@ -167,7 +167,7 @@ void ConcreteBlockCache::release(unsigned block, int flags)
         
         decrementCount(e);
         
-        if (flags & kCommitNow)
+        if (flags & kBlockCommitNow)
         {
             _device->write(block, e->buffer);
             e->dirty = false;
@@ -206,7 +206,7 @@ unsigned ConcreteBlockCache::hashFunction(unsigned block)
  * remove a block from the hashtable
  * and write to dick if dirty.
  */
-void removeEntry(unsigned block)
+void ConcreteBlockCache::removeEntry(unsigned block)
 {
     Entry *e;
     Entry *prev;
@@ -283,7 +283,7 @@ void ConcreteBlockCache::decrementCount(Entry *e)
     }
 }
 
-Entry *ConcreteBlockCache::newEntry(unsigned block)
+ConcreteBlockCache::Entry *ConcreteBlockCache::newEntry(unsigned block)
 {
     Entry *e;
     
@@ -351,3 +351,4 @@ void ConcreteBlockCache::setFirst(Entry *e)
     _first->prev = e;
     _first = e;
 }
+

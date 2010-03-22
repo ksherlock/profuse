@@ -58,8 +58,10 @@ private:
     void setLast(Entry *);
     void setFirst(Entry *);
     
-    incrementCount(Entry *);
-    decrementCount(Entry *);
+    void incrementCount(Entry *);
+    void decrementCount(Entry *);
 };
 
 }
+
+#endif
