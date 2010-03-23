@@ -20,6 +20,102 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
+class Reader {
+    public:
+    virtual ~Reader();
+    virtual void readBlock(unsigned block, void *bp) = 0;
+    virtual void writeBlock(unsigned block, const void *bp) = 0;
+};
+
+class POReader : public Reader {
+    public:
+    POReader(void *address);
+    void readBlock(unsigned block, void *bp);
+    void writeBlock(unsigned block, const void *bp);
+    private:
+    uint8_t *_address;
+};
+
+class DOReader : public Reader {
+    public
+    DOReader(void *address);
+    void readBlock(unsigned block, void *bp);
+    void writeBlock(unsigned block, const void *bp);
+    private:
+    uint8_t *_address;
+    
+    static unsigned Map[];
+}
+
+Reader::~Reader()
+{
+}
+
+
+
+unsigned DOReader::Map[] = {
+    0x00, 0x0e, 0x0d, 0x0c, 
+    0x0b, 0x0a, 0x09, 0x08, 
+    0x07, 0x06, 0x05, 0x04, 
+    0x03, 0x02, 0x01, 0x0f
+};
+
+POReader::POReader(void *address)
+{
+    _address = (uint8_t *)address;
+}
+
+void POReader::readBlock(unsigned block, void *bp)
+{
+    std::memcpy(bp, _address + block * 512, 512);
+}
+
+void POReader::writeBlock(unsigned block, const void *bp)
+{
+    std::memcpy(_address + block * 512, bp, 512);
+}
+
+
+DOReader::DOReader(void *address)
+{
+    _address = (uint8_t *)address;
+}
+
+void DOReader::readBlock(unsigned block, void *bp)
+{
+
+    unsigned track = (block & ~0x07) << 9;
+    unsigned sector = (block & 0x07) << 1;
+    
+    for (unsigned i = 0; i < 2; ++i)
+    {
+        size_t offset =  track | (Map[sector+i] << 8); 
+        
+        std::memcpy(bp, _address + offset,  256);
+        
+        bp = (uint8_t *)bp + 256;
+    }
+}
+
+void DOReader::writeBlock(unsigned block, const void *bp)
+{
+    unsigned track = (block & ~0x07) << 9;
+    unsigned sector = (block & 0x07) << 1;
+    
+    for (unsigned i = 0; i < 2; ++i)
+    {
+        size_t offset =  track | (DOSMap[sector+i] << 8); 
+        
+        std::memcpy(_address + offset,  bp, 256);
+        bp = (uint8_t *)bp + 256;
+    }
+}
+
+
+
+
+
+
 unsigned DiskImage::ImageType(const char *type, unsigned defv)
 {
     const char *tmp;
@@ -49,7 +145,9 @@ unsigned DiskImage::ImageType(const char *type, unsigned defv)
         return 'DO__';
     if (::strcasecmp(type, "do") == 0)
         return 'DO__';
-        
+
+    if (::strcasecmp(type, "dvx") == 0)
+        return 'DVX_';        
     if (::strcasecmp(type, "davex") == 0)
         return 'DVX_';
         
@@ -64,14 +162,23 @@ unsigned DiskImage::ImageType(const char *type, unsigned defv)
 
 
 DiskImage::DiskImage(const char *name, bool readOnly) :
-    _file(NULL)
+    _file(name, readOnly)
 {
-    _file = new MappedFile(name, readOnly);
+    _offset = 0;
+    _blocks = 0;
+    _readOnly = readOnly;
+    _address = file.address();
+
 }
 
-DiskImage::DiskImage(MappedFile *file) :
-    _file(file)
+DiskImage::DiskImage(MappedFile *file, bool readOnly)
 {
+    _file.adopt(file);
+
+    _offset = 0;
+    _blocks = 0;
+    _readOnly = readOnly;
+    _address = file.address();    
 }
 
 DiskImage::~DiskImage()
@@ -81,45 +188,13 @@ DiskImage::~DiskImage()
 
 bool DiskImage::readOnly()
 {
-    #undef __METHOD__
-    #define __METHOD__ "DiskImage::readOnly"
-    
-    if (_file) return _file->readOnly();
-    
-    throw Exception(__METHOD__ ": File not set."); 
+    return _readOnly;
 }
 
 unsigned DiskImage::blocks()
 {
-    #undef __METHOD__
-    #define __METHOD__ "DiskImage::blocks"
-    
-    if (_file) return _file->blocks();
-    
-    throw Exception(__METHOD__ ": File not set."); 
+    return _blocks;
 }
-
-void DiskImage::read(unsigned block, void *bp)
-{
-    #undef __METHOD__
-    #define __METHOD__ "DiskImage::read"
-    
-    
-    if (_file) return _file->readBlock(block, bp);
-    
-    throw Exception(__METHOD__ ": File not set."); 
-}
-
-void DiskImage::write(unsigned block, const void *bp)
-{
-    #undef __METHOD__
-    #define __METHOD__ "DiskImage::write"
-    
-    if (_file) return _file->writeBlock(block, bp);
-    
-    throw Exception(__METHOD__ ": File not set."); 
-}
-
 
 
 void DiskImage::sync()
@@ -127,19 +202,34 @@ void DiskImage::sync()
     #undef __METHOD__
     #define __METHOD__ "DiskImage::sync"
     
-    if (_file) return _file->sync();
+    if (_file) return _file.sync();
     
     throw Exception(__METHOD__ ": File not set."); 
 }
 
 
-
-AbstractBlockCache *DiskImage::createBlockCache()
+void DiskImage::readPO(unsigned block, void *bp)
 {
-    if (_file->encoding() == MappedFile::ProDOSOrder)
-        return new MappedBlockCache(_file->imageData(), _file->blocks());
-        
-    return BlockDevice::createBlockCache();
+    #undef __METHOD__
+    #define __METHOD__ "DiskImage::readPO"
+    
+    if (block >= _blocks)
+        throw Exception(__METHOD__ ": Invalid block.");
+    
+    std::memcpy(bp, (uint8_t *)_address + block * 512, 512);
+}
+
+
+void DiskImage::writePO(unsigned block, const void *bp)
+{
+    #undef __METHOD__
+    #define __METHOD__ "DiskImage::writePO"
+    
+    if (block >= _blocks)
+        throw Exception(__METHOD__ ": Invalid block.");
+    
+    std::memcpy((uint8_t *)_address + block * 512, bp, 512);
+
 }
 
 
