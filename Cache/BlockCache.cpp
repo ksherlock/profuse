@@ -1,10 +1,12 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstring>
 
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <unistd.h>
+
 
 #include <Cache/BlockCache.h>
 #include <Device/BlockDevice.h>

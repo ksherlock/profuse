@@ -40,7 +40,7 @@ public:
 protected:
     BlockDevice();
     
-    friend BlockCache;
+    friend class BlockCache;
     virtual BlockCache *createBlockCache();
 };
 
