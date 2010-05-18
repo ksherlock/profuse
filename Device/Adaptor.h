@@ -18,8 +18,8 @@ namespace Device {
     {
     public:
         POAdaptor(void *address);
-        void readBlock(unsigned block, void *bp);
-        void writeBlock(unsigned block, const void *bp);
+        virtual void readBlock(unsigned block, void *bp);
+        virtual void writeBlock(unsigned block, const void *bp);
     private:
         uint8_t *_address;
     };
@@ -28,8 +28,8 @@ namespace Device {
     {
     public:
         DOAdaptor(void *address);
-        void readBlock(unsigned block, void *bp);
-        void writeBlock(unsigned block, const void *bp);
+        virtual void readBlock(unsigned block, void *bp);
+        virtual void writeBlock(unsigned block, const void *bp);
     private:
         uint8_t *_address;
         

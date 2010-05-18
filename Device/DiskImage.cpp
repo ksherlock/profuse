@@ -11,6 +11,8 @@
 #include <Device/DiskImage.h>
 #include <File/MappedFile.h>
 
+#include <Cache/MappedBlockCache.h>
+
 #include <ProFUSE/Exception.h>
 
 
@@ -189,6 +191,15 @@ void ProDOSOrderDiskImage::Validate(MappedFile *f)
         throw Exception(__METHOD__ ": Invalid file format.");
     
 }
+
+BlockCache *ProDOSOrderDiskImage::createBlockCache(unsigned size)
+{
+    return new MappedBlockCache(this, address());
+}
+
+#pragma mark -
+#pragma mark DOS Order Disk Image
+
 
 /*
 DOSOrderDiskImage::DOSOrderDiskImage(const char *name, bool readOnly) :

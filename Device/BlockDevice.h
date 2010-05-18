@@ -8,12 +8,17 @@
 
 #include <Device/TrackSector.h>
 
+#include <Cache/BlockCache.h>
+
 namespace Device {
 
 class BlockDevice {
 public:
 
     virtual ~BlockDevice();
+    
+    virtual BlockCache *createBlockCache(unsigned size);
+    
     
     virtual void read(unsigned block, void *bp) = 0;
     virtual void read(TrackSector ts, void *bp);

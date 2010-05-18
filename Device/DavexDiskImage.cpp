@@ -14,6 +14,7 @@
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
 
+#include <Cache/MappedBlockCache.h>
 
 using namespace Device;
 using namespace LittleEndian;
@@ -158,4 +159,11 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
     file->sync();
     
     return new DavexDiskImage(file);
+}
+
+
+BlockCache *DavexDiskImage::createBlockCache(unsigned size)
+{
+    return new MappedBlockCache(this, 512 + (uint8_t *)address());
+    
 }

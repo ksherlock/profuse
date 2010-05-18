@@ -21,7 +21,9 @@ public:
 
     virtual void write(unsigned block, const void *bp);
     
-     
+
+    virtual BlockCache *createBlockCache(unsigned size);    
+    
 private:
 
     DiskCopy42Image(const char *name, bool readOnly);

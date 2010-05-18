@@ -9,12 +9,16 @@
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
 
+#include <Cache/MappedBlockCache.h>
+
+
 using namespace Device;
 using namespace BigEndian;
 
 
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
+
 
 
 enum {
@@ -219,4 +223,14 @@ void DiskCopy42Image::write(unsigned block, const void *bp)
 {
     DiskImage::write(block, bp);
     _changed = true;
+}
+
+
+BlockCache *DiskCopy42Image::createBlockCache(unsigned size)
+{
+    // if not readonly, mark changed so crc will be updated at close.
+    
+    if (!readOnly()) _changed = true;
+    
+    return new MappedBlockCache(this, address());
 }

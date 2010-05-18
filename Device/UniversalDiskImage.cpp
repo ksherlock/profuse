@@ -5,11 +5,16 @@
 
 #include <ProFUSE/Exception.h>
 
+#include <Cache/MappedBlockCache.h>
+#include <Cache/ConcreteBlockCache.h>
+
 using namespace Device;
 using namespace LittleEndian;
 
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
+
+
 
 /*
 UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
@@ -26,21 +31,23 @@ UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
 UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
     DiskImage(file)
 {
-    unsigned blocks;
-    unsigned offset;
     
     uint8_t * data = (uint8_t *)file->address();
     
+
     
 
+    _format = Read32(data, 0x0c);
     _flags = Read32(data, 0x10);
+    _blocks = Read32(data, 0x14);
 
-    offset = Read32(data, 0x20);
-    blocks = Read32(data, 0x14);
+    _dataOffset = Read32(data, 0x18);
+    _dataLength = Read32(data, 0x1c);
     
-    setBlocks(blocks);
+    
+    setBlocks(_blocks);
     // TODO -- DO, Nibble support.
-    setAdaptor(new POAdaptor(offset + data));
+    setAdaptor(new POAdaptor(_dataOffset + data));
 }
 
 UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
@@ -119,8 +126,8 @@ void UniversalDiskImage::Validate(MappedFile *file)
         // TODO -- Dos Order, Nibble support.
         if (Read32(data, 0x0c) != 1) break;
         
-        offset = Read32(data, 0x20);
         blocks = Read32(data, 0x14);
+        offset = Read32(data, 0x18);
         
         // file size == blocks * 512
         if (Read32(data, 0x1c) != blocks * 512) break;
@@ -141,3 +148,16 @@ bool UniversalDiskImage::readOnly()
 {
     return (_flags & 0x8000000) || DiskImage::readOnly();
 }
+
+
+BlockCache *UniversalDiskImage::createBlockCache(unsigned size)
+{
+    if (_format == 1)
+    {
+        return new MappedBlockCache(this, _dataOffset + (uint8_t *)address());
+    }
+    
+    return DiskImage::createBlockCache(size);
+}
+
+

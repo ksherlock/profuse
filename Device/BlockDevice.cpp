@@ -9,7 +9,7 @@
 
 
 #include <Device/BlockDevice.h>
-
+#include <Cache/ConcreteBlockCache.h>
 
 #include <ProFUSE/Exception.h>
 
@@ -54,3 +54,8 @@ void BlockDevice::sync(TrackSector ts)
     sync();
 }
 
+
+BlockCache *BlockDevice::createBlockCache(unsigned size)
+{
+    return new ConcreteBlockCache(this, size);
+}

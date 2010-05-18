@@ -59,6 +59,9 @@ public:
     
     static ProDOSOrderDiskImage *Create(const char *name, size_t blocks);
     static ProDOSOrderDiskImage *Open(MappedFile *);
+
+    
+    virtual BlockCache *createBlockCache(unsigned size);
     
 private:
     ProDOSOrderDiskImage(const char *name, bool readOnly);
