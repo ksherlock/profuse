@@ -5,11 +5,11 @@
 #include <cstring>
 
 namespace LittleEndian {
-#include "IOBuffer.t.cpp" 
+#include "IOBuffer.cpp.h" 
 }
 
 namespace BigEndian {
-#include "IOBuffer.t.cpp"
+#include "IOBuffer.cpp.h"
 }
 
 #endif
