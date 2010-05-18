@@ -9,8 +9,7 @@
 
 
 #include <Device/BlockDevice.h>
-#include <Device/BlockCache.h>
-#include <Device/MappedFile.h>
+
 
 #include <ProFUSE/Exception.h>
 
@@ -38,19 +37,7 @@ void BlockDevice::zeroBlock(unsigned block)
     write(block, bp);
 }
 
-AbstractBlockCache *BlockDevice::blockCache()
-{
-    if (!_cache)
-    {
-        _cache = createBlockCache();
-    }
-    return _cache;
-}
 
-AbstractBlockCache *BlockDevice::createBlockCache()
-{
-    return new BlockCache(this);
-}
 
 bool BlockDevice::mapped()
 {
@@ -65,15 +52,5 @@ void BlockDevice::sync(unsigned block)
 void BlockDevice::sync(TrackSector ts)
 {
     sync();
-}
-
-void *BlockDevice::read(unsigned block)
-{
-    return NULL;
-}
-
-void *BlockDevice::read(TrackSector ts)
-{
-    return NULL;
 }
 

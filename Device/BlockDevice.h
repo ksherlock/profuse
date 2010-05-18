@@ -10,8 +10,6 @@
 
 namespace Device {
 
-class BlockCache;
-
 class BlockDevice {
 public:
 
@@ -40,8 +38,6 @@ public:
 protected:
     BlockDevice();
     
-    friend class BlockCache;
-    virtual BlockCache *createBlockCache();
 };
 
 
