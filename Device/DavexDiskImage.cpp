@@ -8,7 +8,8 @@
 #include <algorithm>
 
 #include <Device/DavexDiskImage.h>
-#include <Device/MappedFile.h>
+#include <File/MappedFile.h>
+#include <Device/Adaptor.h>
 
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
@@ -26,16 +27,21 @@ using ProFUSE::POSIXException;
 
 static const char *IdentityCheck = "\x60VSTORE [Davex]\x00";
 
+/*
 DavexDiskImage::DavexDiskImage(const char *name, bool readOnly) :
     DiskImage(name, readOnly)
 {
     Validate(file());
 }
+*/
 
 // private, validation already performed.
-DavexDiskImage::DavexDiskImage(MappedFile *f) :
-    DiskImage(f)
+DavexDiskImage::DavexDiskImage(MappedFile *file) :
+    DiskImage(file)
 {
+    // 512-bytes header
+    setBlocks((file->length() / 512) - 1);
+    setAdaptor(new POAdaptor(512 + (uint8_t *)file->address()));
 }
 
 
@@ -49,8 +55,8 @@ void DavexDiskImage::Validate(MappedFile *f)
 #undef __METHOD__
 #define __METHOD__ "DavexDiskImage::Validate"
 
-    size_t size = f->fileSize();
-    const void * data = f->fileData();
+    size_t size = f->length();
+    const void * data = f->address();
     bool ok = false;
     unsigned blocks = (size / 512) - 1;
     
@@ -80,10 +86,6 @@ void DavexDiskImage::Validate(MappedFile *f)
     
     if (!ok)
         throw Exception(__METHOD__ ": Invalid file format.");
-    
-    f->reset();
-    f->setBlocks(blocks);
-    f->setOffset(512);
 }
 
 DavexDiskImage *DavexDiskImage::Open(MappedFile *file)
@@ -111,7 +113,7 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
     
     MappedFile *file = new MappedFile(name, blocks * 512 + 512);
     
-    data = (uint8_t *)file->fileData();
+    data = (uint8_t *)file->address();
         
     header.writeBytes(IdentityCheck, 16);
     // file Format
@@ -152,10 +154,8 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
     header.setOffset(512, true);
     
     
-    std::memcpy(file->fileData(), header.buffer(), 512);
+    std::memcpy(file->address(), header.buffer(), 512);
     file->sync();
     
-    file->setOffset(512);
-    file->setBlocks(blocks);    
     return new DavexDiskImage(file);
 }

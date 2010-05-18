@@ -15,8 +15,13 @@ class File {
     File(const char *name, int flags);
     ~File();
 
+    bool isValid() const
+    {
+        return _fd >= 0;
+    }
+    
     int fd() const { return _fd; }
-        
+    
     void close();
     
     void adopt(File &f);

@@ -4,6 +4,8 @@
 #include <string>
 
 #include <Device/BlockDevice.h>
+#include <Device/DiskImage.h>
+
 
 namespace Device {
 
@@ -12,7 +14,6 @@ namespace Device {
 class DavexDiskImage : public DiskImage {
 public:
     
-    DavexDiskImage(const char *, bool readOnly);
     virtual ~DavexDiskImage();
     
     static DavexDiskImage *Create(const char *name, size_t blocks);
@@ -21,6 +22,8 @@ public:
 
 
 private:
+
+    DavexDiskImage(const char *, bool readOnly);
 
     DavexDiskImage(MappedFile *);
     static void Validate(MappedFile *);

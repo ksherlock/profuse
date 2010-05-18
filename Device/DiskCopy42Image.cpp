@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #include <Device/DiskCopy42Image.h>
-#include <Device/MappedFile.h>
 
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
@@ -17,32 +16,45 @@ using namespace BigEndian;
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
+
+enum {
+    oDataSize = 64,
+    oDataChecksum = 72,
+    oPrivate = 82,
+    oUserData = 84
+};
+
 DiskCopy42Image::DiskCopy42Image(MappedFile *f) :
     DiskImage(f),
     _changed(false)
 {
+    setAdaptor(new POAdaptor(oUserData + (uint8_t *)f->address()));
+    setBlocks(Read32(f->address(), oDataSize) / 512);
 }
 
+
+/*
 DiskCopy42Image::DiskCopy42Image(const char *name, bool readOnly) :
     DiskImage(name, readOnly),
     _changed(false)
 {
     Validate(file());
 }
+*/
 
 DiskCopy42Image::~DiskCopy42Image()
 {
     if (_changed)
     {
         MappedFile *f = file();
-        void *data = f->fileData();
         
         if (f)
         {
-            uint32_t cs = Checksum(f->offset() + (uint8_t *)data, 
-                f->blocks() * 512);
+            void *data = f->address();
+            
+            uint32_t cs = Checksum(oUserData + (uint8_t *)data, Read32(data, oDataSize));
                 
-            Write32(data, 72, cs);
+            Write32(data, oDataChecksum, cs);
             f->sync();
         }
         // TODO -- checksum
@@ -100,12 +112,12 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks)
 
 DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const char *vname)
 {
-    MappedFile *file = new MappedFile(name, blocks * 512 + 84);
-    file->setOffset(84);
-    file->setBlocks(blocks);
+    MappedFile *file = new MappedFile(name, blocks * 512 + oUserData);
+
     
-    uint8_t tmp[84];
-    IOBuffer header(tmp, 84);
+    
+    uint8_t tmp[oUserData];
+    IOBuffer header(tmp, oUserData);
     
     // name -- 64byte pstring.
     
@@ -115,7 +127,7 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const 
     header.writeBytes(vname, std::min(l, 63u));
 
     //header.resize(64);
-    header.setOffset(64, true);
+    header.setOffset(oDataSize, true);
     
     // data size -- number of bytes
     header.write32(blocks * 512);
@@ -152,7 +164,7 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const 
     // private
     header.write16(0x100);
     
-    std::memcpy(file->fileData(), header.buffer(), 84);
+    std::memcpy(file->address(), header.buffer(), oUserData);
     file->sync();
     
     return new DiskCopy42Image(file);
@@ -164,29 +176,29 @@ void DiskCopy42Image::Validate(MappedFile *file)
 #define __METHOD__ "DiskCopy42Image::Validate"
 
     size_t bytes = 0;
-    size_t size = file->fileSize();
-    const void *data = file->fileData();
+    size_t size = file->length();
+    const void *data = file->address();
     bool ok = false;
     uint32_t checksum = 0;
     
     do {
-        if (size < 84) break;
+        if (size < oUserData) break;
         
         // name must be < 64
         if (Read8(data, 0) > 63) break;
         
-        if (Read32(data, 82) != 0x100)
+        if (Read32(data, oPrivate) != 0x100)
             break;
         
         // bytes, not blocks.
-        bytes = Read32(data, 64);
+        bytes = Read32(data, oDataSize);
         
         if (bytes % 512) break;
         
-        if (size < 84 + bytes) break;
+        if (size < oUserData + bytes) break;
         
         // todo -- checksum.
-        checksum = Read32(data, 72);
+        checksum = Read32(data, oDataChecksum);
         
         ok = true;
     } while (false);
@@ -194,15 +206,13 @@ void DiskCopy42Image::Validate(MappedFile *file)
     if (!ok)
         throw Exception(__METHOD__ ": Invalid file format.");
     
-    uint32_t cs = Checksum(64 + (uint8_t *)data, bytes);
+    uint32_t cs = Checksum(oUserData + (uint8_t *)data, bytes);
     
     if (cs != checksum)
     {
-        fprintf(stderr, "Warning: checksum invalid.\n");
+        fprintf(stderr, __METHOD__ ": Warning: checksum invalid.\n");
     }
-    file->reset();
-    file->setOffset(64);
-    file->setBlocks(bytes / 512);
+
 }
 
 void DiskCopy42Image::write(unsigned block, const void *bp)

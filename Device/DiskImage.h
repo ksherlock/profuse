@@ -8,11 +8,13 @@
 
 #include <Device/BlockDevice.h>
 
-#include <MappedFile.h>
+#include <Device/Adaptor.h>
+
+#include <File/MappedFile.h>
 
 namespace Device {
 
-
+    
 class DiskImage : public BlockDevice {
 public:
 
@@ -30,27 +32,21 @@ public:
 protected:
 
     
-    DiskImage(MappedFile * = 0);
+    DiskImage(MappedFile *file = 0);
     DiskImage(const char *name, bool readOnly);
 
-    void setOffset(uint32_t offset);
-    void *address() const { return _address; }
-    void *base() const { return _file.address(); }
-
-    void readPO(unsigned block, void *bp);
-    void writePO(unsigned block, const void *bp);
     
-    void readDO(unsigned block, void *bp);
-    void writeDO(unsigned block, const void *bp);
-
-    // readNib
-    // writeNib
+    void setBlocks(unsigned blocks) { _blocks = blocks; }
+    
+    void setAdaptor(Adaptor *);
+    
+    void *address() const { return _file.address(); }
+    MappedFile *file() { return &_file; }
 
 private:
     
     MappedFile _file;
-    void *_address;
-    uint32_t _offset;
+    Adaptor *_adaptor;
     
     bool _readOnly;
     unsigned _blocks;
@@ -60,12 +56,14 @@ private:
 class ProDOSOrderDiskImage : public DiskImage {
 public:
 
-    ProDOSOrderDiskImage(const char *name, bool readOnly);
     
     static ProDOSOrderDiskImage *Create(const char *name, size_t blocks);
     static ProDOSOrderDiskImage *Open(MappedFile *);
     
 private:
+    ProDOSOrderDiskImage(const char *name, bool readOnly);
+
+    
     ProDOSOrderDiskImage(MappedFile *);
     static void Validate(MappedFile *);
 };
@@ -73,12 +71,13 @@ private:
 class DOSOrderDiskImage : public DiskImage {
 public:
     
-    DOSOrderDiskImage(const char *name, bool readOnly);
 
     static DOSOrderDiskImage *Create(const char *name, size_t blocks);
     static DOSOrderDiskImage *Open(MappedFile *);
 
 private:
+    DOSOrderDiskImage(const char *name, bool readOnly);
+
     DOSOrderDiskImage(MappedFile *);
     static void Validate(MappedFile *);
 };

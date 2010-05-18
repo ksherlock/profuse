@@ -1,5 +1,4 @@
 #include <Device/UniversalDiskImage.h>
-#include <Device/MappedFile.h>
 
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
@@ -12,6 +11,7 @@ using namespace LittleEndian;
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
+/*
 UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
     DiskImage(name, readOnly)
 {
@@ -21,11 +21,26 @@ UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
     // flags.  bit 31 = locked.
     _flags = Read32(data, 0x10);
 }
+*/
 
 UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
     DiskImage(file)
 {
-    _flags = 0;
+    unsigned blocks;
+    unsigned offset;
+    
+    uint8_t * data = (uint8_t *)file->address();
+    
+    
+
+    _flags = Read32(data, 0x10);
+
+    offset = Read32(data, 0x20);
+    blocks = Read32(data, 0x14);
+    
+    setBlocks(blocks);
+    // TODO -- DO, Nibble support.
+    setAdaptor(new POAdaptor(offset + data));
 }
 
 UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
@@ -65,11 +80,9 @@ UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
     // comment offset, creator, reserved -- 0.
     header.setOffset(64, true);
     
-    std::memcpy(file->fileData(), header.buffer(), 64);
+    std::memcpy(file->address(), header.buffer(), 64);
     
 
-    file->setOffset(64);
-    file->setBlocks(blocks);   
     return new UniversalDiskImage(file);
 }
 
@@ -90,8 +103,8 @@ void UniversalDiskImage::Validate(MappedFile *file)
 #undef __METHOD__
 #define __METHOD__ "UniversalDiskImage::Validate"
 
-    const void *data = file->fileData();
-    size_t size = file->fileSize();
+    const void *data = file->address();
+    size_t size = file->length();
     bool ok = false;
     unsigned blocks = 0;
     unsigned offset = 0;
@@ -103,6 +116,7 @@ void UniversalDiskImage::Validate(MappedFile *file)
         if (std::memcmp(data, "2IMG", 4)) break;
         
         // only prodos supported, for now...
+        // TODO -- Dos Order, Nibble support.
         if (Read32(data, 0x0c) != 1) break;
         
         offset = Read32(data, 0x20);
@@ -119,9 +133,7 @@ void UniversalDiskImage::Validate(MappedFile *file)
     if (!ok)
         throw Exception(__METHOD__ ": Invalid file format.");
     
-    file->reset();
-    file->setOffset(offset);
-    file->setBlocks(blocks);
+
 }
 
 

@@ -2,6 +2,7 @@
 #define __DISKCOPY42IMAGE_H__
 
 #include <Device/BlockDevice.h>
+#include <Device/DiskImage.h>
 
 #include <stdint.h>
 
@@ -9,7 +10,6 @@ namespace Device {
 
 class DiskCopy42Image : public DiskImage {
 public:
-    DiskCopy42Image(const char *name, bool readOnly);
     virtual ~DiskCopy42Image();
 
     static DiskCopy42Image *Create(const char *name, size_t blocks);
@@ -23,6 +23,8 @@ public:
     
      
 private:
+
+    DiskCopy42Image(const char *name, bool readOnly);
 
     DiskCopy42Image(MappedFile *);
     static void Validate(MappedFile *);

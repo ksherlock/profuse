@@ -9,7 +9,7 @@
 
 
 #include <Device/DiskImage.h>
-#include <MappedFile.h>
+#include <File/MappedFile.h>
 
 #include <ProFUSE/Exception.h>
 
@@ -20,96 +20,6 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-class Reader {
-    public:
-    virtual ~Reader();
-    virtual void readBlock(unsigned block, void *bp) = 0;
-    virtual void writeBlock(unsigned block, const void *bp) = 0;
-};
-
-class POReader : public Reader {
-    public:
-    POReader(void *address);
-    void readBlock(unsigned block, void *bp);
-    void writeBlock(unsigned block, const void *bp);
-    private:
-    uint8_t *_address;
-};
-
-class DOReader : public Reader {
-    public
-    DOReader(void *address);
-    void readBlock(unsigned block, void *bp);
-    void writeBlock(unsigned block, const void *bp);
-    private:
-    uint8_t *_address;
-    
-    static unsigned Map[];
-}
-
-Reader::~Reader()
-{
-}
-
-
-
-unsigned DOReader::Map[] = {
-    0x00, 0x0e, 0x0d, 0x0c, 
-    0x0b, 0x0a, 0x09, 0x08, 
-    0x07, 0x06, 0x05, 0x04, 
-    0x03, 0x02, 0x01, 0x0f
-};
-
-POReader::POReader(void *address)
-{
-    _address = (uint8_t *)address;
-}
-
-void POReader::readBlock(unsigned block, void *bp)
-{
-    std::memcpy(bp, _address + block * 512, 512);
-}
-
-void POReader::writeBlock(unsigned block, const void *bp)
-{
-    std::memcpy(_address + block * 512, bp, 512);
-}
-
-
-DOReader::DOReader(void *address)
-{
-    _address = (uint8_t *)address;
-}
-
-void DOReader::readBlock(unsigned block, void *bp)
-{
-
-    unsigned track = (block & ~0x07) << 9;
-    unsigned sector = (block & 0x07) << 1;
-    
-    for (unsigned i = 0; i < 2; ++i)
-    {
-        size_t offset =  track | (Map[sector+i] << 8); 
-        
-        std::memcpy(bp, _address + offset,  256);
-        
-        bp = (uint8_t *)bp + 256;
-    }
-}
-
-void DOReader::writeBlock(unsigned block, const void *bp)
-{
-    unsigned track = (block & ~0x07) << 9;
-    unsigned sector = (block & 0x07) << 1;
-    
-    for (unsigned i = 0; i < 2; ++i)
-    {
-        size_t offset =  track | (DOSMap[sector+i] << 8); 
-        
-        std::memcpy(_address + offset,  bp, 256);
-        bp = (uint8_t *)bp + 256;
-    }
-}
 
 
 
@@ -161,29 +71,30 @@ unsigned DiskImage::ImageType(const char *type, unsigned defv)
 
 
 
-DiskImage::DiskImage(const char *name, bool readOnly) :
-    _file(name, readOnly)
+DiskImage::DiskImage(const char *name, bool readOnly)
 {
-    _offset = 0;
+    File fd(name, readOnly ? O_RDONLY : O_RDWR);
+    MappedFile mf(fd, readOnly);
+    _file.adopt(mf);
+    
     _blocks = 0;
     _readOnly = readOnly;
-    _address = file.address();
-
+    _adaptor = NULL;
 }
 
-DiskImage::DiskImage(MappedFile *file, bool readOnly)
-{
-    _file.adopt(file);
 
-    _offset = 0;
+DiskImage::DiskImage(MappedFile *file)
+{
+    _file.adopt(*file);
+
     _blocks = 0;
-    _readOnly = readOnly;
-    _address = file.address();    
+    _readOnly = file->readOnly();
+    _adaptor = NULL;
 }
 
 DiskImage::~DiskImage()
 { 
-    delete _file;
+    delete _adaptor;
 }
 
 bool DiskImage::readOnly()
@@ -197,57 +108,65 @@ unsigned DiskImage::blocks()
 }
 
 
+void DiskImage::setAdaptor(Adaptor *adaptor)
+{
+    delete _adaptor;
+    _adaptor = adaptor;
+}
+
+
+void DiskImage::read(unsigned block, void *bp)
+{
+#undef __METHOD__
+#define __METHOD__ "DiskImage::read"
+
+    if (block >= _blocks)
+        throw Exception(__METHOD__ ": Invalid block.");
+    
+    _adaptor->readBlock(block, bp);    
+}
+
+void DiskImage::write(unsigned block, const void *bp)
+{
+#undef __METHOD__
+#define __METHOD__ "DiskImage::write"
+    
+    if (block >= _blocks)
+        throw Exception(__METHOD__ ": Invalid block.");
+    
+    _adaptor->writeBlock(block, bp);
+}
+
 void DiskImage::sync()
 {
     #undef __METHOD__
     #define __METHOD__ "DiskImage::sync"
     
-    if (_file) return _file.sync();
+    if (_file.isValid()) return _file.sync();
     
     throw Exception(__METHOD__ ": File not set."); 
 }
 
 
-void DiskImage::readPO(unsigned block, void *bp)
-{
-    #undef __METHOD__
-    #define __METHOD__ "DiskImage::readPO"
-    
-    if (block >= _blocks)
-        throw Exception(__METHOD__ ": Invalid block.");
-    
-    std::memcpy(bp, (uint8_t *)_address + block * 512, 512);
-}
 
-
-void DiskImage::writePO(unsigned block, const void *bp)
-{
-    #undef __METHOD__
-    #define __METHOD__ "DiskImage::writePO"
-    
-    if (block >= _blocks)
-        throw Exception(__METHOD__ ": Invalid block.");
-    
-    std::memcpy((uint8_t *)_address + block * 512, bp, 512);
-
-}
-
-
+/*
 ProDOSOrderDiskImage::ProDOSOrderDiskImage(const char *name, bool readOnly) :
     DiskImage(name, readOnly)
 {
     Validate(file());
 }
-
+*/
+ 
 ProDOSOrderDiskImage::ProDOSOrderDiskImage(MappedFile *file) :
     DiskImage(file)
 {
+    setBlocks(file->length() / 512);
+    setAdaptor(new POAdaptor(file->address()));
 }
 
 ProDOSOrderDiskImage *ProDOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
-    MappedFile *file = new MappedFile(name, blocks * 512);
-    file->setBlocks(blocks);
+    MappedFile *file = MappedFile::Create(name, blocks * 512);
     return new ProDOSOrderDiskImage(file);
 }
 
@@ -262,33 +181,34 @@ void ProDOSOrderDiskImage::Validate(MappedFile *f)
     #undef __METHOD__
     #define __METHOD__ "ProDOSOrderDiskImage::Validate"
     
-    if (!f) throw Exception(__METHOD__ ": File not set.");
+    if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
     
-    size_t size = f->fileSize();
+    size_t size = f->length();
     
     if (size % 512)
         throw Exception(__METHOD__ ": Invalid file format.");
     
-    f->reset();
-    f->setBlocks(size / 512);
 }
 
+/*
 DOSOrderDiskImage::DOSOrderDiskImage(const char *name, bool readOnly) :
     DiskImage(name, readOnly)
 {    
     Validate(file());
 }
+*/
 
 DOSOrderDiskImage::DOSOrderDiskImage(MappedFile *file) :
     DiskImage(file)
 {
+    setBlocks(file->length() / 512);
+    setAdaptor(new DOAdaptor(file->address()));
 }
+
 
 DOSOrderDiskImage *DOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
-    MappedFile *file = new MappedFile(name, blocks * 512);
-    file->setEncoding(MappedFile::DOSOrder);
-    file->setBlocks(blocks);
+    MappedFile *file = MappedFile::Create(name, blocks * 512);
     return new DOSOrderDiskImage(file);
 }
 
@@ -303,14 +223,11 @@ void DOSOrderDiskImage::Validate(MappedFile *f)
     #undef __METHOD__
     #define __METHOD__ "DOSOrderDiskImage::Validate"
 
-    if (!f) throw Exception(__METHOD__ ": File not set.");
+    if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
     
-    size_t size = f->fileSize();
+    size_t size = f->length();
     
     if (size % 512)
         throw Exception(__METHOD__ ": Invalid file format.");
     
-    f->reset();
-    f->setEncoding(MappedFile::DOSOrder);
-    f->setBlocks(size / 512);
 }
