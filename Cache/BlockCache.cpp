@@ -50,3 +50,11 @@ void BlockCache::read(unsigned block, void *bp)
     std::memcpy(bp, address, 512);
     release(block, false);
 }
+
+
+BlockCache *BlockCache::Create(BlockDevice *device, unsigned size = 16)
+{
+    if (!device) return NULL;
+    
+    return device->createBlockCache(size);
+}

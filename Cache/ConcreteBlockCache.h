@@ -13,7 +13,7 @@ public:
     virtual ~ConcreteBlockCache();
 
     virtual void sync();
-    virtual void write(unsigned block, const void *vp) = 0;
+    virtual void write(unsigned block, const void *vp);
 
 
     virtual void *acquire(unsigned block);

@@ -38,7 +38,9 @@ public:
     
     void release(unsigned block) { release(block, 0); }
     void release(unsigned block, bool dirty) 
-        { release(block, dirty ? kBlockDirty : 0); }
+    {
+        release(block, dirty ? kBlockDirty : 0);
+    }
 
 protected:
     BlockCache(BlockDevice *device);
