@@ -30,9 +30,9 @@
             _offset += 4;
         }
         
-        void writeBytes(const void *value, unsigned count)
+        void writeBytes(const void *src, unsigned count)
         {
-            std::memcpy(_offset + (uint8_t *)_buffer, value, count);
+            std::memcpy(_offset + (uint8_t *)_buffer, src, count);
             _offset += count; 
         }
         
@@ -43,6 +43,42 @@
             _offset += count;
         }
         
+       
+       uint8_t read8()
+       {
+           uint8_t x = Read8(_buffer, _offset);
+           _offset += 1;
+           return x;
+       }
+
+       uint16_t read16()
+       {
+           uint16_t x = Read16(_buffer, _offset);
+           _offset += 2;
+           return x;
+       }
+       
+       uint32_t read24()
+       {
+           uint32_t x = Read24(_buffer, _offset);
+           _offset += 3;
+           return x;
+       }
+       
+       uint32_t read32()
+       {
+           uint32_t x = Read32(_buffer, _offset);
+           _offset += 4;
+           return x;
+       }
+       
+       void readBytes(void *dest, unsigned count)
+       {
+           std::memcpy(dest, _offset + (uint8_t *)_buffer, count);
+           _offset += count;    
+       }
+       
+       
         unsigned offset() const { return _offset; }
         void setOffset(unsigned offset) { _offset = offset; }
         
