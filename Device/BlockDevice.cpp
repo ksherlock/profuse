@@ -55,7 +55,9 @@ void BlockDevice::sync(TrackSector ts)
 }
 
 
-BlockCache *BlockDevice::createBlockCache(unsigned size)
+BlockCache *BlockDevice::createBlockCache()
 {
+    unsigned b = blocks();
+    unsigned size = std::max(16u, b / 16);
     return new ConcreteBlockCache(this, size);
 }

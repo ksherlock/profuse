@@ -150,14 +150,14 @@ bool UniversalDiskImage::readOnly()
 }
 
 
-BlockCache *UniversalDiskImage::createBlockCache(unsigned size)
+BlockCache *UniversalDiskImage::createBlockCache()
 {
     if (_format == 1)
     {
         return new MappedBlockCache(this, _dataOffset + (uint8_t *)address());
     }
     
-    return DiskImage::createBlockCache(size);
+    return DiskImage::createBlockCache();
 }
 
 

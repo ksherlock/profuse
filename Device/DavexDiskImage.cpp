@@ -162,7 +162,7 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
 }
 
 
-BlockCache *DavexDiskImage::createBlockCache(unsigned size)
+BlockCache *DavexDiskImage::createBlockCache()
 {
     return new MappedBlockCache(this, 512 + (uint8_t *)address());
     

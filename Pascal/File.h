@@ -7,7 +7,7 @@
 
 namespace Device {
     class BlockDevice;
-    class AbstractBlockCache;
+    class BlockCache;
 }
 
 namespace LittleEndian {
@@ -125,7 +125,7 @@ private:
     unsigned _inodeGenerator;
     
     Device::BlockDevice *_device;
-    Device::AbstractBlockCache *_cache;
+    Device::BlockCache *_cache;
 };
 
 

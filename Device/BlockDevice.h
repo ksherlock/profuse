@@ -17,7 +17,7 @@ public:
 
     virtual ~BlockDevice();
     
-    virtual BlockCache *createBlockCache(unsigned size);
+    virtual BlockCache *createBlockCache();
     
     
     virtual void read(unsigned block, void *bp) = 0;

@@ -52,9 +52,9 @@ void BlockCache::read(unsigned block, void *bp)
 }
 
 
-BlockCache *BlockCache::Create(BlockDevice *device, unsigned size = 16)
+BlockCache *BlockCache::Create(BlockDevice *device)
 {
     if (!device) return NULL;
     
-    return device->createBlockCache(size);
+    return device->createBlockCache();
 }

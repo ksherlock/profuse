@@ -19,7 +19,7 @@ enum BlockReleaseFlags {
 class BlockCache {
 public:
 
-    BlockCache *Create(BlockDevice *device, unsigned size = 16);
+    static BlockCache *Create(BlockDevice *device);
 
     virtual ~BlockCache();
 

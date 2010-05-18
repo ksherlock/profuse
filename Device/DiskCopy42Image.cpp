@@ -226,7 +226,7 @@ void DiskCopy42Image::write(unsigned block, const void *bp)
 }
 
 
-BlockCache *DiskCopy42Image::createBlockCache(unsigned size)
+BlockCache *DiskCopy42Image::createBlockCache()
 {
     // if not readonly, mark changed so crc will be updated at close.
     

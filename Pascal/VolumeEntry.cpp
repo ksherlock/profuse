@@ -7,13 +7,15 @@
 #include <Endian/IOBuffer.h>
 
 #include <Device/BlockDevice.h>
-#include <Device/BlockCache.h>
+#include <Cache/BlockCache.h>
 
 #pragma mark -
 #pragma mark VolumeEntry
 
 using namespace LittleEndian;
 using namespace Pascal;
+
+using namespace Device;
 
 unsigned VolumeEntry::ValidName(const char *cp)
 {
@@ -69,7 +71,7 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
     _accessTime = 0;
     _lastBoot = Date::Today(); 
     
-    _cache = device->blockCache();
+    _cache = BlockCache::Create(device);
     _device = device;
     
     for (unsigned i = 2; i < 6; ++i)
@@ -77,12 +79,12 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
         device->zeroBlock(i);
     }
     
-    void *vp = _cache->load(2);
+    void *vp = _cache->acquire(2);
     IOBuffer b(vp, 0x1a);
     
     writeDirectoryEntry(&b);
         
-    _cache->unload(2, true);
+    _cache->release(2, true);
     
 }
 
@@ -96,7 +98,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     // blocks.
     
     _device = device;
-    _cache = device->blockCache();
+    _cache = BlockCache::Create(device);
     
     device->read(2, buffer.get());
 
@@ -160,8 +162,9 @@ VolumeEntry::~VolumeEntry()
         if (*iter) delete *iter;
     }
     
-    // _blockCache does not need deleting.
-    delete _device;
+    delete _cache;
+    // _device is deleted by _cache.
+    //delete _device;
 }
 
 
@@ -194,20 +197,20 @@ FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
 
 void *VolumeEntry::loadBlock(unsigned block)
 {
-    return _cache->load(block);
+    return _cache->acquire(block);
 }
 void VolumeEntry::unloadBlock(unsigned block, bool dirty)
 {
-    return _cache->unload(block, dirty);
+    return _cache->release(block, dirty);
 }
 
 void VolumeEntry::readBlock(unsigned block, void *buffer)
 {
-    _device->read(block, buffer);
+    _cache->read(block, buffer);
 }
 void VolumeEntry::writeBlock(unsigned block, void *buffer)
 {
-    _device->write(block, buffer);
+    _cache->write(block, buffer);
 }
 
 
