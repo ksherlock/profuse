@@ -22,7 +22,6 @@
 
 #include <Device/RawDevice.h>
 
-#include <ProFUSE/auto.h>
 #include <ProFUSE/Exception.h>
 
 using namespace Device;
@@ -95,43 +94,57 @@ void RawDevice::devSize(int fd)
 
 // TODO -- FreeBSD/NetBSD/OpenBSD
 
-RawDevice::RawDevice(const char *name, bool readOnly)
+RawDevice::RawDevice(const char *name, bool readOnly) :
+    _file(name, readOnly)
 {
 #undef __METHOD__
 #define __METHOD__ "RawDevice::RawDevice"
 
 
-    // open read-only, verify if device is readable, and then try to upgrade to read/write?
-
-    ProFUSE::auto_fd fd;
-    
-    if (!readOnly) fd.reset(::open(name, O_RDWR));
-    if (fd < 0)
+    if (!_file.isValid())
     {
-        readOnly = false;
-        fd.reset(::open(name, O_RDONLY));
+        throw new Exception(__METHOD__ ": Invalid file handle.");
     }
-     
-    if (fd < 0)
-        throw POSIXException(__METHOD__ ": Unable to open device.", errno);
-
-    _fd = -1;
-
+    
     _readOnly = readOnly;
     _size = 0;
     _blocks = 0;
     _blockSize = 0;
     
     
-    devSize(fd);
+    devSize(_file.fd());
+}
+
+RawDevice::RawDevice(File& file, bool readOnly) :
+    _file(file)
+{
+#undef __METHOD__
+#define __METHOD__ "RawDevice::RawDevice"
     
-    _fd = fd.release();
+    
+    if (!_file.isValid())
+    {
+        throw new Exception(__METHOD__ ": Invalid file handle.");
+    }
+    
+    _readOnly = readOnly;
+    _size = 0;
+    _blocks = 0;
+    _blockSize = 0;
+    
+    
+    devSize(_file.fd());    
 }
 
 
 RawDevice::~RawDevice()
 {
-    if (_fd >= 0) ::close(_fd);
+}
+
+
+RawDevice *RawDevice::Open(const char *name, bool readOnly)
+{
+    return new RawDevice(name, readOnly);
 }
 
 
@@ -147,7 +160,7 @@ void RawDevice::read(unsigned block, void *bp)
     // apple - read full native block(s) ?
 
     off_t offset = block * 512;    
-    size_t ok = ::pread(_fd, bp, 512, offset);
+    size_t ok = ::pread(_file.fd(), bp, 512, offset);
     
     // TODO -- EINTR?
     if (ok != 512)
@@ -170,7 +183,7 @@ void RawDevice::read(TrackSector ts, void *bp)
     // apple - read full native block(s) ?
 
     off_t offset = (ts.track * 16 + ts.sector) * 256;    
-    size_t ok = ::pread(_fd, bp, 256, offset);
+    size_t ok = ::pread(_file.fd(), bp, 256, offset);
     
     // TODO -- EINTR?
     if (ok != 256)
@@ -192,7 +205,7 @@ void RawDevice::write(unsigned block, const void *bp)
 
 
     off_t offset = block * 512;    
-    size_t ok = ::pwrite(_fd, bp, 512, offset);
+    size_t ok = ::pwrite(_file.fd(), bp, 512, offset);
     
     if (ok != 512)
         throw ok < 0 
@@ -214,7 +227,7 @@ void RawDevice::write(TrackSector ts, const void *bp)
 
 
     off_t offset = (ts.track * 16 + ts.sector) * 256;    
-    size_t ok = ::pwrite(_fd, bp, 256, offset);
+    size_t ok = ::pwrite(_file.fd(), bp, 256, offset);
     
     if (ok != 256)
         throw ok < 0 
@@ -233,6 +246,13 @@ bool RawDevice::mapped()
     return false;
 }
 
+
+unsigned RawDevice::blocks()
+{
+    return _blocks;
+}
+
+
 void RawDevice::sync()
 {
 #undef __METHOD__
@@ -240,6 +260,6 @@ void RawDevice::sync()
 
     if (_readOnly) return;
     
-    if (::fsync(_fd) < 0)
+    if (::fsync(_file.fd()) < 0)
         throw POSIXException(__METHOD__ ": fsync error.", errno);
 }

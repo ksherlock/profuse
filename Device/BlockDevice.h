@@ -15,6 +15,17 @@ namespace Device {
 class BlockDevice {
 public:
 
+
+    // static methods.
+    static unsigned ImageType(const char *type, unsigned defv = 0);
+    
+    static BlockDevice *Open(const char *name, bool readOnly, unsigned imageType = 0);
+    static BlockDevice *Create(const char *fname, const char *vname, unsigned blocks, unsigned imageType = 0);
+    
+    
+    
+    
+    
     virtual ~BlockDevice();
     
     virtual BlockCache *createBlockCache();

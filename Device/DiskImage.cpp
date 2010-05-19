@@ -5,13 +5,9 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/mman.h>
-
 
 #include <Device/DiskImage.h>
-#include <Device/UniversalDiskImage.h>
-#include <Device/DiskCopy42Image.h>
-#include <Device/DavexDiskImage.h>
+
 
 
 #include <File/MappedFile.h>
@@ -25,91 +21,6 @@ using namespace Device;
 
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
-
-
-
-
-
-
-
-
-unsigned DiskImage::ImageType(const char *type, unsigned defv)
-{
-    const char *tmp;
-    
-    if (type == 0 || *type == 0) return defv;
-    
-    // type could be a filename, in which case we check the extension.
-    tmp = std::strrchr(type, '.');
-    if (tmp) type = tmp + 1;
-    if (*type == 0) return defv;
-    
-    
-    if (::strcasecmp(type, "2mg") == 0)
-        return '2IMG';
-    if (::strcasecmp(type, "2img") == 0)
-        return '2IMG';
-        
-    if (::strcasecmp(type, "dc42") == 0)
-        return 'DC42';
-        
-    if (::strcasecmp(type, "po") == 0)
-        return 'PO__';
-    if (::strcasecmp(type, "dmg") == 0)
-        return 'PO__';
-        
-    if (::strcasecmp(type, "dsk") == 0)
-        return 'DO__';
-    if (::strcasecmp(type, "do") == 0)
-        return 'DO__';
-
-    if (::strcasecmp(type, "dvx") == 0)
-        return 'DVX_';        
-    if (::strcasecmp(type, "davex") == 0)
-        return 'DVX_';
-        
-    /*
-    // not supported yet.        
-    if (::strcasecmp(tmp, "sdk") == 0)
-        return 'SDK_';
-    */      
-    return defv;
-}
-
-BlockDevice *DiskImage::Open(const char *name, bool readOnly, unsigned imageType)
-{
-    if (!imageType) imageType = ImageType(name, 'PO__');
-    
-    // TODO -- if no image type, guess based on file size?
-    // TODO -- check for /dev/* ?
-    
-    MappedFile file(name, readOnly);
-    
-    
-    switch (imageType)
-    {
-        case '2IMG':
-            return UniversalDiskImage::Open(&file);
-        
-        case 'DC42':
-            return DiskCopy42Image::Open(&file);
-        
-        case 'DO__':
-            return DOSOrderDiskImage::Open(&file);
-            
-        case 'PO__':
-            return ProDOSOrderDiskImage::Open(&file);
-        
-        case 'DVX_':
-            return DavexDiskImage::Open(&file);
-            
-    }
-    
-    // throw an error?
-    return NULL;
-    
-}
-
 
 
 

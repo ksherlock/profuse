@@ -5,15 +5,22 @@
 
 #include <Device/BlockDevice.h>
 
+#include <File/File.h>
+
 namespace Device {
 
 // /dev/xxx
 
 
-class RawDevice : BlockDevice {
+class RawDevice : public BlockDevice {
 public:
 
     RawDevice(const char *name, bool readOnly);
+    
+    RawDevice(File& file, bool readOnly);
+    
+    static RawDevice *Open(const char *name, bool readOnly);
+    
     
     virtual ~RawDevice();
     
@@ -27,11 +34,13 @@ public:
     virtual bool mapped();
     virtual void sync();
     
+    virtual unsigned blocks();
+    
 private:
 
     void devSize(int fd);
 
-    int _fd;
+    File _file;
     bool _readOnly;
     
     uint64_t _size;

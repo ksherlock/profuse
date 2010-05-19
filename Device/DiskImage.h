@@ -18,11 +18,7 @@ namespace Device {
 class DiskImage : public BlockDevice {
 public:
 
-    static unsigned ImageType(const char *type, unsigned defv = 0);
 
-    
-    static BlockDevice *Open(const char *name, bool readOnly, unsigned imageType = 0);
-    
     virtual ~DiskImage();
         
     virtual void read(unsigned block, void *bp);
