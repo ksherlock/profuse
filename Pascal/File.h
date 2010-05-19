@@ -1,5 +1,5 @@
-#ifndef __FILE_H__
-#define __FILE_H__
+#ifndef __PASCAL_FILE_H__
+#define __PASCAL_FILE_H__
 
 #include <Pascal/Date.h>
 
