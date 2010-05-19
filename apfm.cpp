@@ -188,7 +188,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
         return 1;
     }
 
-    for (unsigned i = 0; i < argc; ++i)
+    for (unsigned i = 1; i < argc; ++i)
     {
         const char *fname = argv[i];
         unsigned fileSize;
@@ -270,7 +270,7 @@ void usage()
 
 }
 
-int main(/* int argc, char **argv */)
+int main(int argc, char **argv)
 {
     std::auto_ptr<Pascal::VolumeEntry> volume;
     std::auto_ptr<Device::BlockDevice> device;
@@ -280,7 +280,18 @@ int main(/* int argc, char **argv */)
     int c;
     
 
-    
+    /*
+    char *argv2[] = {
+        (char *)"afpm",
+        //(char *)"/Users/kelvin/Desktop/ucsd/pascal.dsk",
+        (char *)"/Users/kelvin/Desktop/ucsd/UCSD Pascal 1.2_3.DSK",
+        (char *)"cat",
+        (char *)"SPIRODEMO.TEXT",
+        NULL
+    };
+    char **argv = argv2;
+    int argc = 4;
+    */
 
     // getop stops at first non '-' arg so it will not affect action flags.    
     while ((c = ::getopt(argc, argv, "f:h")) != -1)

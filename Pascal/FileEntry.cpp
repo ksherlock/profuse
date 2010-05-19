@@ -220,7 +220,7 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
         to += pageSize;
     }
     
-
+    // first 2 pages are spare, for editor use, not actually text.
     block = _firstBlock + 2 + (page * 2);
     
     
