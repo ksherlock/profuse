@@ -19,7 +19,6 @@
 #include <Pascal/File.h>
 #include <Pascal/Date.h>
 #include <Device/BlockDevice.h>
-#include <Device/DiskCopy42Image.h>
 
 
 
@@ -184,7 +183,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
     
     if (argc < 2)
     {
-        std::fprintf(stderr, "apfm cat: Please specify one or more files.");
+        std::fprintf(stderr, "apfm cat: Please specify one or more files.\n");
         return 1;
     }
 
@@ -227,21 +226,28 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
 
 int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
+    // cp src dest
+    // first character of ':' indicates pascal file, otherwise, is native file?
     return 0;
 }
 
 int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
+    // mv src dest
+    // first character of ':' indicates pascal file, otherwise is native file?
     return 0;
 }
 
 int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
+    // mv rm file [file ....]
+    // needs ':' as f
     return 0;
 }
 
 int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
+    // compress file to remove gaps.
     return 0;
 }
 
@@ -300,7 +306,7 @@ int main(int argc, char **argv)
         switch(c)
         {
         case 'f':
-            fmt = Device::DiskImage::ImageType(optarg);
+            fmt = Device::BlockDevice::ImageType(optarg);
             if (!fmt)
             {
                 std::fprintf(stderr, "Error: Invalid file format: ``%s''.\n",
@@ -337,7 +343,7 @@ int main(int argc, char **argv)
     try {
         
         
-        device.reset( Device::DiskImage::Open(file, true, fmt) );
+        device.reset( Device::BlockDevice::Open(file, true, fmt) );
     
 
                      

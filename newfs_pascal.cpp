@@ -1,10 +1,10 @@
-#include "../BlockDevice.h"
-#include "../Exception.h"
-#include "../MappedFile.h"
-#include "../DiskCopy42Image.h"
+#include <Device/BlockDevice.h>
+#include <Device/RawDevice.h>
 
-#include "File.h"
 
+#include <ProFUSE/Exception.h>
+
+#include <Pascal/File.h>
 
 #include <memory>
 #include <cstdio>
@@ -12,13 +12,25 @@
 #include <cerrno>
 
 #include <unistd.h>
-
+#include <sys/stat.h>
 
 using namespace Pascal;
+using namespace Device;
 
 #define NEWFS_VERSION "0.1"
 
 
+
+bool yes_or_no()
+{
+	int ch, first;
+	(void)fflush(stderr);
+    
+	first = ch = getchar();
+	while (ch != '\n' && ch != EOF)
+		ch = getchar();
+	return (first == 'y' || first == 'Y');
+}
 
 /*
  * \d+ by block
@@ -149,7 +161,7 @@ int main(int argc, char **argv)
         
         case 'f':
             {
-                format = ProFUSE::DiskImage::ImageType(optarg);
+                format = Device::BlockDevice::ImageType(optarg);
                 if (format == 0)
                 {
                     std::fprintf(stderr, "Error: `%s' is not a supported disk image format.\n", optarg);
@@ -181,40 +193,56 @@ int main(int argc, char **argv)
             volumeName = "PASCAL";
     }
     
-    if (format == 0) format = ProFUSE::DiskImage::ImageType(fname, 'PO__');
-
+    
+    
 
     try
     {
-        std::auto_ptr<ProFUSE::BlockDevice> device;
-        std::auto_ptr<Pascal::VolumeEntry> volume;
         
-        // TODO -- check for raw device.
+        struct stat st;
+        bool rawDevice;
         
+        std::auto_ptr<BlockDevice> device;
+        std::auto_ptr<VolumeEntry> volume;
         
-        switch(format)
+        // Check for block device.  if so, verify.
+        // if file exists, verify before overwrite.
+        std::memset(&st, 0, sizeof(st));
+        
+        if (::stat(fname, &st) == 0)
         {
-        case 'DC42':
-            device.reset(ProFUSE::DiskCopy42Image::Create(fname, blocks, volumeName.c_str()));
-            break;
+            if (S_ISBLK(st.st_mode))
+            {
+                fprintf(stderr, "`%s' is a raw device. Are you sure you want to initialize it? ", fname);
+                if (!yes_or_no()) return -1;
+                
+                device.reset( RawDevice::Open(fname, false) );
+                blocks = device->blocks();
+                rawDevice = true;
+            }
             
-        case 'PO__':
-            device.reset(ProFUSE::ProDOSOrderDiskImage::Create(fname, blocks));
-            break;
+            else
+            {
+                // file exists, verify we want to destroy it.
+                
+                fprintf(stderr, "`%s' already exists.  Are you sure you want to overwrite it? ", fname);
+                if (!yes_or_no()) return -1;
+            }
             
-        case 'DO__':
-            device.reset(ProFUSE::DOSOrderDiskImage::Create(fname, blocks));
-            break;
+        }
         
-            
-        default:
+        if (!rawDevice)
+            device.reset( BlockDevice::Create(fname, volumeName.c_str(), blocks, format));
+        
+        if (!device.get())
+        {
             std::fprintf(stderr, "Error: Unsupported diskimage format.\n");
             return -1;
         }
         
         
         volume.reset(
-            new Pascal::VolumeEntry(volumeName.c_str(), device.get())
+            new VolumeEntry(volumeName.c_str(), device.get())
         );
         device.release();
 
