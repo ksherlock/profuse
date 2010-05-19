@@ -213,10 +213,9 @@ ConcreteBlockCache::Entry *ConcreteBlockCache::findEntry(unsigned block)
     
     e = _hashTable[hash];
     
-    if (e)
-    {
-        while ((e) && (e->block != block)) e = e->nextHash;
-    }
+    while ((e) && (e->block != block))
+        e = e->nextHash;
+
     
     return e;
 }
