@@ -21,10 +21,10 @@ public:
     
     
     virtual void read(unsigned block, void *bp) = 0;
-    virtual void read(TrackSector ts, void *bp);
+    //virtual void read(TrackSector ts, void *bp) = 0
     
     virtual void write(unsigned block, const void *bp) = 0;
-    virtual void write(TrackSector ts, const void *bp);
+    //virtual void write(TrackSector ts, const void *bp) = 0;
 
 
     virtual unsigned blocks() = 0;
@@ -35,7 +35,7 @@ public:
     
     virtual void sync() = 0;
     virtual void sync(unsigned block);
-    virtual void sync(TrackSector ts);
+    //virtual void sync(TrackSector ts);
     
 
     void zeroBlock(unsigned block);

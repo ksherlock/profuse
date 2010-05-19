@@ -59,6 +59,15 @@ void MappedBlockCache::release(unsigned block, int flags)
     if (flags & kBlockDirty) _dirty = true;
 }
 
+
+
+void MappedBlockCache::write(unsigned block, const void *vp)
+{
+    _dirty = true;
+    std::memcpy(_data + block * 512, vp, 512);
+}
+
+
 // sync everything.
 void MappedBlockCache::sync()
 {

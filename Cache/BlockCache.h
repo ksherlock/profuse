@@ -14,7 +14,7 @@ enum BlockReleaseFlags {
     kBlockDirty = 1,
     kBlockCommitNow = 2,
     kBlockReuse = 3
-} BlockReleaseFlags;
+};
 
 class BlockCache {
 public:

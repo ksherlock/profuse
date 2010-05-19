@@ -145,7 +145,7 @@ void MappedFile::swap(MappedFile &mf)
 }
 
 
-static MappedFile *Create(const char *name, size_t size)
+MappedFile *MappedFile::Create(const char *name, size_t size)
 {
 #undef __METHOD__
 #define __METHOD__ "MappedFile::Create"

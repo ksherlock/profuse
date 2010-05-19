@@ -203,6 +203,25 @@ unsigned ConcreteBlockCache::hashFunction(unsigned block)
     return block % HashTableSize;
 }
 
+
+
+
+ConcreteBlockCache::Entry *ConcreteBlockCache::findEntry(unsigned block)
+{
+    Entry *e;
+    unsigned hash = hashFunction(block);
+    
+    e = _hashTable[hash];
+    
+    if (e)
+    {
+        while ((e) && (e->block != block)) e = e->nextHash;
+    }
+    
+    return e;
+}
+
+
 /*
  * remove a block from the hashtable
  * and write to dick if dirty.

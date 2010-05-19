@@ -49,11 +49,12 @@ void BlockDevice::sync(unsigned block)
     sync();
 }
 
+/*
 void BlockDevice::sync(TrackSector ts)
 {
     sync();
 }
-
+*/
 
 BlockCache *BlockDevice::createBlockCache()
 {

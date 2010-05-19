@@ -5,6 +5,7 @@
 
 #include <File/File.h>
 
+class File;
 
 class MappedFile {
     public:

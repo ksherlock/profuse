@@ -115,7 +115,7 @@ int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
     
     std::fprintf(stdout, "%s:\n", volume->name()); 
     
-    argv[0] = "afpm ls";
+    //argv[0] = "afpm ls";
     
     while ((ch = ::getopt(argc, argv, "l")) != -1)
     {
@@ -179,7 +179,7 @@ int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
 int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // cat file1, file2...
-    argv[0] = "afpm cat";
+    //argv[0] = "afpm cat";
     
     if (argc < 2)
     {
@@ -318,28 +318,16 @@ int main(int argc, char **argv)
     const char *file = argv[0];
     const char *action = argv[1];
     
-    if (!fmt) fmt = Device::DiskImage::ImageType(optarg, 'PO__');
         
     
     try {
+        
+        
+        device.reset( Device::DiskImage::Open(file, true, fmt) );
     
-        switch(fmt)
-        {
-        case 'DO__':
-            device.reset( new Device::DOSOrderDiskImage(file, true) );
-            break;
-        case 'PO__':
-            device.reset( new Device::ProDOSOrderDiskImage(file, true) );
-            break;
-        case 'DC42':
-            device.reset( new Device::DiskCopy42Image(file, true) );
-            break;
-            
-        default:
-            std::fprintf(stderr, "Unable to determine format.  Please use -f flag.\n");
-            return 2;
-        }
-    
+
+                     
+                     
         
         volume.reset( new Pascal::VolumeEntry(device.get()));
         

@@ -9,6 +9,11 @@
 
 
 #include <Device/DiskImage.h>
+#include <Device/UniversalDiskImage.h>
+#include <Device/DiskCopy42Image.h>
+#include <Device/DavexDiskImage.h>
+
+
 #include <File/MappedFile.h>
 
 #include <Cache/MappedBlockCache.h>
@@ -70,6 +75,41 @@ unsigned DiskImage::ImageType(const char *type, unsigned defv)
     */      
     return defv;
 }
+
+BlockDevice *DiskImage::Open(const char *name, bool readOnly, unsigned imageType)
+{
+    if (!imageType) imageType = ImageType(name, 'PO__');
+    
+    // TODO -- if no image type, guess based on file size?
+    // TODO -- check for /dev/* ?
+    
+    MappedFile file(name, readOnly);
+    
+    
+    switch (imageType)
+    {
+        case '2IMG':
+            return UniversalDiskImage::Open(&file);
+        
+        case 'DC42':
+            return DiskCopy42Image::Open(&file);
+        
+        case 'DO__':
+            return DOSOrderDiskImage::Open(&file);
+            
+        case 'PO__':
+            return ProDOSOrderDiskImage::Open(&file);
+        
+        case 'DVX_':
+            return DavexDiskImage::Open(&file);
+            
+    }
+    
+    // throw an error?
+    return NULL;
+    
+}
+
 
 
 
