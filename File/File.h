@@ -26,6 +26,8 @@ class File {
     void close();
     
     void adopt(File &f);
+    void adopt(int fd);
+    
     void swap(File &f);
         
     private:

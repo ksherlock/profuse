@@ -71,10 +71,20 @@ void File::close()
 
 void File::adopt(File &f)
 {
+    if (&f == this) return;
+    
     close();
     _fd = f._fd;
     f._fd = -1;
 }
+
+void File::adopt(int fd)
+{
+    if (fd == _fd) return;
+    close();
+    _fd = fd;
+}
+
 
 void File::swap(File &f)
 {
