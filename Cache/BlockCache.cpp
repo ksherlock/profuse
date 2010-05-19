@@ -27,7 +27,7 @@ using ProFUSE::POSIXException;
 
 BlockCache::BlockCache(BlockDevice *device)
 {
-    _device = _device;
+    _device = device;
     _blocks = device->blocks();
     _readOnly = device->readOnly();
 }

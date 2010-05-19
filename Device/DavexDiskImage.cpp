@@ -40,9 +40,12 @@ DavexDiskImage::DavexDiskImage(const char *name, bool readOnly) :
 DavexDiskImage::DavexDiskImage(MappedFile *file) :
     DiskImage(file)
 {
+    // at this point, file is no longer valid.
+
+    
     // 512-bytes header
-    setBlocks((file->length() / 512) - 1);
-    setAdaptor(new POAdaptor(512 + (uint8_t *)file->address()));
+    setBlocks((length() / 512) - 1);
+    setAdaptor(new POAdaptor(512 + (uint8_t *)address()));
 }
 
 

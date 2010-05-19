@@ -100,7 +100,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     _device = device;
     _cache = BlockCache::Create(device);
     
-    device->read(2, buffer.get());
+    _cache->read(2, buffer.get());
 
     init(buffer.get());
 
@@ -108,7 +108,6 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     
     //printf("%u %u\n", blocks(), _lastBlock - _firstBlock);
     
-    // why the fuck didn't this work????
     blockCount = blocks();
     
     if (blockCount > 1)
@@ -117,7 +116,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
         
         for (unsigned i = 0; i < blockCount; ++i)
         {
-            device->read(2 + i, buffer.get() + 512 * i);
+            _cache->read(2 + i, buffer.get() + 512 * i);
         }
     }
     

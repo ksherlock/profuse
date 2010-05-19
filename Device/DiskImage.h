@@ -44,6 +44,8 @@ protected:
     void setAdaptor(Adaptor *);
     
     void *address() const { return _file.address(); }
+    size_t length() const { return _file.length(); }
+    
     MappedFile *file() { return &_file; }
 
 private:

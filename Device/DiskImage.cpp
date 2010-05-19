@@ -202,8 +202,10 @@ ProDOSOrderDiskImage::ProDOSOrderDiskImage(const char *name, bool readOnly) :
 ProDOSOrderDiskImage::ProDOSOrderDiskImage(MappedFile *file) :
     DiskImage(file)
 {
-    setBlocks(file->length() / 512);
-    setAdaptor(new POAdaptor(file->address()));
+    // at this point, file is no longer valid.
+    
+    setBlocks(length() / 512);
+    setAdaptor(new POAdaptor(address()));
 }
 
 ProDOSOrderDiskImage *ProDOSOrderDiskImage::Create(const char *name, size_t blocks)
@@ -252,8 +254,10 @@ DOSOrderDiskImage::DOSOrderDiskImage(const char *name, bool readOnly) :
 DOSOrderDiskImage::DOSOrderDiskImage(MappedFile *file) :
     DiskImage(file)
 {
-    setBlocks(file->length() / 512);
-    setAdaptor(new DOAdaptor(file->address()));
+    // at this point, file is no longer valid.
+    
+    setBlocks(length() / 512);
+    setAdaptor(new DOAdaptor(address()));
 }
 
 

@@ -32,7 +32,9 @@ UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
     DiskImage(file)
 {
     
-    uint8_t * data = (uint8_t *)file->address();
+    // at this point, file is no longer valid.
+
+    uint8_t * data = (uint8_t *)address();
     
 
     
