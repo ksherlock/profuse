@@ -36,6 +36,18 @@ File::File(const char *name, int flags)
         throw POSIXException( __METHOD__ ": open", errno);
 }
 
+
+File::File(const char *name, bool readOnly)
+{
+#undef __METHOD__
+#define __METHOD__ "File::File"
+    
+    _fd = ::open(name, readOnly ? O_RDONLY : O_RDWR);
+    if (_fd < 0)
+        throw POSIXException( __METHOD__ ": open", errno);    
+}
+
+
 File::~File()
 {
     close();

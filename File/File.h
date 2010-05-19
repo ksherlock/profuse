@@ -13,6 +13,7 @@ class File {
     File(File &);
     File(int fd);
     File(const char *name, int flags);
+    File(const char *name, bool readOnly);
     ~File();
 
     bool isValid() const

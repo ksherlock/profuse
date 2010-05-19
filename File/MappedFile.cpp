@@ -45,7 +45,7 @@ MappedFile::MappedFile(const char *name, bool readOnly)
     _address = MAP_FAILED;
     _readOnly = readOnly;
     
-    init(f, readOnly, -1);
+    init(f, readOnly, 0);
     
 }
 
@@ -64,13 +64,15 @@ void MappedFile::init(const File &f, bool readOnly, size_t size)
 #define __METHOD__ "MappedFile::init"
     
     struct stat st;
+    int prot = readOnly ? PROT_READ : PROT_READ | PROT_WRITE;
+    int flags =  MAP_FILE | MAP_SHARED;
     
     // close enough
     if (f.fd() < 0)
         throw POSIXException( __METHOD__, EBADF);
     
     
-    if (size <= 0)
+    if (!size)
     {
         if (::fstat(f.fd(), &st) != 0)
             throw POSIXException(__METHOD__ ": fstat", errno);
@@ -82,9 +84,7 @@ void MappedFile::init(const File &f, bool readOnly, size_t size)
     }
     
     _length = size;
-    _address = ::mmap(0, _length, 
-                      readOnly ? PROT_READ : PROT_READ | PROT_WRITE, 
-                      MAP_FILE | MAP_SHARED, f.fd(), 0); 
+    _address = ::mmap(0, _length, prot, flags, f.fd(), 0); 
     
     if (_address == MAP_FAILED)
         throw POSIXException(__METHOD__ ": mmap", errno);
