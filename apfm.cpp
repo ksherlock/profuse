@@ -153,11 +153,12 @@ int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
         used += e->blocks();
     }
 
-    if (extended && (lastBlock != volumeSize))
+    if (lastBlock != volumeSize)
     {
         unsigned size = volumeSize - lastBlock;
         max = std::max(max, size);    
-        printUnusedEntry(lastBlock, size);
+        if (extended)
+            printUnusedEntry(lastBlock, size);
     }    
     
     
@@ -269,7 +270,7 @@ void usage()
 
 }
 
-int main(int argc, char **argv)
+int main(/* int argc, char **argv */)
 {
     std::auto_ptr<Pascal::VolumeEntry> volume;
     std::auto_ptr<Device::BlockDevice> device;
@@ -277,6 +278,8 @@ int main(int argc, char **argv)
     unsigned fmt = 0;
     
     int c;
+    
+
     
 
     // getop stops at first non '-' arg so it will not affect action flags.    
@@ -308,7 +311,7 @@ int main(int argc, char **argv)
     optreset = 1;
     optind = 1;
     
-    if (argc != 2)
+    if (argc < 2)
     {
         usage();
         return 0;
