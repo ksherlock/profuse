@@ -20,6 +20,11 @@
 #include <sys/dkio.h>
 #endif
 
+
+#ifdef __FREEBSD__
+#include <sys/disk.h>
+#endif
+
 #include <Device/RawDevice.h>
 
 #include <ProFUSE/Exception.h>
@@ -89,10 +94,33 @@ void RawDevice::devSize(int fd)
     
 }
 
-
 #endif
 
 // TODO -- FreeBSD/NetBSD/OpenBSD
+
+#ifdef __FREEBSD__
+
+void RawDevice::devSize(int fd)
+{
+#undef __METHOD__
+#define __METHOD__ "RawDevice::devSize"
+
+    unisgned blockSize;
+    off_t mediaSize;
+
+    if (::ioctl(fd, DIOCGSECTORSIZE, &blockSize)
+        throw POSIXException(__METHOD__ ": Unable to determine block size.", errno);
+
+    if (::ioctl(fd, DIOCGMEDIASIZE, &mediaSize)
+        throw POSIXException(__METHOD__ ": Unable to determine media size.", errno);
+
+    _blockSize = blockSize;
+    _size = mediaSize;
+    _blocks = mediaSize / blockSize;
+
+}
+
+#endif
 
 RawDevice::RawDevice(const char *name, bool readOnly) :
     _file(name, readOnly)
