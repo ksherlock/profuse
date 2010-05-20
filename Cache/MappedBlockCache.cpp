@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstring>
 
 #include <sys/types.h>
 #include <sys/mman.h>
