@@ -1,4 +1,4 @@
-#include <ProfUSE/Lock.h>
+#include <ProFUSE/Lock.h>
 
 using namespace ProFUSE;
 
