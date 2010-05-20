@@ -286,6 +286,10 @@ int main(int argc, char **argv)
     int c;
     
 
+    #ifdef __linux__
+    putenv("POSIXLY_CORRECT=1"); // fix getopt to not mutate
+    #endif
+
     /*
     char *argv2[] = {
         (char *)"afpm",
@@ -325,8 +329,13 @@ int main(int argc, char **argv)
 
     argc -= optind;
     argv += optind;
+
+    #ifdef __linux__
+    optind = 0;
+    #else
     optreset = 1;
     optind = 1;
+    #endif
     
     if (argc < 2)
     {
