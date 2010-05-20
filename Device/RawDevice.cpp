@@ -12,7 +12,7 @@
 #include <sys/disk.h>
 #endif
 
-#ifdef __LINUX__
+#ifdef __linux__
 #include <sys/mount.h> 
 #endif
 
@@ -71,7 +71,7 @@ void RawDevice::devSize(int fd)
 #endif
 
 
-#ifdef __LINUX__
+#ifdef __linux__
 
 void RawDevice::devSize(int fd)
 {
@@ -263,3 +263,4 @@ void RawDevice::sync()
     if (::fsync(_file.fd()) < 0)
         throw POSIXException(__METHOD__ ": fsync error.", errno);
 }
+
