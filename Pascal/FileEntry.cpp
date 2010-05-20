@@ -6,7 +6,7 @@
 
 #include <Pascal/File.h>
 
-#include <ProfUSE/auto.h>
+#include <ProFUSE/auto.h>
 #include <ProFUSE/Exception.h>
 
 #include <Endian/Endian.h>

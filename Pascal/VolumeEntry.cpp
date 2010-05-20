@@ -1,3 +1,6 @@
+
+#include <memory>
+
 #include <Pascal/File.h>
 
 #include <ProFUSE/auto.h>
