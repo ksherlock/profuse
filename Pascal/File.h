@@ -51,6 +51,9 @@ public:
     VolumeEntry *parent() { return _parent; }
 
 
+    static bool Compress(std::string& text);
+    static bool Uncompress(std::string &text);
+
 protected:
     
     static unsigned ValidName(const char *name, unsigned maxSize);
@@ -188,3 +191,4 @@ class FileEntry : public Entry {
 }
 
 #endif
+

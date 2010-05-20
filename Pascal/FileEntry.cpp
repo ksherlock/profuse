@@ -20,6 +20,10 @@ using namespace LittleEndian;
 using namespace Pascal;
 
 
+enum {
+    kDLE = 16
+};
+
 #pragma mark -
 #pragma mark FileEntry
 
@@ -289,7 +293,7 @@ unsigned FileEntry::textDecodePage(unsigned block, uint8_t *out)
             dle = false;
             continue;
         }
-        if (c == 16) { dle = true; continue; }
+        if (c == kDLE) { dle = true; continue; }
         
         //if (c & 0x80) continue; // ascii only.
         
@@ -340,3 +344,98 @@ void FileEntry::textInit()
         _pageSize->push_back(size);
     }
 }
+
+
+/*
+ * compress white space into a dle.
+ * returns true if altered.
+ *
+ */
+bool FileEntry::Compress(std::string& text)
+{
+    bool delta = false;
+    std::string out;
+
+    size_t pos;
+    unsigned start;
+
+    pos = start = 0;
+    for(;;)
+    {
+        size_t end;
+        unsigned count;
+
+        pos = text.find_first_of(' ',pos);
+        if (pos == std::string::npos) break;
+
+        end = text.find_first_not_of(' ',pos);
+
+        count = end - pos;
+
+        if (count < 3) continue;
+
+        delta = true;
+        out.append(text.begin() + start, text.begin() + pos);
+
+        while (count)
+        {
+            unsigned c = std::min(223u, count);
+            out.push_back(kDLE);  // dle code.
+            out.push_back(32 + c);
+            count -= c;
+        }
+
+        pos = start = end;
+    }
+
+    if (delta)
+    {
+        out.append(text.begin() + start, text.end());
+        text.swap(out);
+    }
+
+    return delta;
+}
+
+bool FileEntry::Uncompress(std::string& text)
+{
+    bool delta = false;
+    std::string out;
+
+    size_t start;
+    size_t pos;
+    size_t length = text.length();
+
+    start = pos = 0;
+
+    for(;;)
+    {
+        unsigned c;
+
+        pos = text.find_first_of(kDLE, pos);
+        if (pos == std::string::npos) break;
+        if (pos == length - 1) break; // should not happen;
+
+        c = text[pos + 1];
+
+        if (c <= 32) continue;
+
+        delta = true;
+       
+        out.append(text.begin() + start, text.begin() + pos);
+
+        out.append(c - 32, ' ');
+ 
+        pos = pos + 1;
+        start = pos;
+    }
+
+    if (delta)
+    {
+        out.append(text.begin() + start, text.end());
+        text.swap(out);
+    }
+
+    return delta;
+}
+
