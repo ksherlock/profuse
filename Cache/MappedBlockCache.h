@@ -14,6 +14,8 @@ class MappedBlockCache : public BlockCache {
     virtual void sync();
     virtual void write(unsigned block, const void *vp);
 
+    virtual void zeroBlock(unsigned block);    
+    
 
     virtual void *acquire(unsigned block);
     virtual void release(unsigned block, int flags);

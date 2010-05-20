@@ -69,6 +69,14 @@ void MappedBlockCache::write(unsigned block, const void *vp)
 }
 
 
+void MappedBlockCache::zeroBlock(unsigned block)
+{
+    _dirty = true;
+    std::memset(_data + block * 512, 0, 512);
+}
+
+
+
 // sync everything.
 void MappedBlockCache::sync()
 {

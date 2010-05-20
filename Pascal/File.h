@@ -78,6 +78,9 @@ class VolumeEntry : public Entry {
 
 public:
 
+    static unsigned ValidName(const char *);
+
+    
     // create new 
     VolumeEntry(const char *name, Device::BlockDevice *);
     
@@ -103,8 +106,8 @@ public:
     void readBlock(unsigned block, void *);
     void writeBlock(unsigned block, void *);
 
-
-    unsigned static ValidName(const char *);
+    void sync();
+    
     
 protected:
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);

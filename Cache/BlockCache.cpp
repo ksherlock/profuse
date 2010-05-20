@@ -58,3 +58,18 @@ BlockCache *BlockCache::Create(BlockDevice *device)
     
     return device->createBlockCache();
 }
+
+
+void BlockCache::zeroBlock(unsigned block)
+{
+    /*
+    void *address = acquire(block);
+    std::memset(address, 0, 512);
+    release(block, true);
+    */
+
+    uint8_t buffer[512];
+    
+    std::memset(buffer, 0, 512);
+    write(block, buffer);    
+}

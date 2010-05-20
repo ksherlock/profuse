@@ -77,9 +77,10 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
     _cache = BlockCache::Create(device);
     _device = device;
     
+
     for (unsigned i = 2; i < 6; ++i)
     {
-        device->zeroBlock(i);
+        _cache->zeroBlock(i);
     }
     
     void *vp = _cache->acquire(2);
@@ -89,6 +90,7 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
         
     _cache->release(2, true);
     
+    _cache->sync();
 }
 
 
@@ -216,6 +218,10 @@ void VolumeEntry::writeBlock(unsigned block, void *buffer)
 }
 
 
+void VolumeEntry::sync()
+{
+    _cache->sync();
+}
 
 void VolumeEntry::writeDirectoryEntry(IOBuffer *b)
 {

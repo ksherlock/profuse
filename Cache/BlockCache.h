@@ -36,6 +36,9 @@ public:
     virtual void release(unsigned block, int flags) = 0 ;
     virtual void markDirty(unsigned block) = 0;
     
+    
+    virtual void zeroBlock(unsigned block);
+    
     void release(unsigned block) { release(block, 0); }
     void release(unsigned block, bool dirty) 
     {
