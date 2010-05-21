@@ -152,8 +152,11 @@ class FileEntry : public Entry {
     const char *name() const { return _fileName; }
     Date modification() const { return _modification; }    
     
-    unsigned static ValidName(const char *);
+    static unsigned ValidName(const char *);
 
+    static bool Compress(std::string& text);
+    static bool Uncompress(std::string& text);
+    
     
     protected:
     
