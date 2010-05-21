@@ -1,6 +1,8 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#include <new>
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -12,8 +14,13 @@ class File {
     File();
     File(File &);
     File(int fd);
+
     File(const char *name, int flags);
     File(const char *name, bool readOnly);
+
+    File(const char *name, int flags, const std::nothrow_t &);
+    File(const char *name, bool readOnly, const std::nothrow_t &);
+
     ~File();
 
     bool isValid() const

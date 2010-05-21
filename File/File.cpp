@@ -26,6 +26,16 @@ File::File(File& f)
     f._fd = -1;
 }
 
+File::File(const char *name, int flags, const std::nothrow_t&)
+{
+    _fd = ::open(name, flags);
+}
+
+File::File(const char *name, bool readOnly, const std::nothrow_t&)
+{
+    _fd = ::open(name, readOnly ? O_RDONLY : O_RDWR);
+}
+
 File::File(const char *name, int flags)
 {
     #undef __METHOD__
