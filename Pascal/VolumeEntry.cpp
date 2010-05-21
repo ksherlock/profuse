@@ -160,6 +160,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
 
 VolumeEntry::~VolumeEntry()
 {
+
     std::vector<FileEntry *>::iterator iter;
     for(iter = _files.begin(); iter != _files.end(); ++iter)
     {
@@ -195,6 +196,19 @@ void VolumeEntry::init(void *vp)
 FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
 {
     return i < _files.size() ? _files[i] : NULL;
+}
+
+FileEntry *VolumeEntry::fileByName(const char *name) const
+{
+
+
+    std::vector<FileEntry *>::const_iterator iter;
+    for(iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        FileEntry *e = *iter;
+        if (::strcasecmp(name, e->name()) == 0) return e;
+    }
+    return NULL;
 }
 
 

@@ -99,6 +99,7 @@ public:
     Pascal::Date lastBoot() const { return _lastBoot; }
     
     FileEntry *fileAtIndex(unsigned i) const;
+    FileEntry *fileByName(const char *name) const;
     
     void addChild(FileEntry *child, unsigned blocks);
 
@@ -112,6 +113,7 @@ public:
 
     void sync();
     
+
     
 protected:
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
