@@ -200,8 +200,6 @@ FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
 
 FileEntry *VolumeEntry::fileByName(const char *name) const
 {
-
-
     std::vector<FileEntry *>::const_iterator iter;
     for(iter = _files.begin(); iter != _files.end(); ++iter)
     {
@@ -211,7 +209,51 @@ FileEntry *VolumeEntry::fileByName(const char *name) const
     return NULL;
 }
 
+void VolumeEntry::unlink(const char *name)
+{
+    unsigned index;
 
+    for(index = 0; index < _fileCount; ++index)
+    {
+        FileEntry *e = _files[index];
+        if (::strcasecmp(name, e->name()) == 0)
+        {
+            delete e;
+            _files[index] = NULL;
+            break;
+        }
+    }
+    if (index == _fileCount) return; // not found.
+
+    _files.erase(files.begin() + index);
+    _fileCount--;
+
+    // need to update the header blocks.
+    unsigned blockCount = blocks();
+    auto_array<uint8_t> buffer(new uint8_t[512 * blocks]);
+
+    // load up blocks.
+    // since entries span blocks, we can't do this via pointer.
+    for (unsigned i = 0; i < blockCount; ++i)
+    {
+        _cache->read(2 + i, buffer.get() + 512 * i);
+    }
+    // update the filecount.
+    IOBuffer b(buffer.get());
+    writeDirectoryEntry(b);
+ 
+    // move up all the entries.
+    uint8_t *address = buffer.get() + 0x1a + 0x1a * index;
+    std::memmove(address, address + 0x1a, 0x1a * (_fileCount - index));
+    // zero out the memory on the previous entry.
+    std::memset(buffer.get() + 0x1a + _fileCount * 0x1a, 0, 0x1a);
+
+    // now write to disk.
+    for (unsigned i = 0; i < blockCount; ++i)
+    {
+        _cache->write(2 + i, buffer.get() + 512 * i);
+    }
+}
 
 void *VolumeEntry::loadBlock(unsigned block)
 {
