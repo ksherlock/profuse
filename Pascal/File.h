@@ -112,7 +112,11 @@ public:
     void writeBlock(unsigned block, void *);
 
     void sync();
+
+    unsigned unlink(const char *name);
+    unsigned rename(const char *oldName, const char *newName);
     
+    unsigned krunch();
 
     
 protected:
@@ -140,6 +144,13 @@ private:
 
 class FileEntry : public Entry {
     public:
+
+    
+    static unsigned ValidName(const char *);
+    
+    static bool Compress(std::string& text);
+    static bool Uncompress(std::string& text);
+    
     
     FileEntry(const char *name, unsigned fileKind);
     FileEntry(void *vp);
@@ -154,18 +165,14 @@ class FileEntry : public Entry {
     
     const char *name() const { return _fileName; }
     Date modification() const { return _modification; }    
-    
-    static unsigned ValidName(const char *);
-
-    static bool Compress(std::string& text);
-    static bool Uncompress(std::string& text);
-    
+        
     
     protected:
     
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
     
     private:    
+    friend class VolumeEntry;
     
     unsigned _status;
     

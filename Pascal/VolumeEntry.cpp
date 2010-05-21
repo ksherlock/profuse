@@ -209,10 +209,13 @@ FileEntry *VolumeEntry::fileByName(const char *name) const
     return NULL;
 }
 
-void VolumeEntry::unlink(const char *name)
+unsigned VolumeEntry::unlink(const char *name)
 {
     unsigned index;
 
+    
+    if (_device->readOnly()) return 0x2b; // WRITE-PROTECTED DISK
+    
     for(index = 0; index < _fileCount; ++index)
     {
         FileEntry *e = _files[index];
@@ -223,14 +226,14 @@ void VolumeEntry::unlink(const char *name)
             break;
         }
     }
-    if (index == _fileCount) return; // not found.
+    if (index == _fileCount) return 0x46; // FILE NOT FOUND
 
-    _files.erase(files.begin() + index);
+    _files.erase(_files.begin() + index);
     _fileCount--;
 
     // need to update the header blocks.
     unsigned blockCount = blocks();
-    auto_array<uint8_t> buffer(new uint8_t[512 * blocks]);
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * blockCount]);
 
     // load up blocks.
     // since entries span blocks, we can't do this via pointer.
@@ -239,8 +242,8 @@ void VolumeEntry::unlink(const char *name)
         _cache->read(2 + i, buffer.get() + 512 * i);
     }
     // update the filecount.
-    IOBuffer b(buffer.get());
-    writeDirectoryEntry(b);
+    IOBuffer b(buffer.get(), 512 * blockCount);
+    writeDirectoryEntry(&b);
  
     // move up all the entries.
     uint8_t *address = buffer.get() + 0x1a + 0x1a * index;
@@ -253,7 +256,126 @@ void VolumeEntry::unlink(const char *name)
     {
         _cache->write(2 + i, buffer.get() + 512 * i);
     }
+    
+    _cache->sync();
+    return 0;
 }
+
+
+
+unsigned VolumeEntry::krunch()
+{
+    unsigned prevBlock;
+    
+    std::vector<FileEntry *>::const_iterator iter;
+    
+    bool gap = false;
+    
+    // sanity check to make sure no weird overlap issues.
+
+    prevBlock = lastBlock();
+    
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        FileEntry *e = *iter;
+        
+        unsigned first = e->firstBlock();
+        unsigned last = e->lastBlock();
+        
+        if (first != prevBlock) gap = true;
+        
+        if (first < prevBlock) 
+            return ProFUSE::damagedBitMap;
+        
+        if (last < first) 
+            return ProFUSE::damagedBitMap;
+        
+        if (first < volumeBlocks()) 
+            return ProFUSE::damagedBitMap;
+        
+        
+        prevBlock = last;
+        
+    }
+
+    
+    if (!gap) return 0;
+    
+    
+    // need to update the header blocks.
+    unsigned blockCount = blocks();
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * blockCount]);
+    IOBuffer b(buffer.get(), 512 * blockCount);
+    
+    // load up the directory blocks.
+    for (unsigned i = 0; i < blocks(); ++i)
+    {
+        _cache->read(2 + i, buffer.get() + 512 * i);
+    }
+    
+    
+    prevBlock = lastBlock();
+    
+    unsigned offset = 0;
+    for (iter = _files.begin(); iter != _files.end(); ++iter, ++offset)
+    {
+        FileEntry *e = *iter;
+        
+        b.setOffset(0x1a + 0x1a * offset);
+        
+        unsigned first = e->firstBlock();
+        unsigned last = e->lastBlock();
+        
+        unsigned blocks = last - first;
+        unsigned offset = first - prevBlock;
+        
+        if (offset == 0)
+        {
+            prevBlock = last;
+            continue;
+        }
+        
+        e->_firstBlock = first - offset;
+        e->_lastBlock = last - offset;
+        
+        e->writeDirectoryEntry(&b);
+        
+        for (unsigned i = 0; i < blocks; ++i)
+        {
+            uint8_t buffer[512];
+            
+            _cache->read(first + i, buffer);
+            _cache->write(prevBlock +i, buffer);
+            _cache->zeroBlock(first + i);
+        }
+    }
+    
+    // now save the directory entries.
+
+    // load up the directory blocks.
+    for (unsigned i = 0; i < blocks(); ++i)
+    {
+        _cache->write(2 + i, buffer.get() + 512 * i);
+    }
+    
+    
+    _cache->sync();
+    
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void *VolumeEntry::loadBlock(unsigned block)
 {
