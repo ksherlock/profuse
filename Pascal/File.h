@@ -4,6 +4,7 @@
 #include <Pascal/Date.h>
 
 #include <vector>
+#include <string>
 
 namespace Device {
     class BlockDevice;

@@ -287,7 +287,7 @@ int main(int argc, char **argv)
     
 
     #ifdef __linux__
-    putenv("POSIXLY_CORRECT=1"); // fix getopt to not mutate
+    putenv((char *)"POSIXLY_CORRECT=1"); // fix getopt to not mutate
     #endif
 
     /*
