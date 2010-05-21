@@ -96,8 +96,9 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
 
 VolumeEntry::VolumeEntry(Device::BlockDevice *device)
 {
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
     unsigned blockCount;
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
+    
     
     // read the header block, then load up all the header 
     // blocks.
@@ -117,12 +118,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     
     if (blockCount > 1)
     {
-        buffer.reset(new uint8_t[512 * blockCount]);
-        
-        for (unsigned i = 0; i < blockCount; ++i)
-        {
-            _cache->read(2 + i, buffer.get() + 512 * i);
-        }
+        buffer.reset(readDirectoryHeader());
     }
     
     // now load up all the children.
@@ -214,7 +210,7 @@ unsigned VolumeEntry::unlink(const char *name)
     unsigned index;
 
     
-    if (_device->readOnly()) return 0x2b; // WRITE-PROTECTED DISK
+    if (_device->readOnly()) return ProFUSE::drvrWrtProt; // WRITE-PROTECTED DISK
     
     for(index = 0; index < _fileCount; ++index)
     {
@@ -226,23 +222,17 @@ unsigned VolumeEntry::unlink(const char *name)
             break;
         }
     }
-    if (index == _fileCount) return 0x46; // FILE NOT FOUND
+    if (index == _fileCount) return ProFUSE::fileNotFound; // FILE NOT FOUND
 
     _files.erase(_files.begin() + index);
     _fileCount--;
 
     // need to update the header blocks.
-    unsigned blockCount = blocks();
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * blockCount]);
+    ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
 
-    // load up blocks.
-    // since entries span blocks, we can't do this via pointer.
-    for (unsigned i = 0; i < blockCount; ++i)
-    {
-        _cache->read(2 + i, buffer.get() + 512 * i);
-    }
+
     // update the filecount.
-    IOBuffer b(buffer.get(), 512 * blockCount);
+    IOBuffer b(buffer.get(), 512 * blocks());
     writeDirectoryEntry(&b);
  
     // move up all the entries.
@@ -252,10 +242,7 @@ unsigned VolumeEntry::unlink(const char *name)
     std::memset(buffer.get() + 0x1a + _fileCount * 0x1a, 0, 0x1a);
 
     // now write to disk.
-    for (unsigned i = 0; i < blockCount; ++i)
-    {
-        _cache->write(2 + i, buffer.get() + 512 * i);
-    }
+    writeDirectoryHeader(buffer.get());
     
     _cache->sync();
     return 0;
@@ -303,17 +290,10 @@ unsigned VolumeEntry::krunch()
     
     
     // need to update the header blocks.
-    unsigned blockCount = blocks();
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * blockCount]);
-    IOBuffer b(buffer.get(), 512 * blockCount);
+    ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
+    IOBuffer b(buffer.get(), 512 * blocks());
     
-    // load up the directory blocks.
-    for (unsigned i = 0; i < blocks(); ++i)
-    {
-        _cache->read(2 + i, buffer.get() + 512 * i);
-    }
-    
-    
+
     prevBlock = lastBlock();
     
     unsigned offset = 0;
@@ -353,10 +333,7 @@ unsigned VolumeEntry::krunch()
     // now save the directory entries.
 
     // load up the directory blocks.
-    for (unsigned i = 0; i < blocks(); ++i)
-    {
-        _cache->write(2 + i, buffer.get() + 512 * i);
-    }
+    writeDirectoryHeader(buffer.get());
     
     
     _cache->sync();
@@ -418,3 +395,23 @@ void VolumeEntry::writeDirectoryEntry(IOBuffer *b)
 }
 
 
+
+uint8_t *VolumeEntry::readDirectoryHeader()
+{
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * blocks()]);
+ 
+    for (unsigned i = 0; i < blocks(); ++i)
+    {
+        _cache->read(2 + i, buffer.get() + i * 512);
+    }
+                                        
+    return buffer.release();
+}
+
+void VolumeEntry::writeDirectoryHeader(uint8_t *buffer)
+{
+    for (unsigned i = 0; i < blocks(); ++i)
+    {
+        _cache->write(2 + i, buffer + 512 * i);
+    }
+}

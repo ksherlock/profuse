@@ -127,6 +127,11 @@ private:
     
     void init(void *);
     
+    
+    uint8_t *readDirectoryHeader();
+    void writeDirectoryHeader(uint8_t *);
+    
+    
     unsigned _fileNameLength;
     char _fileName[8];
     unsigned _lastVolumeBlock;
