@@ -113,7 +113,9 @@ void usage()
                 "  -s size          specify size in blocks.\n"
                 "                   Default is 1600 blocks (800K)\n"
                 "  -f format        specify the disk image format. Valid values are:\n"
+                "                   2img  Universal Disk Image\n"
                 "                   dc42  DiskCopy 4.2 Image\n"
+                "                   davex Davex Disk Image\n"
                 "                   do    DOS Order Disk Image\n"
                 "                   po    ProDOS Order Disk Image (default)\n"
     );
@@ -186,16 +188,9 @@ int main(int argc, char **argv)
     fname = argv[0];
     fileName = argv[0];
     
-    // generate a filename.
-    if (volumeName.empty())
-    {
-        volumeName = filename(fileName);
-        if (volumeName.empty() || !VolumeEntry::ValidName(volumeName.c_str()))
-            volumeName = "PASCAL";
-    }
+
     
-    
-    
+
 
     try
     {
@@ -223,7 +218,8 @@ int main(int argc, char **argv)
             }
             
             else
-            {
+            {          
+                
                 // file exists, verify we want to destroy it.
                 
                 fprintf(stderr, "`%s' already exists.  Are you sure you want to overwrite it? ", fname);
@@ -231,6 +227,15 @@ int main(int argc, char **argv)
             }
             
         }
+        
+        // generate a filename.
+        if (volumeName.empty())
+        {
+            if (!rawDevice)
+                volumeName = filename(fileName);
+            if (volumeName.empty() || !VolumeEntry::ValidName(volumeName.c_str()))
+                volumeName = "PASCAL";
+        }              
         
         if (!rawDevice)
             device.reset( BlockDevice::Create(fname, volumeName.c_str(), blocks, format));
