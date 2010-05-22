@@ -51,6 +51,7 @@ enum
     outOfMem = 0x54,
     dupVolume = 0x57,
     notBlockDev = 0x58,
+    invalidLevel = 0x59,
     damagedBitMap = 0x5a,
     badPathNames = 0x5b,
     notSystemFile = 0x5c,
