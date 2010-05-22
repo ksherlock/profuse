@@ -176,11 +176,21 @@ VolumeEntry::~VolumeEntry()
 
 void VolumeEntry::init(void *vp)
 {
+#undef __METHOD__
+#define __METHOD__ "VolumeEntry::init"
+    
     Entry::init(vp);
     _fileNameLength = Read8(vp, 6);
     
     // verify filenamelength <= 7
+    if (_fileNameLength > 7)
+        throw new  ProFUSE::Exception(__METHOD__ ": invalid name length");
+    
     // verify fileKind == 0
+    // verify _fileCount reasonable
+    // verify _lastVolumeBlock reasonable
+    // verify _blocks reasonable.
+    
     
     std::memcpy(_fileName, 7 + (uint8_t *)vp, _fileNameLength);
     
