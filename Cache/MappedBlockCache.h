@@ -22,11 +22,11 @@ class MappedBlockCache : public BlockCache {
     virtual void markDirty(unsigned block);
 
     private:
-        void sync(unsigned block);
+    
+    void sync(unsigned block);
         
-        uint8_t *_data;
-        bool _dirty;
-
+    uint8_t *_data;
+    bool _dirty;
 };
 
 } // namespace

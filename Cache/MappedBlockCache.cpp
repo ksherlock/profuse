@@ -64,6 +64,12 @@ void MappedBlockCache::release(unsigned block, int flags)
 
 void MappedBlockCache::write(unsigned block, const void *vp)
 {
+#undef __METHOD__
+#define __METHOD__ "MappedBlockCache::write"
+    
+    if (block >= blocks())
+        throw Exception(__METHOD__ ": Invalid block.");
+    
     _dirty = true;
     std::memcpy(_data + block * 512, vp, 512);
 }
@@ -71,6 +77,13 @@ void MappedBlockCache::write(unsigned block, const void *vp)
 
 void MappedBlockCache::zeroBlock(unsigned block)
 {
+#undef __METHOD__
+#define __METHOD__ "MappedBlockCache::zeroBlock"
+    
+    if (block >= blocks())
+        throw Exception(__METHOD__ ": Invalid block.");
+    
+    
     _dirty = true;
     std::memset(_data + block * 512, 0, 512);
 }
