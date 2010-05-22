@@ -22,10 +22,8 @@
 #include <ProFUSE/Exception.h>
 
 #include <Device/BlockDevice.h>
-#include <Device/MappedFile.h>
-#include <Device/DiskCopy42Image.h>
 
-Pascal::VolumeEntry *fVolume = NULL;
+
 std::string fDiskImage;
 
 
@@ -42,6 +40,8 @@ void usage()
         "  -v                verbose\n"
         "  --format=format   specify the disk image format. Valid values are:\n"
         "                    dc42  DiskCopy 4.2 Image\n"
+        "                    davex Davex Disk Image\n"
+        "                    2img  Universal Disk Image\n"
         "                    do    DOS Order Disk Image\n"
         "                    po    ProDOS Order Disk Image (default)\n"
         "  -o opt1,opt2...   other mount parameters.\n"
@@ -163,6 +163,10 @@ int main(int argc, char **argv)
 
     int foreground = false;
     int multithread = false;
+    
+    
+    std::auto_ptr<Pascal::VolumeEntry> volume;
+    
 	
     init_ops(&pascal_ops);
 
@@ -180,44 +184,30 @@ int main(int argc, char **argv)
     // default prodos-order disk image.
     if (options.format)
     {
-        format = Device::DiskImage::ImageType(options.format);
+        format = Device::BlockDevice::ImageType(options.format);
         if (!format)
             std::fprintf(stderr, "Warning: Unknown image type ``%s''\n", options.format);
     }
-    if (!format)
-        format = Device::DiskImage::ImageType(fDiskImage.c_str(), 'PO__');
-    
+
     
     bool readOnly = true;
     
-    try {
+    try
+    {
+        
         std::auto_ptr<Device::BlockDevice> device;
+        
+        device.reset( Device::BlockDevice::Open(fDiskImage.c_str(), readOnly, format) );
+        
        
-        switch(format)
+        if (!device.get())
         {
-        case 'DC42':
-            device.reset(new Device::DiskCopy42Image(fDiskImage.c_str(), readOnly));
-            break;
-            
-        case 'PO__':
-            device.reset(new Device::ProDOSOrderDiskImage(fDiskImage.c_str(), readOnly));
-            break;
-            
-        case 'DO__':
-            device.reset(new Device::DOSOrderDiskImage(fDiskImage.c_str(), readOnly));
-            break;
-        
-        
-        default:
             std::fprintf(stderr, "Error: Unknown or unsupported device type.\n");
             exit(1);
         }
-
         
-        fVolume  = new Pascal::VolumeEntry(device.get());
+        volume.reset( new Pascal::VolumeEntry(device.get()) );
         device.release();
-        
-
     }
     catch (ProFUSE::POSIXException &e)
     {
@@ -237,7 +227,7 @@ int main(int argc, char **argv)
     {
         // Macfuse supports custom volume names (displayed in Finder)
         std::string str("-ovolname=");
-        str += fVolume->name();
+        str += volume->name();
         fuse_opt_add_arg(&args, str.c_str());
     
         // 512 byte blocksize.    
@@ -266,7 +256,7 @@ int main(int argc, char **argv)
       
         if (mountpoint == NULL || *mountpoint == 0)
         {
-            if (make_mount_dir(fVolume->name(), mountPath))
+            if (make_mount_dir(volume->name(), mountPath))
                 mountpoint = (char *)mountPath.c_str();
         }
         
@@ -277,13 +267,13 @@ int main(int argc, char **argv)
     {
         struct fuse_session* se;
 
-        std::printf("Mounting ``%s'' on ``%s''\n", fVolume->name(), mountpoint);
+        std::printf("Mounting ``%s'' on ``%s''\n", volume->name(), mountpoint);
         
-        se = fuse_lowlevel_new(&args, &pascal_ops, sizeof(pascal_ops), fVolume);
+        se = fuse_lowlevel_new(&args, &pascal_ops, sizeof(pascal_ops), volume.get());
 
         if (se) do {
-            //foreground = 1;
-            //multithread = 0;
+            foreground = 1;
+            multithread = 0;
             
             err = fuse_daemonize(foreground); // todo
             if (err < 0 ) break;
@@ -307,7 +297,6 @@ int main(int argc, char **argv)
 
 
     fuse_opt_free_args(&args);
-    delete fVolume;
 
 
 #ifdef __APPLE__

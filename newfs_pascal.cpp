@@ -215,6 +215,12 @@ int main(int argc, char **argv)
                 device.reset( RawDevice::Open(fname, false) );
                 blocks = device->blocks();
                 rawDevice = true;
+                
+                if (blocks > 0xffff)
+                {
+                    std::fprintf(stderr, "Error: device is too large.\n");
+                    return 0x5a;                    
+                }
             }
             
             else
