@@ -162,7 +162,7 @@ int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
     
     
     std::fprintf(stdout, 
-        "%u/%u files<listed/in-dir>, "
+        "%u/%u files <listed/in-dir>, "
         "%u blocks used, "
         "%u unused, "
         "%u in largest\n",
