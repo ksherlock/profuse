@@ -248,7 +248,7 @@ void ConcreteBlockCache::removeEntry(unsigned block)
     for(;;)
     {
         prev = e;
-        e = e->next;
+        e = e->nextHash;
         
         if (!e) break;
         if (e->block == block)
