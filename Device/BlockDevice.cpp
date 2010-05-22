@@ -34,6 +34,13 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     
     if (type == 0 || *type == 0) return defv;
     
+    // type could be a path, eg images/file, disk.images/file
+    
+    // unix-specifix.
+    // basename alters the input string
+    tmp = std::strrchr(type, '/');
+    if (tmp) type = tmp + 1;
+    
     // type could be a filename, in which case we check the extension.
     tmp = std::strrchr(type, '.');
     if (tmp) type = tmp + 1;
@@ -65,7 +72,7 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     
     
     // not supported yet.        
-    if (::strcasecmp(tmp, "sdk") == 0)
+    if (::strcasecmp(type, "sdk") == 0)
         return 'SDK_';
     
     return defv;
