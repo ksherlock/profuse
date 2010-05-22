@@ -77,6 +77,24 @@ FileEntry::~FileEntry()
 }
 
 
+void FileEntry::setName(const char *name)
+{
+#undef __METHOD__
+#define __METHOD__ "FileEntry::setName"
+    
+    unsigned length = ValidName(name);
+    
+    if (!length)
+        throw ProFUSE::ProDOSException(__METHOD__ ": Invalid file name.", ProFUSE::badPathSyntax);
+    
+    _fileNameLength = length;
+    for (unsigned i = 0; i < length; ++i)
+        _fileName[i] = std::toupper(name[i]);
+
+    // not sure if this is a good idea or not.
+    //_modification = Date::Today();
+}
+
 unsigned FileEntry::fileSize()
 {
     switch(fileKind())

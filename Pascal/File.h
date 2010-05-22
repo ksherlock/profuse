@@ -74,6 +74,7 @@ protected:
 private:
     friend class VolumeEntry;
     VolumeEntry *_parent;
+    unsigned _address;
 
 };
 
@@ -129,7 +130,12 @@ private:
     
     
     uint8_t *readDirectoryHeader();
-    void writeDirectoryHeader(uint8_t *);
+    void writeDirectoryHeader(void *);
+    
+    uint8_t *readBlocks(unsigned startingBlock, unsigned count);
+    void writeBlocks(void *buffer, unsigned startingBlock, unsigned count);
+    
+    void writeEntry(FileEntry *e);
     
     
     unsigned _fileNameLength;
@@ -178,6 +184,9 @@ class FileEntry : public Entry {
     
     private:    
     friend class VolumeEntry;
+    
+    void setName(const char *name);
+    
     
     unsigned _status;
     

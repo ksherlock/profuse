@@ -77,6 +77,8 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
     _cache = BlockCache::Create(device);
     _device = device;
     
+    _address = 512 * 2;
+
 
     for (unsigned i = 2; i < 6; ++i)
     {
@@ -84,7 +86,7 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
     }
     
     void *vp = _cache->acquire(2);
-    IOBuffer b(vp, 0x1a);
+    IOBuffer b(vp, 512);
     
     writeDirectoryEntry(&b);
         
@@ -105,6 +107,8 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     
     _device = device;
     _cache = BlockCache::Create(device);
+    
+    _address = 512 * 2;
     
     _cache->read(2, buffer.get());
 
@@ -137,6 +141,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
             
             child->setInode(++_inodeGenerator);
             child->_parent = this;
+            child->_address = 512 * 2 + i * 0x1a;
             _files.push_back(child.release());
         } 
     } 
@@ -226,6 +231,13 @@ unsigned VolumeEntry::unlink(const char *name)
 
     _files.erase(_files.begin() + index);
     _fileCount--;
+    
+    // reset addresses.
+    for (unsigned i = index; i < _fileCount; ++i)
+    {
+        FileEntry *e = _files[i];
+        e->_address -= 0x1a;
+    }
 
     // need to update the header blocks.
     ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
@@ -245,6 +257,42 @@ unsigned VolumeEntry::unlink(const char *name)
     writeDirectoryHeader(buffer.get());
     
     _cache->sync();
+    return 0;
+}
+
+
+unsigned VolumeEntry::rename(const char *oldName, const char *newName)
+{
+    FileEntry *e;
+
+    
+    // 1. verify old name exists.
+    e = fileByName(oldName);
+    if (!e)
+        return ProFUSE::fileNotFound;
+    
+    
+    // 2. verify new name is valid
+    if (!FileEntry::ValidName(newName)) 
+        return ProFUSE::badPathSyntax;
+
+
+    // 3. verify new name does not exist.
+    
+    if (fileByName(newName))
+        return ProFUSE::dupPathName;
+    
+        
+    // 4. set the name (throws on error, which won't happen since
+    // we already verified the name is valid.
+    e->setName(newName);
+    
+    
+    // 5. write to disk.
+    
+    writeEntry(e);
+    _cache->sync();
+    
     return 0;
 }
 
@@ -398,20 +446,62 @@ void VolumeEntry::writeDirectoryEntry(IOBuffer *b)
 
 uint8_t *VolumeEntry::readDirectoryHeader()
 {
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * blocks()]);
- 
-    for (unsigned i = 0; i < blocks(); ++i)
-    {
-        _cache->read(2 + i, buffer.get() + i * 512);
-    }
-                                        
+    return readBlocks(2, blocks());
+}
+
+void VolumeEntry::writeDirectoryHeader(void *buffer)
+{
+    writeBlocks(buffer, 2, blocks());
+}
+
+
+uint8_t *VolumeEntry::readBlocks(unsigned startingBlock, unsigned count)
+{
+    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * count]);
+        
+    for (unsigned i = 0; i < count; ++i)
+        _cache->read(startingBlock + i, buffer.get() + 512 * i);
+    
     return buffer.release();
 }
 
-void VolumeEntry::writeDirectoryHeader(uint8_t *buffer)
+
+void VolumeEntry::writeBlocks(void *buffer, unsigned startingBlock, unsigned count)
 {
-    for (unsigned i = 0; i < blocks(); ++i)
+    for (unsigned i = 0; i < count; ++i)
+        _cache->write(startingBlock + i, (uint8_t *)buffer + 512 * i);
+}
+
+
+// does not sync.
+void VolumeEntry::writeEntry(FileEntry *e)
+{
+    unsigned address = e->_address;
+    unsigned startBlock = address / 512;
+    unsigned endBlock = (address + 0x1a - 1) / 512;
+    unsigned offset = address % 512;
+    
+    if (startBlock == endBlock)
     {
-        _cache->write(2 + i, buffer + 512 * i);
+        void *buffer = _cache->acquire(startBlock);
+        
+        IOBuffer b((uint8_t *)buffer + offset, 0x1a);
+        
+        e->writeDirectoryEntry(&b);
+        
+        _cache->release(startBlock, true);
     }
+    else
+    {
+        // crosses page boundaries.
+        ProFUSE::auto_array<uint8_t> buffer(readBlocks(startBlock, 2));
+        
+        IOBuffer b(buffer.get() + offset, 0x1a);
+        
+        e->writeDirectoryEntry(&b);        
+        
+        writeBlocks(buffer.get(), startBlock, 2);
+    }
+
+
 }

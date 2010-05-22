@@ -65,6 +65,7 @@ Entry::Entry()
     _fileKind = 0;
     _inode = 0;
     _parent = NULL;
+    _address = NULL;
 }
 
 Entry::Entry(void *vp)
