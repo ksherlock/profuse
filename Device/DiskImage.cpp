@@ -145,7 +145,7 @@ void ProDOSOrderDiskImage::Validate(MappedFile *f)
     
 }
 
-BlockCache *ProDOSOrderDiskImage::createBlockCache(unsigned size)
+BlockCache *ProDOSOrderDiskImage::createBlockCache()
 {
     return new MappedBlockCache(this, address());
 }
