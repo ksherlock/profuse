@@ -152,14 +152,16 @@ bool make_mount_dir(std::string name, std::string &path)
 int main(int argc, char **argv)
 {
     extern void init_ops(fuse_lowlevel_ops *ops);
-    struct options options = { 0 };
+    struct options options;
 
-	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-	struct fuse_chan *ch;
-	char *mountpoint = NULL;
-	int err = -1;
-	std::string mountPath;
-	unsigned format;
+    std::memset(&options, 0, sizeof(options));
+
+    struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+    struct fuse_chan *ch;
+    char *mountpoint = NULL;
+    int err = -1;
+    std::string mountPath;
+    unsigned format = 0;
 
     int foreground = false;
     int multithread = false;

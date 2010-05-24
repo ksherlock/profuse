@@ -1,14 +1,17 @@
 
+#ifdef __APPLE__
 #define __FreeBSD__ 10 
 #define __DARWIN_64_BIT_INO_T 1 
-#define _FILE_OFFSET_BITS 64 
+#endif
 
+#define _FILE_OFFSET_BITS 64 
 #define FUSE_USE_VERSION 27
 
 #include <string>
 #include <vector>
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -45,6 +48,10 @@
 #define DEBUGNAME() \
     if (0) { std::fprintf(stderr, "%s\n", __func__); }
 
+// linux doesn't have ENOATTR.
+#ifndef ENOATTR 
+#define ENOATTR ENOENT
+#endif
 
 using namespace Pascal;
 
