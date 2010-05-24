@@ -31,6 +31,11 @@ inline ssize_t listxattr(const char *path, char *namebuf, size_t size)
     return listxattr(path, namebuf, size, XATTR_NOFOLLOW);
 }
 
+// apple has additional parameter for offset .
+inline int setxattr(const char *path, const char *name, void *value, size_t size, int flags)
+{
+    return setxattr(path, name, value, size, 0, flags);
+}
 #endif
 
 void hexdump(const uint8_t *data, ssize_t size)
