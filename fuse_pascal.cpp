@@ -274,10 +274,9 @@ int main(int argc, char **argv)
         se = fuse_lowlevel_new(&args, &pascal_ops, sizeof(pascal_ops), volume.get());
 
         if (se) do {
-            foreground = 1;
-            multithread = 0;
+
             
-            err = fuse_daemonize(foreground); // todo
+            err = fuse_daemonize(foreground);
             if (err < 0 ) break;
             
             err = fuse_set_signal_handlers(se);
