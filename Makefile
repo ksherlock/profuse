@@ -3,6 +3,9 @@ CPPFLAGS += -Wall -W -I. -O2 -g
 LDFLAGS += -lpthread
 fuse_pascal_LDFLAGS += -lfuse
 
+xattr: xattr.o
+	$(CC) $^ -o $@
+
 newfs_pascal: newfs_pascal.o \
   Cache/BlockCache.o Cache/ConcreteBlockCache.o Cache/MappedBlockCache.o \
   Device/Adaptor.o Device/BlockDevice.o Device/DavexDiskImage.o \
@@ -35,6 +38,8 @@ fuse_pascal: fuse_pascal.o fuse_pascal_ops.o \
   Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o 
 	$(CC) -lfuse $(LDFLAGS) $^ -o $@
 
+
+xattr.o: xattr.cpp
  
 newfs_pascal.o: newfs_pascal.cpp Device/BlockDevice.h ProFUSE/Exception.h \
   Device/TrackSector.h Cache/BlockCache.h Device/RawDevice.h File/File.h \

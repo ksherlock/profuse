@@ -1,16 +1,19 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <cctype>
+#include <cerrno>
 
+#include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <sys/stat.h>
 #include <sys/xattr.h>
 
-#include <string>
-#include <vector>
-#include <algorithm>
 
 typedef std::vector<std::string>::iterator vsiter;
 
@@ -287,7 +290,90 @@ int read(int argc, char **argv)
 }
 
 
+ssize_t read_all(int fd, std::vector<uint8_t> &out)
+{
+    struct stat st;
+    ssize_t bsize;
+    
+    // stdin could be a file, a pipe, or a tty.
+    if (fstat(fd, &st) < 0)
+    {
+        std::perror("stdin");
+        return -1;
+    }
+    
 
+    bsize = std::max(st.st_blksize, (blksize_t)512);
+    out.reserve(std::max(st.st_size, (off_t)512));
+
+    uint8_t *buffer = new uint8_t[bsize];
+    
+    for(;;)
+    {
+        ssize_t size = ::read(fd, buffer, bsize);
+                
+        if (size == 0) break;
+        if (size == -1)
+        {
+            if (errno == EINTR) continue;
+            delete[] buffer;
+            std::perror(NULL);
+            return -1;
+        }
+        
+        // force reserve?
+        out.insert(out.end(), buffer, buffer + size);
+    }
+    
+    
+    delete []buffer;
+
+    return out.size();
+}
+
+
+// xattr write filename attrname
+// stdin -> filename:attrname 
+int write(int argc, char **argv)
+{
+
+    std::vector<uint8_t> buffer;
+    int flags = 0;
+        
+    if (argc != 2)
+    {
+        std::fprintf(stderr, "Must specify attribute to be read.\n");
+        return -1;
+    }
+    
+    const char *fname = argv[0];
+    const char *attr_name = argv[1];
+    
+    if (read_all(STDIN_FILENO, buffer) < 0)
+    {
+        return -1;
+    }
+
+    // Flag options:
+    // XATTR_CREATE : fails if attr already exists.
+    // XATTR_REPLACE : fails if attr does not exist.
+    // if neither of the above is specified, will create and replace.
+    // XATTR_NOFOLLOW : do not follow symbolic links (Apple only)
+
+    #ifdef __APPLE__
+    flags = XATTR_NOFOLLOW;
+    #endif
+
+    ssize_t asize = setxattr(fname, attr_name, &buffer[0], buffer.size(), flags);
+    
+    if (asize < 0)
+    {
+        std::perror(attr_name);
+        return -1;
+    }
+    
+    return 0;
+}
 
 
 void usage(const char *name)
@@ -296,6 +382,7 @@ void usage(const char *name)
     std::printf("%s list file [attr ...]\n", name);
     std::printf("%s dump file [attr ...]\n", name);
     std::printf("%s read file attr\n", name);
+    std::printf("%s write file attr\n", name);
     
     std::exit(0);
 }
@@ -313,6 +400,7 @@ int main(int argc, char **argv)
     if (std::strcmp(argv[1], "dump") == 0) return dump(argc - 2, argv + 2);
     
     if (std::strcmp(argv[1], "read") == 0) return read(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "write") == 0) return write(argc - 2, argv + 2);
     
     
     usage(*argv);
