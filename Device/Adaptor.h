@@ -35,10 +35,13 @@ namespace Device {
         DOAdaptor(void *address);
         virtual void readBlock(unsigned block, void *bp);
         virtual void writeBlock(unsigned block, const void *bp);
+
+    
+        static unsigned Map[];
+
     private:
         uint8_t *_address;
         
-        static unsigned Map[];
     };
     
     // TODO -- nibble adaptor.

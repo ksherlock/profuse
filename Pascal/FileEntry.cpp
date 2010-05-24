@@ -367,93 +367,56 @@ void FileEntry::textInit()
 /*
  * compress white space into a dle.
  * returns true if altered.
- *
+ * nb -- only leading white space is compressed.
  */
 bool FileEntry::Compress(std::string& text)
 {
-    bool delta = false;
     std::string out;
-
+    
     size_t pos;
-    unsigned start;
-
-    pos = start = 0;
-    for(;;)
-    {
-        size_t end;
-        unsigned count;
-
-        pos = text.find_first_of(' ',pos);
-        if (pos == std::string::npos) break;
-
-        end = text.find_first_not_of(' ',pos);
-
-        count = end - pos;
-
-        if (count < 3) continue;
-
-        delta = true;
-        out.append(text.begin() + start, text.begin() + pos);
-
-        while (count)
-        {
-            unsigned c = std::min(223u, count);
-            out.push_back(kDLE);  // dle code.
-            out.push_back(32 + c);
-            count -= c;
-        }
-
-        pos = start = end;
-    }
-
-    if (delta)
-    {
-        out.append(text.begin() + start, text.end());
-        text.swap(out);
-    }
-
-    return delta;
+    size_t count;
+    
+    
+    if (text.length() < 3) return false;
+    if (text[0] != ' ') return false;
+    
+    pos = text.find_first_not_of(' ');
+    
+    if (pos == std::string::npos)
+        count = text.length();
+    else count = pos;
+    
+    if (count < 3) return false;
+    
+    count = std::max((int)count, 255 - 32);
+    
+    out.push_back(kDLE);
+    out.push_back(32 + count);
+    out.append(text.begin() + count, text.end());
+    
+    return true;
 }
 
+/*
+ * dle will only occur at start.
+ *
+ */
 bool FileEntry::Uncompress(std::string& text)
 {
-    bool delta = false;
     std::string out;
 
-    size_t start;
-    size_t pos;
-    size_t length = text.length();
-
-    start = pos = 0;
-
-    for(;;)
-    {
-        unsigned c;
-
-        pos = text.find_first_of(kDLE, pos);
-        if (pos == std::string::npos) break;
-        if (pos == length - 1) break; // should not happen;
-
-        c = text[pos + 1];
-
-        if (c <= 32) continue;
-
-        delta = true;
-       
-        out.append(text.begin() + start, text.begin() + pos);
-
-        out.append(c - 32, ' ');
- 
-        pos = pos + 1;
-        start = pos;
-    }
-
-    if (delta)
-    {
-        out.append(text.begin() + start, text.end());
-        text.swap(out);
-    }
-
-    return delta;
+    unsigned c;
+    
+    if (text.length() < 2) return false;
+    
+    if (text[0] != kDLE) return false;
+    
+    c = text[1];
+    if (c < 32) c = 32;
+    
+    out.append(c - 32, ' ');
+    out.append(text.begin() + 2, text.end());
+    
+    return true;
 }
 

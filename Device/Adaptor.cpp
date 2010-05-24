@@ -78,6 +78,33 @@ void DOAdaptor::writeBlock(unsigned block, const void *bp)
 #pragma mark -
 #pragma mark NibbleAdaptor
 
+class CircleBuffer {
+    
+public:
+    
+    CircleBuffer(void *address, unsigned length)
+    {
+        _address = (uint8_t *)address;
+        _length = length;
+    }
+    
+    uint8_t operator[](unsigned i) const
+    {
+        if (i >= _length) i %= _length;
+        return _address[i];
+    }
+    
+    uint8_t& operator[](unsigned i)
+    {
+        if (i >= _length) i %= _length;
+        return _address[i];
+    }
+    
+private:
+    uint8_t *_address;
+    unsigned _length;
+    
+};
 
 
 
@@ -149,57 +176,13 @@ static int FindByte(void *address, uint8_t c, unsigned length, unsigned offset =
 
     for (unsigned i = offset; i < length; ++i)
     {
-        if ( *((uint8_t *)address) == c) return i;
+        if ( ((uint8_t *)address)[i] == c) return i;
     }
     
     return -1;
 }
 
-static void LoadBytes(void *src, unsigned length, unsigned offset, void *dest, unsigned count)
-{
-    // load with wrap-around.
 
-    if (offset + count < length)
-    {
-        std::memcpy(dest, (uint8_t *)src + offset, count);
-        return;
-    }
-    
-    unsigned x = length - offset;
-    std::memcpy(dest, (uint8_t *)src + offset, x); 
-    
-    std::memcpy((uint8_t *)dest + x, src, count - x);
-}
-
-
-
-class CircleBuffer {
-    
-public:
-    
-    CircleBuffer(void *address, unsigned length)
-    {
-        _address = (uint8_t *)address;
-        _length = length;
-    }
-    
-    uint8_t operator[](unsigned i) const
-    {
-        if (i >= _length) i %= _length;
-        return _address[i];
-    }
-    
-    uint8_t& operator[](unsigned i)
-    {
-        if (i >= _length) i %= _length;
-        return _address[i];
-    }
-  
-private:
-    uint8_t *_address;
-    unsigned _length;
-    
-};
 
 /*
  *  Address Field:
@@ -213,49 +196,6 @@ private:
  * D5 AA AD    [6+2 encoded]  XX        DE AA EB
  */
 
-
-/*
- * 0x00
- *------------------------
- * A7 A6 A5 A4 A3 A2 A1 A0
- * B7 B6 B5 B4 B3 B2 B1 B0
- * C7 C6 C5 C4 C3 C2 C1 C0
- * D7 D6 D5 D4 D3 D2 D1 D0
- * E7 E6 E5 E4 E3 E2 E1 E0
- * F7 F6 F5 F4 F3 F2 F1 F0
- * ...
- *------------------------
- * 0x100
- *           ||
- *           \/
- * 0x00
- * -----------------------
- * 0  0  A7 A6 A5 A4 A3 A2
- * 0  0  B7 B6 B5 B4 B3 B2
- * 0  0  C7 C6 C5 C4 C3 C2
- * 0  0  D7 D6 D5 D4 D3 D2
- * 0  0  E7 E6 E5 E4 E3 E2
- * 0  0  F7 F6 F5 F4 F3 F2
- * ...
- * 0x100 (256):
- * -----------------------
- * ...
- * 0  0  x  x  x  x  F0 F1
- * 0  0  x  x  x  x  E0 E1
- * 0  0  x  x  x  x  D0 D1
- * 0  0  x  x  x  x  C0 C1
- * 0  0  x  x  x  x  B0 B1
- * 0  0  x  x  x  x  A0 A1
- * -----------------------
- * 0x156 (342)
- *
- *
- *
- *
- *
- *
- *
- */
 
 
 NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
@@ -289,10 +229,8 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
         offset = FindByte(address, 0xd5, length, offset);
         if (offset < 0) break;
                 
-        if (buffer[offset + 1] == 0xaa && buffer[offset + 2] == 0x96)
-        {
-            state = 1;
-            
+        if (buffer[offset + 1] == 0xaa && buffer[offset + 2] == 0x96 && buffer[offset + 11] == 0xde && buffer[offset + 12] == 0xaa)
+        {            
             volume = decode44(buffer[offset + 3], buffer[offset + 4]);
             track = decode44(buffer[offset + 5], buffer[offset + 6]);
             sector = decode44(buffer[offset + 7], buffer[offset + 8]);
@@ -304,7 +242,8 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
             if (track > 35 || sector > 16)
                 throw ProFUSE::Exception(__METHOD__ ": Invalid track/sector.");
             
-            // epilogue is not always de aa eb
+            offset += 3 + 8 + 3;
+            state = 1;            
             continue;
             
         }
@@ -313,10 +252,12 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
         {
             _index[track * 16 + sector] = (offset + 3) % _length;
             
+            offset += 3 + 342 + 1 + 3;
             state = 0;
             continue;
         }
         
+        offset++; //???
         // ????
         
     }
@@ -347,7 +288,31 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
     
 }
 
+NibbleAdaptor::~NibbleAdaptor()
+{
+}
 
+void NibbleAdaptor::readBlock(unsigned block, void *bp)
+{
+    
+    unsigned track = (block & ~0x07) << 9;
+    unsigned sector = (block & 0x07) << 1;
+    
+    readTrackSector(TrackSector(track, sector), bp);
+    readTrackSector(TrackSector(track, sector + 1), (uint8_t *)bp + 256);
+    
+    
+}
+
+void NibbleAdaptor::writeBlock(unsigned block, const void *bp)
+{
+    unsigned track = (block & ~0x07) << 9;
+    unsigned sector = (block & 0x07) << 1;
+    
+    writeTrackSector(TrackSector(track, sector), bp);
+    writeTrackSector(TrackSector(track, sector + 1), (const uint8_t *)bp + 256);
+    
+}
 
 void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
 {
@@ -368,25 +333,33 @@ void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
     
     
     // first 86 bytes are in the auxbuffer, backwards.
+    unsigned index = offset;
     for (unsigned i = 0; i < 86; ++i)
     {
-        uint8_t x = buffer[offset + i];
+        uint8_t x = buffer[index++];
         x = decode62(x);
         
         checksum ^= x;
         
         uint8_t y = checksum;
         
-        for (unsigned j = 0; j < 3; ++i)
+        /*
+        for (unsigned j = 0; j < 3; ++j)
         {
-            bits[i + j * 86] = ((y & 0x01) << 1) | ((y & 0x02) >> 1);
+            //bits[i + j * 86] = ((y & 0x01) << 1) | ((y & 0x02) >> 1);
+            bits[i + j * 86] = "\x00\x01\x02\x03"[y & 0x03];
             y >>= 2;
         }
+        */
+        bits[i + 86 * 0] = "\x00\x02\x01\x03"[y & 0x03];
+        bits[i + 86 * 1] = "\x00\x02\x01\x03"[(y >> 2) & 0x03];
+        bits[i + 86 * 2] = "\x00\x02\x01\x03"[(y >> 4) & 0x03];
+        
     }
     
     for (unsigned i = 0; i < 256; ++i)
     {
-        uint8_t x = buffer[offset + 86 + i];
+        uint8_t x = buffer[index++];
         x = decode62(x);
         
         checksum ^= x;
@@ -398,15 +371,16 @@ void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
         ((uint8_t *)bp)[i] = y;
     }
     
-    if (checksum != buffer[342])
-        throw ProFUSE::Exception(__METHOD__ ": Invalid field checksum.");
+    if (checksum != decode62(buffer[index++]))
+        std::fprintf(stderr, "Invalid checksum on track %u, sector %u\n", ts.track, ts.sector);
+        //throw ProFUSE::Exception(__METHOD__ ": Invalid field checksum.");
    
 }
 
 void NibbleAdaptor::writeTrackSector(TrackSector ts, const void *bp)
 {
 #undef __METHOD__
-#define __METHOD__ "NibbleAdaptor::readTrackSector"
+#define __METHOD__ "NibbleAdaptor::writeTrackSector"
     
     if (ts.track > 35 || ts.sector > 16)
         throw ProFUSE::Exception(__METHOD__ ": Invalid track/sector.");
@@ -418,18 +392,19 @@ void NibbleAdaptor::writeTrackSector(TrackSector ts, const void *bp)
     
     std::memset(auxBuffer, 0, sizeof(auxBuffer));
                 
-    for (unsigned i = 0, j = 86, shift = 0; i < 256; ++i)
+    for (unsigned i = 0, j = 0, shift = 0; i < 256; ++i)
     {
         uint8_t x = ((const uint8_t *)bp)[i];
         
         // grab the bottom 2 bytes and reverse them.
-        uint8_t y = ((x & 0x01) << 1) | ((x & 0x02) >> 1);
+        //uint8_t y = ((x & 0x01) << 1) | ((x & 0x02) >> 1);
+        uint8_t y = "\x00\x02\x01\x03"[x & 0x03];
         
-        auxBuffer[--j] |= (y << shift);
+        auxBuffer[j++] |= (y << shift);
         
-        if (j == 0)
+        if (j == 86)
         {
-            j = 86;
+            j = 0;
             shift += 2;
         }
     }
@@ -461,6 +436,6 @@ void NibbleAdaptor::writeTrackSector(TrackSector ts, const void *bp)
     
 
     
-    buffer[offset + 342] = checksum;
+    buffer[offset + 342] = encode62(checksum);
 }
 
