@@ -1,4 +1,4 @@
-#include <Pascal/File.h>
+#include <Pascal/Entry.h>
 
 #include <ProFUSE/Exception.h>
 
