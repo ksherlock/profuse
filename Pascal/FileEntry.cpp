@@ -5,7 +5,7 @@
 #include <memory>
 #include <cerrno>
 
-#include <Pascal/File.h>
+#include <Pascal/Pascal.h>
 
 #include <ProFUSE/auto.h>
 #include <ProFUSE/Exception.h>

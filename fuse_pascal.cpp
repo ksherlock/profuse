@@ -18,7 +18,7 @@
 #include <fuse/fuse_lowlevel.h>
 
 
-#include <Pascal/File.h>
+#include <Pascal/Pascal.h>
 #include <ProFUSE/Exception.h>
 
 #include <Device/BlockDevice.h>

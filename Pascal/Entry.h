@@ -69,6 +69,7 @@ namespace Pascal {
     private:
         
         friend class VolumeEntry;
+        
         VolumeEntry *_parent;
         unsigned _address;
 

@@ -4,7 +4,7 @@
 
 #include <ProFUSE/Exception.h>
 
-#include <Pascal/File.h>
+#include <Pascal/Pascal.h>
 
 #include <memory>
 #include <cstdio>

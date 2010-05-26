@@ -17,7 +17,7 @@
 #include <strings.h>
 #include <sys/stat.h>
 
-#include <Pascal/File.h>
+#include <Pascal/Pascal.h>
 #include <Pascal/Date.h>
 #include <Device/BlockDevice.h>
 
