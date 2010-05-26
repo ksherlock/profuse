@@ -199,7 +199,7 @@ class FileEntry : public Entry {
     
     void setName(const char *name);
     
-    void extend(unsigned newSize);
+    void truncateCommon(unsigned newSize);
     
     
     

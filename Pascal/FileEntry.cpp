@@ -167,7 +167,7 @@ int FileEntry::truncate(unsigned newSize)
         if (_pageSize) _pageSize->clear();
     }
     
-    extend(newSize);
+    truncateCommon(newSize);
     
     _modification = Date::Today();
     parent()->writeEntry(this);
@@ -176,14 +176,14 @@ int FileEntry::truncate(unsigned newSize)
 }
 
 /*
- * extend -- common truncation code.
+ * truncateCommon -- common truncation code.
  * updates _lastByte and _lastBlock but does
  * not update _modification or commit to disk.
  */
-void FileEntry::extend(unsigned newSize)
+void FileEntry::truncateCommon(unsigned newSize)
 {
 #undef __METHOD__
-#define __METHOD__  "FileEntry::extend"
+#define __METHOD__  "FileEntry::truncateCommon"
     
     unsigned currentSize = fileSize();
     
@@ -192,7 +192,7 @@ void FileEntry::extend(unsigned newSize)
     {
         
         if (newSize > _maxFileSize)
-            throw ProFUSE::POSIXException(__METHOD__ ": Unable to extend file.", ENOSPC);
+            throw ProFUSE::POSIXException(__METHOD__ ": Unable to expand file.", ENOSPC);
         
         unsigned remainder = newSize - currentSize;
         unsigned block = _lastBlock;
@@ -251,12 +251,12 @@ int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
 
     if (newSize > _maxFileSize)
     {
-        throw ProFUSE::POSIXException(__METHOD__ ": Unable to extend file.", ENOSPC);
+        throw ProFUSE::POSIXException(__METHOD__ ": Unable to expand file.", ENOSPC);
     }
     
     if (offset > currentSize)
     {
-        extend(offset);
+        truncateCommon(offset);
     }
     
     // now write the data...
