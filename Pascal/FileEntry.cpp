@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cctype>
 #include <memory>
+#include <cerrno>
 
 #include <Pascal/File.h>
 
@@ -44,6 +45,7 @@ FileEntry::FileEntry(void *vp) :
     
     _fileSize = 0;
     _pageSize = NULL;
+    _maxFileSize = 0;
 }
 
 FileEntry::FileEntry(const char *name, unsigned fileKind)
@@ -69,11 +71,19 @@ FileEntry::FileEntry(const char *name, unsigned fileKind)
     
     _fileSize = 0;
     _pageSize = NULL;
+    _maxFileSize = 0;
 }
 
 FileEntry::~FileEntry()
 {
     delete _pageSize;
+}
+
+
+void FileEntry::setFileKind(unsigned kind)
+{
+    _fileKind = kind;
+    parent()->writeEntry(this);
 }
 
 
@@ -93,6 +103,8 @@ void FileEntry::setName(const char *name)
 
     // not sure if this is a good idea or not.
     //_modification = Date::Today();
+    
+    parent()->writeEntry(this);
 }
 
 unsigned FileEntry::fileSize()
@@ -135,6 +147,163 @@ int FileEntry::read(uint8_t *buffer, unsigned size, unsigned offset)
         return dataRead(buffer, size, offset);
         break;
     }
+}
+
+
+int FileEntry::truncate(unsigned newSize)
+{
+#undef __METHOD__
+#define __METHOD__  "FileEntry::truncate"
+    
+    unsigned currentSize = fileSize();
+    
+    if (currentSize == newSize) return 0;
+    
+    if (fileKind() == kTextFile)
+    {
+        if (newSize)
+            throw ProFUSE::Exception(__METHOD__ ": unable to truncate text file.");
+        
+        if (_pageSize) _pageSize->clear();
+    }
+    
+    extend(newSize);
+    
+    _modification = Date::Today();
+    parent()->writeEntry(this);
+    
+    return 0;
+}
+
+/*
+ * extend -- common truncation code.
+ * updates _lastByte and _lastBlock but does
+ * not update _modification or commit to disk.
+ */
+void FileEntry::extend(unsigned newSize)
+{
+#undef __METHOD__
+#define __METHOD__  "FileEntry::extend"
+    
+    unsigned currentSize = fileSize();
+    
+    if (newSize == currentSize) return;
+    if (newSize > currentSize)
+    {
+        
+        if (newSize > _maxFileSize)
+            throw ProFUSE::POSIXException(__METHOD__ ": Unable to extend file.", ENOSPC);
+        
+        unsigned remainder = newSize - currentSize;
+        unsigned block = _lastBlock;
+        
+        if (_lastByte != 512)
+        {
+            // last page not full
+            unsigned count = std::min(512 - _lastByte, remainder);
+            uint8_t *address = (uint8_t *)parent()->loadBlock(block);
+            
+            std::memset(address + _lastByte, 0, count);
+
+            parent()->unloadBlock(block, true);
+            
+            remainder -= count;
+        }
+        block++;
+        
+        while (remainder)
+        {
+            unsigned count = std::min(512u, remainder);
+            uint8_t *address = (uint8_t *)parent()->loadBlock(block);
+            
+            std::memset(address, 0, count);
+            
+            parent()->unloadBlock(block, true);
+            
+            remainder -= count;
+            block++;            
+        }
+        
+        
+    }
+    
+    _lastBlock = _firstBlock + newSize / 512;
+    _lastByte = newSize % 512;
+    if (_lastByte = 0) _lastByte = 512;
+
+}
+
+
+int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
+{
+#undef __METHOD__
+#define __METHOD__ "FileEntry::write"
+    
+    if (fileKind() == kTextFile)
+    {
+        throw ProFUSE::Exception(__METHOD__ ": Text Files are too weird.");
+    }
+
+    unsigned currentSize = fileSize();
+    
+    unsigned newSize = std::max(offset + size, currentSize);
+    
+
+    if (newSize > _maxFileSize)
+    {
+        throw ProFUSE::POSIXException(__METHOD__ ": Unable to extend file.", ENOSPC);
+    }
+    
+    if (offset > currentSize)
+    {
+        extend(offset);
+    }
+    
+    // now write the data...
+    
+    unsigned block = _firstBlock +  offset / 512;
+    unsigned start = offset % 512;
+    unsigned remainder = size;
+    
+    if (start)
+    {
+        unsigned count = std::min(512 - start, remainder);
+        uint8_t *address = (uint8_t *)parent()->loadBlock(block);
+                
+        std::memcpy(address + start, buffer, count);
+        parent()->unloadBlock(block, true);
+        
+        remainder -= count;
+        buffer += count;
+        block++;
+    }
+    
+    while (remainder)
+    {
+        uint8_t *address = (uint8_t *)parent()->loadBlock(block);
+
+        unsigned count = std::min(512u, size);
+        
+        std::memcpy(address, buffer, count);
+        parent()->unloadBlock(block, true);
+        
+        remainder -= count;
+        buffer += count;
+        block++;
+    }
+    
+    if (newSize > currentSize)
+    {
+        _lastBlock = _firstBlock + currentSize / 512;
+        _lastByte = currentSize % 512;
+        if (_lastByte == 0) _lastByte = 512;
+        
+    }
+    
+    _modification = Date::Today();
+    parent()->writeEntry(this);
+    
+    return size;
 }
 
 

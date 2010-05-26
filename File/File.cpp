@@ -31,6 +31,12 @@ File::File(const char *name, int flags, const std::nothrow_t&)
     _fd = ::open(name, flags);
 }
 
+
+File::File(const char *name, int flags, mode_t mode, const std::nothrow_t&)
+{
+    _fd = ::open(name, flags, mode);
+}
+
 File::File(const char *name, bool readOnly, const std::nothrow_t&)
 {
     _fd = ::open(name, readOnly ? O_RDONLY : O_RDWR);
@@ -42,6 +48,16 @@ File::File(const char *name, int flags)
     #define __METHOD__ "File::File"
 
     _fd = ::open(name, flags);
+    if (_fd < 0)
+        throw POSIXException( __METHOD__ ": open", errno);
+}
+
+File::File(const char *name, int flags, mode_t mode)
+{
+#undef __METHOD__
+#define __METHOD__ "File::File"
+    
+    _fd = ::open(name, flags, mode);
     if (_fd < 0)
         throw POSIXException( __METHOD__ ": open", errno);
 }

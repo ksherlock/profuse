@@ -132,6 +132,8 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     try
     {    
         
+        std::vector<FileEntry *>::reverse_iterator iter;
+
         for (unsigned i = 1; i <= _fileCount; ++i)
         {
             std::auto_ptr<FileEntry> child;
@@ -142,12 +144,26 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
             child->setInode(++_inodeGenerator);
             child->_parent = this;
             child->_address = 512 * 2 + i * 0x1a;
+                        
             _files.push_back(child.release());
-        } 
+        }
+        
+        // sanity check _firstBlock, _lastBlock?
+        
+        // set up _maxBlocks;
+        unsigned lastBlock = _lastVolumeBlock;
+        for (iter = _files.rbegin(); iter != _files.rend(); ++iter)
+        {
+            FileEntry *e = *iter;
+            e->_maxFileSize = (lastBlock - e->_firstBlock) * 512;
+            lastBlock = e->_firstBlock - 1;
+        }
+        
     } 
     catch (...)
     {
         std::vector<FileEntry *>::iterator iter;
+
         for(iter = _files.begin(); iter != _files.end(); ++iter)
         {
             if (*iter) delete *iter;
@@ -155,7 +171,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
        
         throw;
     }
-
+    
 
 }
 
@@ -224,6 +240,7 @@ unsigned VolumeEntry::unlink(const char *name)
 {
     unsigned index;
 
+    // TODO -- update _maxFileSize.
     
     if (_device->readOnly()) return ProFUSE::drvrWrtProt; // WRITE-PROTECTED DISK
     

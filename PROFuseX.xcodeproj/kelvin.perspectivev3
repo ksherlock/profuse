@@ -231,8 +231,6 @@
 			<key>Layout</key>
 			<array>
 				<dict>
-					<key>BecomeActive</key>
-					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -269,13 +267,17 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateExpansionKey</key>
 							<array>
 								<string>08FB7794FE84155DC02AAC07</string>
+								<string>B63EFBE711A244EE00C90DCE</string>
+								<string>B63EFACF11A09DB500C90DCE</string>
+								<string>B63EFAC811A09DAA00C90DCE</string>
 								<string>B656ADED11A84D3200AB578A</string>
 								<string>1C37FBAC04509CD000000102</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>2</integer>
+									<integer>10</integer>
+									<integer>7</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -297,7 +299,7 @@
 							<real>318</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>394 69 1239 1000 0 0 1920 1178 </string>
+						<string>489 -24 1239 1000 0 0 1920 1178 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -308,12 +310,14 @@
 					<key>Dock</key>
 					<array>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>B63EFA6111A093C200C90DCE</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>NibbleTest.cpp</string>
+								<string>VolumeEntry.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -321,11 +325,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>B63EFA6211A093C200C90DCE</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>NibbleTest.cpp</string>
+										<string>VolumeEntry.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>B6F3647211AB35FE0045E114</string>
+										<string>B6F364F511ACB5B60045E114</string>
 										<key>history</key>
 										<array>
 											<string>B63EFC2611A2D5A400C90DCE</string>
@@ -333,7 +337,6 @@
 											<string>B63EFC3211A2D5A400C90DCE</string>
 											<string>B63EFCB211A3639400C90DCE</string>
 											<string>B63EFCB611A3639400C90DCE</string>
-											<string>B63EFD7F11A4436B00C90DCE</string>
 											<string>B63EFDA011A4488200C90DCE</string>
 											<string>B63EFDA511A4488200C90DCE</string>
 											<string>B63EFDA711A4488200C90DCE</string>
@@ -351,7 +354,6 @@
 											<string>B63EFEA111A488C200C90DCE</string>
 											<string>B63EFEA211A488C200C90DCE</string>
 											<string>B63EFEA311A488C200C90DCE</string>
-											<string>B63EFEA711A488C200C90DCE</string>
 											<string>B63EFEA811A488C200C90DCE</string>
 											<string>B63EFEA911A488C200C90DCE</string>
 											<string>B63EFEEC11A4A70400C90DCE</string>
@@ -359,21 +361,25 @@
 											<string>B6E5F0F211A73144000AD141</string>
 											<string>B6E5F11211A73340000AD141</string>
 											<string>B6E5F13A11A74F2B000AD141</string>
-											<string>B6E5F18111A76B74000AD141</string>
 											<string>B6E5F18211A76B74000AD141</string>
-											<string>B656AE2311A84FA400AB578A</string>
 											<string>B656AE2411A84FA400AB578A</string>
 											<string>B656AE2611A84FA400AB578A</string>
 											<string>B656AE2711A84FA400AB578A</string>
-											<string>B656AE6511A8591F00AB578A</string>
 											<string>B656AEA711A9C91600AB578A</string>
 											<string>B656AEA811A9C91600AB578A</string>
-											<string>B656AF2711AA10C900AB578A</string>
-											<string>B656AF2811AA10C900AB578A</string>
 											<string>B656AF2A11AA10C900AB578A</string>
 											<string>B6F3642D11AA1E070045E114</string>
 											<string>B6F3647111AB35FE0045E114</string>
-											<string>B6F3647011AB35F00045E114</string>
+											<string>B6F3649411AB58E80045E114</string>
+											<string>B6F3649511AB58E80045E114</string>
+											<string>B6F3649611AB58E80045E114</string>
+											<string>B6F3649E11AB59190045E114</string>
+											<string>B6F364B711AB84840045E114</string>
+											<string>B6F364C811ACAB370045E114</string>
+											<string>B6F364E811ACB5790045E114</string>
+											<string>B6F364E911ACB5790045E114</string>
+											<string>B6F364EB11ACB5790045E114</string>
+											<string>B6F364EC11ACB5790045E114</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -389,7 +395,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {899, 562}}</string>
 								<key>RubberWindowFrame</key>
-								<string>394 69 1239 1000 0 0 1920 1178 </string>
+								<string>489 -24 1239 1000 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -413,8 +419,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {899, 365}}</string>
-										<key>RubberWindowFrame</key>
-										<string>394 69 1239 1000 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -468,7 +472,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {899, 349}}</string>
+										<string>{{10, 27}, {899, 365}}</string>
+										<key>RubberWindowFrame</key>
+										<string>489 -24 1239 1000 0 0 1920 1178 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -690,10 +696,14 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
+		<string>B6F364EE11ACB5790045E114</string>
+		<string>B6F364C211AC92730045E114</string>
+		<string>B6F364C111AC92730045E114</string>
 		<string>/Users/kelvin/Projects/PROFuseX/PROFuseX.xcodeproj</string>
+		<string>B6F364CC11ACAB370045E114</string>
 	</array>
 	<key>WindowString</key>
-	<string>394 69 1239 1000 0 0 1920 1178 </string>
+	<string>489 -24 1239 1000 0 0 1920 1178 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

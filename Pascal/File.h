@@ -45,7 +45,7 @@ public:
     unsigned lastBlock() const { return _lastBlock; }
     
     unsigned fileKind() const { return _fileKind; }
-    
+        
     unsigned inode() const { return _inode; }
     void setInode(unsigned inode) { _inode = inode; }
 
@@ -124,6 +124,9 @@ protected:
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
 
 private:
+    
+    friend class FileEntry;
+    
     VolumeEntry();
     
     void init(void *);
@@ -174,18 +177,30 @@ class FileEntry : public Entry {
     int read(uint8_t *buffer, unsigned size, unsigned offset);
     int write(uint8_t *buffer, unsigned size, unsigned offset);
     
+    int truncate(unsigned newSize);
+    
+    
     const char *name() const { return _fileName; }
     Date modification() const { return _modification; }    
         
+    void setFileKind(unsigned kind);
+    
+    
+    
     
     protected:
     
     virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
     
-    private:    
+    private:
+    
+    
     friend class VolumeEntry;
     
     void setName(const char *name);
+    
+    void extend(unsigned newSize);
+    
     
     
     unsigned _status;
@@ -195,6 +210,12 @@ class FileEntry : public Entry {
     
     unsigned _lastByte;
     Date _modification;
+    
+    
+    unsigned _maxFileSize; // maximum file size.
+    
+    
+    
     
     // non-text files
     unsigned dataFileSize();

@@ -16,9 +16,11 @@ class File {
     File(int fd);
 
     File(const char *name, int flags);
+    File(const char *name, int flags, mode_t mode);
     File(const char *name, bool readOnly);
 
     File(const char *name, int flags, const std::nothrow_t &);
+    File(const char *name, int flags, mode_t mode, const std::nothrow_t &);
     File(const char *name, bool readOnly, const std::nothrow_t &);
 
     ~File();

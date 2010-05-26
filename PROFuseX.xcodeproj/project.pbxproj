@@ -144,7 +144,7 @@
 		B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NibbleTest.cpp; sourceTree = "<group>"; };
 		B656AF0311AA105500AB578A /* NibbleTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NibbleTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6F3647B11AB361D0045E114 /* xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xattr.cpp; sourceTree = "<group>"; };
-		B6F3648011AB36260045E114 /* xattr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = xattr; path = build/Debug/xattr; sourceTree = "<group>"; };
+		B6F3648011AB36260045E114 /* xattr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xattr; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

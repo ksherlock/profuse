@@ -15,12 +15,13 @@
 
 #include <unistd.h>
 #include <strings.h>
+#include <sys/stat.h>
 
 #include <Pascal/File.h>
 #include <Pascal/Date.h>
 #include <Device/BlockDevice.h>
 
-
+#include <File/File.h>
 
 const char *MonthName(unsigned m)
 {
@@ -101,9 +102,7 @@ void printFileEntry(Pascal::FileEntry *e, bool extended)
 }
 
 int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
-{
-    //TODO -- check for -l flag.
-    
+{    
     bool extended = false;
     unsigned fileCount = volume->fileCount();
     unsigned used = volume->blocks();
@@ -253,6 +252,148 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
 
 
 
+int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
+{
+    // get pascal_file [native file];
+    
+    char *infile;
+    char *outfile;
+    
+    Pascal::FileEntry *entry;
+    
+    switch(argc)
+    {
+        case 1:
+            infile = outfile = argv[0];
+            break;
+        case 2:
+            infile = argv[0];
+            outfile = argv[1];
+            break;
+        default:
+            std::fprintf(stderr, "apfm cat: Please specify an infile (and an optional outfile)\n");
+    }
+    
+    entry = volume->fileByName(infile);
+    
+    
+    File::File file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    
+    if (!entry)
+    {
+        std::fprintf(stderr, "apfm get: %s: no such file.\n", infile);
+        return 1;
+    }
+    
+    unsigned fileSize = entry->fileSize();
+    unsigned offset = 0;
+    
+    while (offset < fileSize)
+    {
+        uint8_t buffer[512];
+        
+        unsigned count = std::min(512u, fileSize - offset);
+        entry->read(buffer, count, offset);
+        
+        ::write(file.fd(), buffer, count);
+        offset += count; 
+    }
+    
+    return 0;
+}
+
+#if 0
+int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
+{
+    // put [-t type] native_file [pascal_file]
+    
+    unsigned type = Pascal::kUntypedFile;
+    
+    struct stat st;
+    int c;
+    
+    char *infile;
+    char *outfile;
+    char *tmp;
+    
+    while ((c = getopt(argc, argv, "t:")) != -1)
+    {
+        switch (c)
+        {
+            case 't':
+                if (!::strcasecmp("text", optarg))
+                    type = Pascal::kTextFile;
+                else if (!::strcasecmp("txt", optarg))
+                    type = Pascal::kTextFile;
+                else if (!::strcasecmp("code", optarg))
+                    type = Pascal::kCodeFile;
+                else if (!::strcasecmp("info", optarg))
+                    type = Pascal::kInfoFile;
+                else if (!::strcasecmp("data", optarg))
+                    type = Pascal::kDataFile;
+                else if (!::strcasecmp("graf", optarg))
+                    type = Pascal::kGrafFile;
+                else if (!::strcasecmp("foto", optarg))
+                    type = Pascal::kFotoFile;
+                else type = Pascal::kUntypedFile;
+                    
+                break;
+        }
+        
+    }
+    
+    // TODO -- if file is named .txt or .text, default to kTextFile.
+    
+    argc -= optind;
+    argv += optind;
+    
+    switch (argc)
+    {
+        case 1:
+            infile = outfile = argv[0];
+            
+            // need to run basename on outfile.
+            tmp = strrchr(outfile, '/');
+            if (tmp) outfile = tmp + 1;
+            break;
+        case 2:
+            infile = argv[0];
+            outfile = argv[1];
+            break;
+    }
+    
+    if (!Pascal::FileEntry::ValidName(outfile))
+    {
+        std::fprintf(stderr, "apfm put: `%s' is not a valid pascal name.\n", outfile);
+    }
+
+    ::stat(infile, &st);
+
+    File::File file(infile, O_RDONLY);
+    
+    
+    unsigned blocks = (st.st_size + 511) / 511;
+    
+    // TODO -- if text file, ..
+    
+    Pascal::FileEntry *entry = volume.createFile(infile, blocks);
+    
+    entry->setType(type);
+    
+    if (type == Pascal::kTextFile)
+    {
+        //...
+    }
+    else
+    {
+        // ...
+        
+    }
+
+    return 0;
+    
+}
+#endif
 
 void usage()
 {
@@ -370,6 +511,10 @@ int main(int argc, char **argv)
         if (!::strcasecmp("mv", action)) return action_mv(argc - 1, argv + 1, volume.get());
         if (!::strcasecmp("rm", action)) return action_rm(argc - 1, argv + 1, volume.get());
 
+        if (!::strcasecmp("get", action)) return action_get(argc -1, argv + 1, volume.get());
+        //if (!::strcasecmp("put", action)) return action_put(argc -1, argv + 1, volume.get());
+        
+        
         usage();
         return 3;
     }
