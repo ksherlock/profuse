@@ -12,7 +12,7 @@ enum
 {
     badSystemCall = 0x01,
     invalidPcount = 0x04,
-    gsosActice = 0x07,
+    gsosActive = 0x07,
     devNotFound = 0x10,
     invalidDevNum = 0x11,
     drvrBadReq = 0x20,
