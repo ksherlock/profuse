@@ -43,16 +43,16 @@ xattr.o: xattr.cpp
  
 newfs_pascal.o: newfs_pascal.cpp Device/BlockDevice.h ProFUSE/Exception.h \
   Device/TrackSector.h Cache/BlockCache.h Device/RawDevice.h File/File.h \
-  Pascal/File.h Pascal/Date.h
+  Pascal/Pascal.h Pascal/Date.h
 
-fuse_pascal.o: fuse_pascal.cpp Pascal/File.h Pascal/Date.h \
+fuse_pascal.o: fuse_pascal.cpp Pascal/Pascal.h Pascal/Date.h \
   ProFUSE/Exception.h Device/BlockDevice.h Device/TrackSector.h \
   Cache/BlockCache.h
 
-fuse_pascal_ops.o: fuse_pascal_ops.cpp Pascal/File.h Pascal/Date.h \
+fuse_pascal_ops.o: fuse_pascal_ops.cpp Pascal/Pascal.h Pascal/Date.h \
   ProFUSE/auto.h ProFUSE/Exception.h
 
-apfm.o: apfm.cpp Pascal/File.h Pascal/Date.h Device/BlockDevice.h \
+apfm.o: apfm.cpp Pascal/Pascal.h Pascal/Date.h Device/BlockDevice.h \
   ProFUSE/Exception.h Device/TrackSector.h Cache/BlockCache.h
 
 File/File.o: File/File.cpp File/File.h ProFUSE/Exception.h
