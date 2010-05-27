@@ -239,9 +239,16 @@ int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
 
 int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
-    // mv rm file [file ....]
-    // needs ':' as f
+    // rm file [file ....]
+
+    
+    // TODO -- catch errors.
+    for (unsigned i = 1; i < argc; ++i)
+    {
+        volume->unlink(argv[i]);
+    }
     return 0;
+    
 }
 
 int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
@@ -492,8 +499,9 @@ int main(int argc, char **argv)
     
     try {
         
+        // should we peek at the action to determine if read only?
         
-        device.reset( Device::BlockDevice::Open(file, true, fmt) );
+        device.reset( Device::BlockDevice::Open(file, false, fmt) );
     
 
                      

@@ -25,8 +25,16 @@ enum {
     kDLE = 16
 };
 
-#pragma mark -
-#pragma mark FileEntry
+
+/*
+ * _lastByte is in the range 1..512 and indicates how many bytes in the last
+ * block are in use.
+ * _lastBlock is the block *after* the actual last block.
+ * _maxFileSize is the maximum file size the file can grow to.
+ *
+ */
+
+
 
 unsigned FileEntry::ValidName(const char *cp)
 {
@@ -195,7 +203,7 @@ void FileEntry::truncateCommon(unsigned newSize)
             throw ProFUSE::POSIXException(__METHOD__ ": Unable to expand file.", ENOSPC);
         
         unsigned remainder = newSize - currentSize;
-        unsigned block = _lastBlock;
+        unsigned block = _lastBlock - 1;
         
         if (_lastByte != 512)
         {
@@ -227,7 +235,7 @@ void FileEntry::truncateCommon(unsigned newSize)
         
     }
     
-    _lastBlock = _firstBlock + newSize / 512;
+    _lastBlock = 1 + _firstBlock + newSize / 512;
     _lastByte = newSize % 512;
     if (_lastByte = 0) _lastByte = 512;
 
@@ -294,7 +302,7 @@ int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
     
     if (newSize > currentSize)
     {
-        _lastBlock = _firstBlock + currentSize / 512;
+        _lastBlock = 1 + _firstBlock + currentSize / 512;
         _lastByte = currentSize % 512;
         if (_lastByte == 0) _lastByte = 512;
         

@@ -1,5 +1,6 @@
 
 #include <memory>
+#include <algorithm>
 
 #include <Pascal/Pascal.h>
 
@@ -12,13 +13,16 @@
 #include <Device/BlockDevice.h>
 #include <Cache/BlockCache.h>
 
-#pragma mark -
-#pragma mark VolumeEntry
+
 
 using namespace LittleEndian;
 using namespace Pascal;
 
 using namespace Device;
+
+using ProFUSE::Exception;
+using ProFUSE::ProDOSException;
+using ProFUSE::POSIXException;
 
 unsigned VolumeEntry::ValidName(const char *cp)
 {
@@ -50,10 +54,18 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
 #define __METHOD__ "VolumeEntry::VolumeEntry"
 
     unsigned length;
+    unsigned deviceBlocks = device->blocks();
+    
+    
+    deviceBlocks = std::min(0xffffu, deviceBlocks);
+    if (deviceBlocks < 6)
+        throw Exception(__METHOD__ ": device too small.");
+    
+    
     length = ValidName(name);
     
     if (!length)
-        throw ProFUSE::Exception(__METHOD__ ": Invalid volume name.");
+        throw ProDOSException(__METHOD__ ": Invalid volume name.", ProFUSE::badPathSyntax);
     
     _firstBlock = 0;
     _lastBlock = 6;
@@ -69,7 +81,7 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
         _fileName[i] = std::toupper(name[i]);
     }
     
-    _lastVolumeBlock = device->blocks();
+    _lastVolumeBlock = deviceBlocks;
     _fileCount = 0;
     _accessTime = 0;
     _lastBoot = Date::Today(); 
@@ -99,6 +111,7 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
 VolumeEntry::VolumeEntry(Device::BlockDevice *device)
 {
     unsigned blockCount;
+    unsigned deviceBlocks = device->blocks();
     ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
     
     
@@ -132,8 +145,11 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     try
     {    
         
-        std::vector<FileEntry *>::reverse_iterator iter;
+        std::vector<FileEntry *>::reverse_iterator riter;
+        std::vector<FileEntry *>::iterator iter;
 
+        unsigned block;
+        
         for (unsigned i = 1; i <= _fileCount; ++i)
         {
             std::auto_ptr<FileEntry> child;
@@ -150,13 +166,40 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
         
         // sanity check _firstBlock, _lastBlock?
         
-        // set up _maxBlocks;
-        unsigned lastBlock = _lastVolumeBlock;
-        for (iter = _files.rbegin(); iter != _files.rend(); ++iter)
+        block = _lastBlock;
+        
+        for (iter = _files.begin(); iter != _files.end(); ++iter)
         {
             FileEntry *e = *iter;
-            e->_maxFileSize = (lastBlock - e->_firstBlock) * 512;
-            lastBlock = e->_firstBlock - 1;
+            bool error = false;
+            if (e->_firstBlock > e->_lastBlock)
+                error = true;
+
+            if (e->_firstBlock >= _lastVolumeBlock)
+                error = true;
+
+            if (e->_lastBlock > _lastVolumeBlock)
+                error = true;
+            
+            if (e->_firstBlock < block)
+                error = true;
+            
+            if (error)
+                throw ProDOSException(__METHOD__ ": Invalid file entry.", ProFUSE::dirError);
+            
+            block = e->_lastBlock;
+            
+        }
+        
+        
+        
+        // set up _maxFileSize;
+        block= _lastVolumeBlock;
+        for (riter = _files.rbegin(); riter != _files.rend(); ++riter)
+        {
+            FileEntry *e = *riter;
+            e->_maxFileSize = (block - e->_firstBlock) * 512;
+            block = e->_firstBlock;
         }
         
     } 
@@ -200,7 +243,7 @@ void VolumeEntry::init(void *vp)
     
     // verify filenamelength <= 7
     if (_fileNameLength > 7)
-        throw new  ProFUSE::Exception(__METHOD__ ": invalid name length");
+        throw new  ProDOSException(__METHOD__ ": invalid name length", ProFUSE::badPathSyntax);
     
     // verify fileKind == 0
     // verify _fileCount reasonable
@@ -240,29 +283,41 @@ unsigned VolumeEntry::unlink(const char *name)
 {
     unsigned index;
 
+    std::vector<FileEntry *>::iterator iter;
+    
     // TODO -- update _maxFileSize.
     
     if (_device->readOnly()) return ProFUSE::drvrWrtProt; // WRITE-PROTECTED DISK
     
-    for(index = 0; index < _fileCount; ++index)
+    for (index = 0, iter = _files.begin(); iter != _files.end(); ++iter, ++index)
     {
-        FileEntry *e = _files[index];
+        FileEntry *e = *iter;
         if (::strcasecmp(name, e->name()) == 0)
         {
+            
+            // if not the first entry, update the previous entry's 
+            // _maxFileSize.
+            if (iter != _files.begin())
+            {
+                FileEntry *prev = iter[-1];
+                prev->_maxFileSize += e->_maxFileSize;
+            }
+            
             delete e;
-            _files[index] = NULL;
+            *iter = NULL;
             break;
         }
     }
-    if (index == _fileCount) return ProFUSE::fileNotFound; // FILE NOT FOUND
+    if (iter == _files.end()) return ProFUSE::fileNotFound; // FILE NOT FOUND
 
-    _files.erase(_files.begin() + index);
+    
+    _files.erase(iter);
     _fileCount--;
     
     // reset addresses.
-    for (unsigned i = index; i < _fileCount; ++i)
+    for ( ; iter != _files.end(); ++iter)
     {
-        FileEntry *e = _files[i];
+        FileEntry *e = *iter;
         e->_address -= 0x1a;
     }
 
