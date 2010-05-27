@@ -237,7 +237,7 @@ void FileEntry::truncateCommon(unsigned newSize)
     
     _lastBlock = 1 + _firstBlock + newSize / 512;
     _lastByte = newSize % 512;
-    if (_lastByte = 0) _lastByte = 512;
+    if (_lastByte == 0) _lastByte = 512;
 
 }
 
