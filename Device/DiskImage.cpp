@@ -41,7 +41,7 @@ DiskImage::DiskImage(MappedFile *file)
     _file.adopt(*file);
 
     _blocks = 0;
-    _readOnly = file->readOnly();
+    _readOnly = _file.readOnly();
     _adaptor = NULL;
 }
 
