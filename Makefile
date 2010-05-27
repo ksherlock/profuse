@@ -119,20 +119,23 @@ ProFUSE/Exception.o: ProFUSE/Exception.cpp ProFUSE/Exception.h
 
 ProFUSE/Lock.o: ProFUSE/Lock.cpp ProFUSE/Lock.h
 
+
 Pascal/Date.o: Pascal/Date.cpp Pascal/Date.h
 
-Pascal/Entry.o: Pascal/Entry.cpp Pascal/File.h Pascal/Date.h \
-  ProFUSE/Exception.h \
-  Endian/Endian.h Endian/IOBuffer.h Endian/IOBuffer.cpp.h \
-  Device/BlockDevice.h Device/TrackSector.h Cache/BlockCache.h
-
-Pascal/FileEntry.o: Pascal/FileEntry.cpp Pascal/File.h Pascal/Date.h \
-  ProFUSE/auto.h ProFUSE/Exception.h Endian/Endian.h Endian/IOBuffer.h \
+Pascal/Entry.o: Pascal/Entry.cpp Pascal/Entry.h Pascal/Date.h \
+  ProFUSE/Exception.h Endian/Endian.h Endian/IOBuffer.h \
   Endian/IOBuffer.cpp.h Device/BlockDevice.h Device/TrackSector.h \
   Cache/BlockCache.h
 
-Pascal/VolumeEntry.o: Pascal/VolumeEntry.cpp Pascal/File.h Pascal/Date.h \
-  ProFUSE/auto.h ProFUSE/Exception.h Endian/Endian.h Endian/IOBuffer.h \
+Pascal/FileEntry.o: Pascal/FileEntry.cpp Pascal/Pascal.h Pascal/Date.h \
+  Pascal/Entry.h Pascal/FileEntry.h Pascal/VolumeEntry.h ProFUSE/auto.h \
+  ProFUSE/Exception.h Endian/Endian.h Endian/IOBuffer.h \
+  Endian/IOBuffer.cpp.h Device/BlockDevice.h Device/TrackSector.h \
+  Cache/BlockCache.h
+
+Pascal/VolumeEntry.o: Pascal/VolumeEntry.cpp Pascal/Pascal.h Pascal/Date.h \
+  Pascal/Entry.h Pascal/FileEntry.h Pascal/VolumeEntry.h ProFUSE/auto.h \
+  ProFUSE/Exception.h Endian/Endian.h Endian/IOBuffer.h \
   Endian/IOBuffer.cpp.h Device/BlockDevice.h Device/TrackSector.h \
   Cache/BlockCache.h
 
