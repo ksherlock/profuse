@@ -1,6 +1,7 @@
 
 #include <memory>
 #include <algorithm>
+#include <cerrno>
 
 #include <Pascal/Pascal.h>
 
@@ -23,6 +24,10 @@ using namespace Device;
 using ProFUSE::Exception;
 using ProFUSE::ProDOSException;
 using ProFUSE::POSIXException;
+
+enum {
+    kMaxFiles = 77
+};
 
 unsigned VolumeEntry::ValidName(const char *cp)
 {
@@ -145,7 +150,6 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
     try
     {    
         
-        std::vector<FileEntry *>::reverse_iterator riter;
         std::vector<FileEntry *>::iterator iter;
 
         unsigned block;
@@ -192,15 +196,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevice *device)
         }
         
         
-        
-        // set up _maxFileSize;
-        block= _lastVolumeBlock;
-        for (riter = _files.rbegin(); riter != _files.rend(); ++riter)
-        {
-            FileEntry *e = *riter;
-            e->_maxFileSize = (block - e->_firstBlock) * 512;
-            block = e->_firstBlock;
-        }
+        calcMaxFileSize();
         
     } 
     catch (...)
@@ -379,6 +375,94 @@ unsigned VolumeEntry::rename(const char *oldName, const char *newName)
 }
 
 
+/*
+ * create a file.  if blocks is defined, verifies the file could
+ * expand to fit.
+ *
+ */
+FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
+{
+    // 0. check read only access.
+    // 1. verify < 77 file names.
+    // 2. verify space at end of disk.
+    // 3. make sure it's a legal file name.
+    // 4. verify it's not a duplicate file name.
+    // 6. create the file entry.
+    // 7. insert into _files, write to disk, update _maxFileSize
+    
+    unsigned lastBlock;
+    unsigned maxBlocks;
+
+    std::auto_ptr<FileEntry>entry;
+    FileEntry *prev = NULL;
+    FileEntry *curr = NULL;
+    
+    if (readOnly())
+    {
+        errno = EACCES;
+        return NULL;
+    }
+    
+    if (_fileCount == kMaxFiles)
+    {
+        errno = ENOSPC;
+        return NULL;
+    }
+    
+    if (_fileCount)
+    {
+        prev = _files.back();
+        lastBlock = prev->_lastBlock;
+    }
+    else {
+        lastBlock = _lastBlock;
+    }
+
+    maxBlocks = _lastVolumeBlock - lastBlock;
+    
+    if (maxBlocks < blocks || maxBlocks == 0)
+    {
+        errno = ENOSPC;
+        return NULL;
+    }
+    
+    if (!FileEntry::ValidName(name))
+    {
+        errno = ENAMETOOLONG; // or invalid.
+        return NULL;
+    }
+    
+    if (fileByName(name))
+    {
+        errno = EEXIST;
+        return NULL;
+    }
+    
+    
+    entry.reset(new FileEntry(name, kUntypedFile));
+    
+    _files.push_back(entry.get());
+
+    curr = entry.release();
+    
+    curr->_firstBlock = lastBlock;
+    curr->_lastBlock = lastBlock + 1;
+    curr->_lastByte = 0;
+    curr->_maxFileSize = maxBlocks * 512;
+    
+    if (prev)
+    {    
+        prev->_maxFileSize = prev->blocks() * 512;
+    }
+    
+    writeEntry(curr);
+    
+    return curr;
+    
+}
+
+
+
 
 unsigned VolumeEntry::krunch()
 {
@@ -468,16 +552,11 @@ unsigned VolumeEntry::krunch()
     
     _cache->sync();
     
+
+    calcMaxFileSize();
+    
     return 0;
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -584,6 +663,19 @@ void VolumeEntry::writeEntry(FileEntry *e)
         
         writeBlocks(buffer.get(), startBlock, 2);
     }
+}
 
 
+// set _maxFileSize for all entries.
+void VolumeEntry::calcMaxFileSize()
+{
+    std::vector<FileEntry *>::reverse_iterator riter;
+    unsigned block = _lastVolumeBlock;
+    for (riter = _files.rbegin(); riter != _files.rend(); ++riter)
+    {
+        FileEntry *e = *riter;
+        e->_maxFileSize = (block - e->_firstBlock) * 512;
+        block = e->_firstBlock;
+    }
+    
 }

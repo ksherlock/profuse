@@ -5,6 +5,7 @@
 
 #include <vector>
 
+#include <Device/BlockDevice.h>
 
 namespace Pascal {
 
@@ -44,9 +45,15 @@ namespace Pascal {
         void writeBlock(unsigned block, void *);
 
         void sync();
+        
+        bool readOnly() { return _device->readOnly(); }
 
         unsigned unlink(const char *name);
         unsigned rename(const char *oldName, const char *newName);
+        
+        
+        FileEntry *create(const char *name, unsigned blocks);
+        
         
         unsigned krunch();
 
@@ -70,6 +77,8 @@ namespace Pascal {
         void writeBlocks(void *buffer, unsigned startingBlock, unsigned count);
         
         void writeEntry(FileEntry *e);
+        
+        void calcMaxFileSize();
         
         
         unsigned _fileNameLength;
