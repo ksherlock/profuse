@@ -241,7 +241,7 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // rm file [file ....]
 
-    
+    // TODO -- -f flag to prompt for each file.
     // TODO -- catch errors.
     for (unsigned i = 1; i < argc; ++i)
     {
