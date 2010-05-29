@@ -16,17 +16,6 @@ using ProFUSE::POSIXException;
 
 
 
-/*
-UniversalDiskImage::UniversalDiskImage(const char *name, bool readOnly) :
-    DiskImage(name, readOnly)
-{
-    Validate(file());
-    const void *data = file()->fileData();
-    
-    // flags.  bit 31 = locked.
-    _flags = Read32(data, 0x10);
-}
-*/
 
 UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
     DiskImage(file)
@@ -55,7 +44,7 @@ UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
 UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
 {
     // 64-byte header.
-    MappedFile *file = new MappedFile(name, blocks * 512 + 64);
+    MappedFile *file = MappedFile::Create(name, blocks * 512 + 64);
 
     uint8_t tmp[64];
     

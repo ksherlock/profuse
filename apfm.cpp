@@ -146,17 +146,49 @@ void commandUsage(unsigned command)
 }
 
 
-bool isReadOnly(const char *command)
+unsigned command(const char *command)
 {
-    if (!::strcasecmp(command, "mv")) return false;
-    if (!::strcasecmp(command, "rm")) return false;
-    if (!::strcasecmp(command, "cp")) return false;
-    if (!::strcasecmp(command, "put")) return false;
-    if (!::strcasecmp(command, "krunch")) return false;    
+    if (!::strcasecmp(command, "ls")) return kCommandLS;
+    if (!::strcasecmp(command, "list")) return kCommandLS;
     
-    return true;
+    if (!::strcasecmp(command, "cat")) return kCommandCAT;
+    
+    if (!::strcasecmp(command, "get")) return kCommandGET;
+
+    if (!::strcasecmp(command, "put")) return kCommandPUT;
+
+    if (!::strcasecmp(command, "cp")) return kCommandCP;
+    if (!::strcasecmp(command, "copy")) return kCommandCP;
+
+    if (!::strcasecmp(command, "rm")) return kCommandRM;
+    if (!::strcasecmp(command, "remove")) return kCommandRM;
+    if (!::strcasecmp(command, "del")) return kCommandRM;
+    if (!::strcasecmp(command, "delete")) return kCommandRM;
+
+    if (!::strcasecmp(command, "mv")) return kCommandMV;
+    if (!::strcasecmp(command, "move")) return kCommandMV;
+    if (!::strcasecmp(command, "rename")) return kCommandMV;
+
+    if (!::strcasecmp(command, "krunch")) return kCommandKRUNCH;    
+
+    
+    return -1;
 }
 
+File::FileFlags commandFlags(unsigned command)
+{
+    switch (command)
+    {
+        case kCommandPUT:
+        case kCommandKRUNCH:
+        case kCommandRM:
+        case kCommandMV:
+        case kCommandCP:
+            return File::ReadWrite;
+        default:
+            return File::ReadOnly;
+    }
+}
 
 // from BSD rm, prompt question on stderr.
 bool yes_or_no()
@@ -717,9 +749,10 @@ int main(int argc, char **argv)
     
     try {
         
-        // should we peek at the action to determine if read only?
+        unsigned actionCode = command(action);
         
-        device.reset( Device::BlockDevice::Open(file, isReadOnly(action), fmt) );
+        
+        device.reset( Device::BlockDevice::Open(file, commandFlags(actionCode), fmt) );
     
 
                      
@@ -729,18 +762,35 @@ int main(int argc, char **argv)
         
         device.release();
 
-
-        if (!::strcasecmp("cat", action)) return action_cat(argc - 1, argv + 1, volume.get());
-        if (!::strcasecmp("cp", action)) return action_cp(argc - 1, argv + 1, volume.get());
-        if (!::strcasecmp("krunch", action)) return action_krunch(argc - 1, argv + 1, volume.get());
-        if (!::strcasecmp("ls", action)) return action_ls(argc - 1, argv + 1, volume.get());
-        if (!::strcasecmp("mv", action)) return action_mv(argc - 1, argv + 1, volume.get());
-        if (!::strcasecmp("rm", action)) return action_rm(argc - 1, argv + 1, volume.get());
-
-        if (!::strcasecmp("get", action)) return action_get(argc -1, argv + 1, volume.get());
-        //if (!::strcasecmp("put", action)) return action_put(argc -1, argv + 1, volume.get());
-        
-        
+        switch (actionCode)
+        {
+            case kCommandCAT:
+                return action_cat(argc - 1, argv + 1, volume.get());
+                break;
+            case kCommandCP:
+                return action_cp(argc - 1, argv + 1, volume.get());
+                break;
+            case kCommandKRUNCH:
+                return action_krunch(argc - 1, argv + 1, volume.get());
+                break;
+            case kCommandLS:
+                return action_ls(argc - 1, argv + 1, volume.get());
+                break;
+            case kCommandMV: 
+                return action_mv(argc - 1, argv + 1, volume.get());
+                break;
+            case kCommandRM:
+                return action_rm(argc - 1, argv + 1, volume.get());
+                break;
+            case kCommandGET:
+                return action_get(argc -1, argv + 1, volume.get());
+                break;
+                /*
+            case kCommandPUT:
+                return action_put(argc -1, argv + 1, volume.get());
+                break;
+                 */
+        }
         usage();
         return 3;
     }

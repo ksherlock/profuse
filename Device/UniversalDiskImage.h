@@ -24,7 +24,7 @@ public:
     
 private:
 
-    UniversalDiskImage(const char *name, bool readOnly);
+    UniversalDiskImage();
 
     UniversalDiskImage(MappedFile *);
     static void Validate(MappedFile *);

@@ -37,14 +37,6 @@ DiskCopy42Image::DiskCopy42Image(MappedFile *f) :
 }
 
 
-/*
-DiskCopy42Image::DiskCopy42Image(const char *name, bool readOnly) :
-    DiskImage(name, readOnly),
-    _changed(false)
-{
-    Validate(file());
-}
-*/
 
 DiskCopy42Image::~DiskCopy42Image()
 {
@@ -116,7 +108,7 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks)
 
 DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const char *vname)
 {
-    MappedFile *file = new MappedFile(name, blocks * 512 + oUserData);
+    MappedFile *file = MappedFile::Create(name, blocks * 512 + oUserData);
 
     
     

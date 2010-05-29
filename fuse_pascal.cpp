@@ -23,6 +23,7 @@
 
 #include <Device/BlockDevice.h>
 
+#include <File/File.h>
 
 std::string fDiskImage;
 
@@ -191,15 +192,13 @@ int main(int argc, char **argv)
             std::fprintf(stderr, "Warning: Unknown image type ``%s''\n", options.format);
     }
 
-    
-    bool readOnly = true;
-    
+        
     try
     {
         
         std::auto_ptr<Device::BlockDevice> device;
         
-        device.reset( Device::BlockDevice::Open(fDiskImage.c_str(), readOnly, format) );
+        device.reset( Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format) );
         
        
         if (!device.get())

@@ -23,7 +23,7 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-
+/*
 DiskImage::DiskImage(const char *name, bool readOnly)
 {
     File fd(name, readOnly ? O_RDONLY : O_RDWR);
@@ -34,7 +34,7 @@ DiskImage::DiskImage(const char *name, bool readOnly)
     _readOnly = readOnly;
     _adaptor = NULL;
 }
-
+*/
 
 DiskImage::DiskImage(MappedFile *file)
 {
@@ -102,13 +102,6 @@ void DiskImage::sync()
 
 
 
-/*
-ProDOSOrderDiskImage::ProDOSOrderDiskImage(const char *name, bool readOnly) :
-    DiskImage(name, readOnly)
-{
-    Validate(file());
-}
-*/
  
 ProDOSOrderDiskImage::ProDOSOrderDiskImage(MappedFile *file) :
     DiskImage(file)

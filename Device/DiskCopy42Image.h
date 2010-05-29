@@ -26,7 +26,7 @@ public:
     
 private:
 
-    DiskCopy42Image(const char *name, bool readOnly);
+    DiskCopy42Image();
 
     DiskCopy42Image(MappedFile *);
     static void Validate(MappedFile *);

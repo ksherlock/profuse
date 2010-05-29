@@ -78,7 +78,7 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     return defv;
 }
 
-BlockDevice *BlockDevice::Open(const char *name, bool readOnly, unsigned imageType)
+BlockDevice *BlockDevice::Open(const char *name, File::FileFlags flags, unsigned imageType)
 {
 #undef __METHOD__
 #define __METHOD__ "BlockDevice::Open"
@@ -96,7 +96,7 @@ BlockDevice *BlockDevice::Open(const char *name, bool readOnly, unsigned imageTy
     {
         // /dev/xxxx 
         if (S_ISBLK(st.st_mode))
-            return RawDevice::Open(name, readOnly);
+            return RawDevice::Open(name, flags);
         
         
         imageType = ImageType(name, 'PO__');
@@ -105,7 +105,7 @@ BlockDevice *BlockDevice::Open(const char *name, bool readOnly, unsigned imageTy
     
     // TODO -- if no image type, guess based on file size?
     
-    MappedFile file(name, readOnly);
+    MappedFile file(name, flags);
     
     
     switch (imageType)

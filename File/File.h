@@ -7,21 +7,28 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+
  
 class File {
 
     public:
+    
+    enum FileFlags {
+        ReadOnly = 1,
+        ReadWrite = 2
+    };    
+    
     File();
     File(File &);
     File(int fd);
 
     File(const char *name, int flags);
     File(const char *name, int flags, mode_t mode);
-    File(const char *name, bool readOnly);
+    File(const char *name, FileFlags flags);
 
     File(const char *name, int flags, const std::nothrow_t &);
     File(const char *name, int flags, mode_t mode, const std::nothrow_t &);
-    File(const char *name, bool readOnly, const std::nothrow_t &);
+    File(const char *name, FileFlags flags, const std::nothrow_t &);
 
     ~File();
 

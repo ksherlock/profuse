@@ -30,10 +30,9 @@ public:
     
 protected:
 
+    DiskImage();
     
     DiskImage(MappedFile *file = 0);
-    DiskImage(const char *name, bool readOnly);
-
     
     void setBlocks(unsigned blocks) { _blocks = blocks; }
     
@@ -65,7 +64,7 @@ public:
     virtual BlockCache *createBlockCache();
     
 private:
-    ProDOSOrderDiskImage(const char *name, bool readOnly);
+    ProDOSOrderDiskImage();
 
     
     ProDOSOrderDiskImage(MappedFile *);
@@ -80,7 +79,7 @@ public:
     static DOSOrderDiskImage *Open(MappedFile *);
 
 private:
-    DOSOrderDiskImage(const char *name, bool readOnly);
+    DOSOrderDiskImage();
 
     DOSOrderDiskImage(MappedFile *);
     static void Validate(MappedFile *);

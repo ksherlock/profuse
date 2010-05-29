@@ -37,9 +37,9 @@ File::File(const char *name, int flags, mode_t mode, const std::nothrow_t&)
     _fd = ::open(name, flags, mode);
 }
 
-File::File(const char *name, bool readOnly, const std::nothrow_t&)
+File::File(const char *name, FileFlags flags, const std::nothrow_t&)
 {
-    _fd = ::open(name, readOnly ? O_RDONLY : O_RDWR);
+    _fd = ::open(name, flags == ReadOnly ? O_RDONLY : O_RDWR);
 }
 
 File::File(const char *name, int flags)
@@ -63,12 +63,12 @@ File::File(const char *name, int flags, mode_t mode)
 }
 
 
-File::File(const char *name, bool readOnly)
+File::File(const char *name, FileFlags flags)
 {
 #undef __METHOD__
 #define __METHOD__ "File::File"
     
-    _fd = ::open(name, readOnly ? O_RDONLY : O_RDWR);
+    _fd = ::open(name, flags == ReadOnly ? O_RDONLY : O_RDWR);
     if (_fd < 0)
         throw POSIXException( __METHOD__ ": open", errno);    
 }
@@ -86,11 +86,14 @@ void File::close()
 
     if (_fd >= 0)
     {
-        int fd = _fd;
+        ::close(_fd);
         _fd = -1;
     
-        if (::close(fd) != 0)
+        // destructor shouldn't throw.
+        /*
+        if (::close(fd) != 0) 
             throw POSIXException(__METHOD__ ": close", errno);
+         */
     }
 }
 

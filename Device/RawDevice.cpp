@@ -122,8 +122,8 @@ void RawDevice::devSize(int fd)
 
 #endif
 
-RawDevice::RawDevice(const char *name, bool readOnly) :
-    _file(name, readOnly)
+RawDevice::RawDevice(const char *name, File::FileFlags flags) :
+    _file(name, flags)
 {
 #undef __METHOD__
 #define __METHOD__ "RawDevice::RawDevice"
@@ -134,7 +134,7 @@ RawDevice::RawDevice(const char *name, bool readOnly) :
         throw new Exception(__METHOD__ ": Invalid file handle.");
     }
     
-    _readOnly = readOnly;
+    _readOnly = flags == File::ReadOnly;
     _size = 0;
     _blocks = 0;
     _blockSize = 0;
@@ -143,7 +143,7 @@ RawDevice::RawDevice(const char *name, bool readOnly) :
     devSize(_file.fd());
 }
 
-RawDevice::RawDevice(File& file, bool readOnly) :
+RawDevice::RawDevice(File& file, File::FileFlags flags) :
     _file(file)
 {
 #undef __METHOD__
@@ -155,7 +155,7 @@ RawDevice::RawDevice(File& file, bool readOnly) :
         throw new Exception(__METHOD__ ": Invalid file handle.");
     }
     
-    _readOnly = readOnly;
+    _readOnly = flags == File::ReadOnly;
     _size = 0;
     _blocks = 0;
     _blockSize = 0;
@@ -170,9 +170,9 @@ RawDevice::~RawDevice()
 }
 
 
-RawDevice *RawDevice::Open(const char *name, bool readOnly)
+RawDevice *RawDevice::Open(const char *name, File::FileFlags flags)
 {
-    return new RawDevice(name, readOnly);
+    return new RawDevice(name, flags);
 }
 
 

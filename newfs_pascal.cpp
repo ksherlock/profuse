@@ -1,3 +1,15 @@
+
+#include <memory>
+#include <new>
+#include <cstdio>
+#include <cstring>
+#include <cerrno>
+#include <cstdlib>
+
+#include <unistd.h>
+#include <sys/stat.h>
+
+
 #include <Device/BlockDevice.h>
 #include <Device/RawDevice.h>
 
@@ -6,14 +18,12 @@
 
 #include <Pascal/Pascal.h>
 
-#include <memory>
-#include <cstdio>
-#include <cstring>
-#include <cerrno>
-#include <cstdlib>
+#include <File/File.h>
+#include <File/MappedFile.h>
 
-#include <unistd.h>
-#include <sys/stat.h>
+
+
+
 
 using namespace Pascal;
 using namespace Device;
@@ -108,11 +118,12 @@ void usage()
 
     std::printf("newfs_pascal [-v volume_name] [-s size] [-f format] file\n");
     std::printf("\n");
-    std::printf("  -v volume_name   specify the volume name.\n"
+    std::printf("  -v volume_name   Specify the volume name.\n"
                 "                   Default is Untitled.\n"
-                "  -s size          specify size in blocks.\n"
+                "  -s size          Specify size in blocks.\n"
                 "                   Default is 1600 blocks (800K)\n"
-                "  -f format        specify the disk image format. Valid values are:\n"
+                "  -b bootfile      Specify a file that contains the boot block\n"
+                "  -f format        Specify the disk image format. Valid values are:\n"
                 "                   2img  Universal Disk Image\n"
                 "                   dc42  DiskCopy 4.2 Image\n"
                 "                   davex Davex Disk Image\n"
@@ -128,6 +139,8 @@ int main(int argc, char **argv)
     unsigned blocks = 1600;
     std::string volumeName;
     std::string fileName;
+    std::string bootFile;
+    
     int format = 0;
     const char *fname;
     int c;
@@ -137,40 +150,43 @@ int main(int argc, char **argv)
     {
         switch(c)
         {
-        case '?':
-        case 'h':
-            usage();
-            return 0;
-            break;
-        
-        case 'v':
-            volumeName = optarg;
-            // make sure it's legal.
-            if (!VolumeEntry::ValidName(optarg))
-            {
-                std::fprintf(stderr, "Error: `%s' is not a valid Pascal volume name.\n",  optarg);
-                return 0x40;
-            }
-            break;
+            case 'h':
+                default:
+                usage();
+                return c == 'h' ? 0 :  1;
+                break;
             
-        case 's':
-            blocks = parseBlocks(optarg);
-            if (blocks > 0xffff)
-            {
-                std::fprintf(stderr, "Error: `%s' is not a valid disk size.\n", optarg);
-                return 0x5a;
-            }
-            break;
-        
-        case 'f':
-            {
-                format = Device::BlockDevice::ImageType(optarg);
-                if (format == 0)
+            case 'v':
+                volumeName = optarg;
+                // make sure it's legal.
+                if (!VolumeEntry::ValidName(optarg))
                 {
-                    std::fprintf(stderr, "Error: `%s' is not a supported disk image format.\n", optarg);
-                    return -1;
+                    std::fprintf(stderr, "Error: `%s' is not a valid Pascal volume name.\n",  optarg);
+                    return 0x40;
                 }
-            }
+                break;
+                
+            case 's':
+                blocks = parseBlocks(optarg);
+                if (blocks > 0xffff)
+                {
+                    std::fprintf(stderr, "Error: `%s' is not a valid disk size.\n", optarg);
+                    return 0x5a;
+                }
+                break;
+            
+            case 'f':
+                {
+                    format = Device::BlockDevice::ImageType(optarg);
+                    if (format == 0)
+                    {
+                        std::fprintf(stderr, "Error: `%s' is not a supported disk image format.\n", optarg);
+                        return -1;
+                    }
+                }
+            case 'b':
+                bootFile = optarg;
+                break;
         
         }
     }
@@ -212,7 +228,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "`%s' is a raw device. Are you sure you want to initialize it? ", fname);
                 if (!yes_or_no()) return -1;
                 
-                device.reset( RawDevice::Open(fname, false) );
+                device.reset( RawDevice::Open(fname, File::ReadWrite) );
                 blocks = device->blocks();
                 rawDevice = true;
                 
@@ -250,6 +266,27 @@ int main(int argc, char **argv)
         {
             std::fprintf(stderr, "Error: Unsupported diskimage format.\n");
             return -1;
+        }
+        
+        
+        if (!bootFile.empty())
+        {
+            MappedFile bf(bootFile.c_str(), File::ReadOnly , std::nothrow);
+            
+            if (!bf.isValid())
+            {
+                std::fprintf(stderr, "Warning: unable to open boot file `%s'.\n", bootFile.c_str());
+            }
+            else
+            {
+                size_t length = bf.length();
+
+            }
+
+        
+            
+            
+            
         }
         
         

@@ -28,13 +28,6 @@ using ProFUSE::POSIXException;
 
 static const char *IdentityCheck = "\x60VSTORE [Davex]\x00";
 
-/*
-DavexDiskImage::DavexDiskImage(const char *name, bool readOnly) :
-    DiskImage(name, readOnly)
-{
-    Validate(file());
-}
-*/
 
 // private, validation already performed.
 DavexDiskImage::DavexDiskImage(MappedFile *file) :
@@ -115,7 +108,7 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
     IOBuffer header(tmp,512);
 
     
-    MappedFile *file = new MappedFile(name, blocks * 512 + 512);
+    MappedFile *file = MappedFile::Create(name, blocks * 512 + 512);
     
     data = (uint8_t *)file->address();
         

@@ -1,6 +1,8 @@
 #ifndef __MAPPED_FILE_H__
 #define __MAPPED_FILE_H__
 
+
+#include <new>
 #include <sys/mman.h>
 
 #include <File/File.h>
@@ -12,8 +14,9 @@ class MappedFile {
     
     MappedFile();
     MappedFile(MappedFile&);
-    MappedFile(const File &f, bool readOnly, size_t size = -1);
-    MappedFile(const char *name, bool readOnly);
+    MappedFile(const File &f, File::FileFlags flags, size_t size = -1);
+    MappedFile(const char *name, File::FileFlags flags);
+    MappedFile(const char *name, File::FileFlags flags, const std::nothrow_t &nothrow);
     
     ~MappedFile();
     

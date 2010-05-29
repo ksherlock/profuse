@@ -24,8 +24,8 @@ public:
 
 private:
 
-    DavexDiskImage(const char *, bool readOnly);
-
+    DavexDiskImage();
+    
     DavexDiskImage(MappedFile *);
     static void Validate(MappedFile *);
 

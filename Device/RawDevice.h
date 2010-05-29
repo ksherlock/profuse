@@ -15,11 +15,9 @@ namespace Device {
 class RawDevice : public BlockDevice {
 public:
 
-    RawDevice(const char *name, bool readOnly);
+
     
-    RawDevice(File& file, bool readOnly);
-    
-    static RawDevice *Open(const char *name, bool readOnly);
+    static RawDevice *Open(const char *name, File::FileFlags flags);
     
     
     virtual ~RawDevice();
@@ -38,6 +36,11 @@ public:
     
 private:
 
+    
+    RawDevice(const char *name, File::FileFlags flags);
+    
+    RawDevice(File& file, File::FileFlags flags);
+    
     void devSize(int fd);
 
     File _file;

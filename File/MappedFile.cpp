@@ -27,28 +27,40 @@ MappedFile::MappedFile(MappedFile &mf)
     mf._readOnly = true;
 }
 
-MappedFile::MappedFile(const File &f, bool readOnly, size_t size)
+MappedFile::MappedFile(const File &f, File::FileFlags flags, size_t size)
 {
     _length = -1;
     _address = MAP_FAILED;
-    _readOnly = readOnly;
+    _readOnly = true;
     
-    init(f, readOnly, size);
+    init(f, flags == File::ReadOnly, size);
 }
 
 
-MappedFile::MappedFile(const char *name, bool readOnly)
+MappedFile::MappedFile(const char *name, File::FileFlags flags)
 {
-    File f(name, readOnly);
+    File f(name, flags);
     
     _length = -1;
     _address = MAP_FAILED;
-    _readOnly = readOnly;
+    _readOnly = true;
     
-    init(f, readOnly, 0);
+    init(f, flags == File::ReadOnly, 0);
     
 }
 
+
+MappedFile::MappedFile(const char *name, File::FileFlags flags, const std::nothrow_t &nothrow)
+{
+    File f(name, flags, nothrow);
+    
+    _length = -1;
+    _address = MAP_FAILED;
+    _readOnly = true;
+    
+    if (f.isValid()) 
+        init(f, flags == File::ReadOnly, 0);
+}
 
 
 MappedFile::~MappedFile()
@@ -101,15 +113,22 @@ void MappedFile::close()
     
     if (_address != MAP_FAILED)
     {
+        /*
         void *address = _address;
         size_t length = _length;
+        */
+        
+        ::munmap(_address, _length);
         
         _address = MAP_FAILED;
         _length = -1;
         _readOnly = true;
         
+        // destructor shouldn't throw.
+        /*
         if (::munmap(address, length) != 0)
             throw POSIXException(__METHOD__ ": munmap", errno);
+         */
     }
 }
 
@@ -164,5 +183,5 @@ MappedFile *MappedFile::Create(const char *name, size_t size)
         throw POSIXException(__METHOD__ ": Unable to truncate file.", errno);    
     }
     
-    return new MappedFile(fd, false, size);
+    return new MappedFile(fd, File::ReadWrite, size);
 }
