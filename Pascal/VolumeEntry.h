@@ -50,8 +50,8 @@ namespace Pascal {
 
         unsigned unlink(const char *name);
         unsigned rename(const char *oldName, const char *newName);
+        unsigned copy(const char *oldName, const char *newName);
         FileEntry *create(const char *name, unsigned blocks);
-        
         
         
         

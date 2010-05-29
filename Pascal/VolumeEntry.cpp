@@ -377,8 +377,26 @@ unsigned VolumeEntry::rename(const char *oldName, const char *newName)
 
 
 /*
+ * copy a file (here to simplify copying text files).
+ * if newName exists, delete it.
+ * 
+ */
+unsigned VolumeEntry::copy(const char *oldName, const char *newName)
+{
+
+    
+    return 0;
+}
+
+/*
  * create a file.  if blocks is defined, verifies the file could
  * expand to fit.
+ *
+ */
+/*
+ * TODO -- if blocks is defined, try to fit in a gap rather than putting at the end.
+ *
+ *
  *
  */
 FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
@@ -464,7 +482,11 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
 
 
 
-
+/*
+ * TODO -- consider trying to move files from the end to fill gaps
+ * if it would reduce the number of blocks that need to be re-arranged.
+ *
+ */
 unsigned VolumeEntry::krunch()
 {
     unsigned prevBlock;
