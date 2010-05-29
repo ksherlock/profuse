@@ -243,6 +243,7 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
                 throw ProFUSE::Exception(__METHOD__ ": Invalid track/sector.");
             
             offset += 3 + 8 + 3;
+            
             state = 1;            
             continue;
             
@@ -250,9 +251,15 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
         
         if (buffer[offset + 1] == 0xaa && buffer[offset + 2] == 0xad && state == 1)
         {
+            if (_index[track * 16 + sector] != -1)
+            {
+                std::fprintf(stderr, "track %u sector %u duplicated.\n", track, sector);
+            }
             _index[track * 16 + sector] = (offset + 3) % _length;
             
-            offset += 3 + 342 + 1 + 3;
+            //offset += 3 + 342 + 1 + 3;
+            offset++;
+            
             state = 0;
             continue;
         }
@@ -283,7 +290,11 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
     for (std::vector<unsigned>::iterator iter = _index.begin(); iter != _index.end(); ++iter)
     {
         if (*iter == -1)
-            throw ProFUSE::Exception(__METHOD__ ": Sector missing.");
+        {
+            int offset = distance(_index.begin(), iter);
+            std::fprintf(stderr, "Error: track %u sector %u missing.\n", offset / 16, offset % 16);
+            //throw ProFUSE::Exception(__METHOD__ ": Sector missing.");
+        }
     }
     
 }
@@ -296,22 +307,51 @@ void NibbleAdaptor::readBlock(unsigned block, void *bp)
 {
     
     unsigned track = (block & ~0x07) << 9;
-    unsigned sector = (block & 0x07) << 1;
+    unsigned b = (block & 0x07) << 1;
     
+    /*
+     * block   sectors
+     * 0       0, 2
+     * 1       4, 6
+     * 2       8, 10
+     * 3       12,14
+     * 4       1, 3
+     * 5       5, 7
+     * 6       9, 11
+     * 7       13, 15
+     */
+    
+    unsigned sector = b >> 2;
+    if (sector >= 16) sector -= 15;
+    
+
     readTrackSector(TrackSector(track, sector), bp);
     readTrackSector(TrackSector(track, sector + 1), (uint8_t *)bp + 256);
-    
-    
 }
 
 void NibbleAdaptor::writeBlock(unsigned block, const void *bp)
 {
     unsigned track = (block & ~0x07) << 9;
-    unsigned sector = (block & 0x07) << 1;
+    unsigned b = (block & 0x07) << 1;
+    
+    /*
+     * block   sectors
+     * 0       0, 2
+     * 1       4, 6
+     * 2       8, 10
+     * 3       12,14
+     * 4       1, 3
+     * 5       5, 7
+     * 6       9, 11
+     * 7       13, 15
+     */
+    
+    unsigned sector = b >> 2;
+    if (sector >= 16) sector -= 15;
+    
     
     writeTrackSector(TrackSector(track, sector), bp);
     writeTrackSector(TrackSector(track, sector + 1), (const uint8_t *)bp + 256);
-    
 }
 
 void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
@@ -331,6 +371,10 @@ void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
     
     unsigned offset = _index[ts.track * 16 + ts.sector];
     
+    if (offset == -1)
+    {
+        throw ProFUSE::Exception(__METHOD__ ": Missing track/sector.");
+    }
     
     // first 86 bytes are in the auxbuffer, backwards.
     unsigned index = offset;
