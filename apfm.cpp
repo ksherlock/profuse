@@ -23,6 +23,143 @@
 
 #include <File/File.h>
 
+
+enum commands {
+    kCommandLS = 1,
+    kCommandCAT,
+    kCommandCP,
+    kCommandMV,
+    kCommandRM,
+    kCommandGET,
+    kCommandPUT,
+    kCommandKRUNCH
+};
+
+
+void usage()
+{
+    std::fputs(
+               "Pascal File Manager v 0.0\n\n"
+               "Usage: apfm [-h] [-f format] diskimage action ...\n"
+               "Options:\n"
+               "  -h            Show usage information.\n"
+               "  -f format     Specify disk format.  Valid values are:\n"
+               "                  po: ProDOS order disk image\n"
+               "                  do: DOS Order disk image\n"
+               "\n"
+               "Actions:\n"
+               "  cat\n"
+               "  krunch\n"
+               "  ls\n"
+               "  cp\n"
+               "  mv\n"
+               "  rm\n"
+               "  get\n"
+               "  put\n",
+               stdout
+               );
+    
+}
+
+void commandUsage(unsigned command)
+{
+    const char *text = "";
+    
+    switch(command)
+    {
+        case kCommandLS:
+            text =
+            "List the volume contents.\n\n"
+            "apfm file ls [-l]\n"
+            "Options:\n"
+            "  -l            Extended listing\n"
+            ;
+            break;
+            
+            
+        case kCommandKRUNCH:
+            text =
+            "Move free blocks to the end of the volume.\n\n" 
+            "apfm krunch [-fi]\n"
+            "Options:\n"
+            "  -f            Force\n"
+            "  -i            Interactive\n"
+            ;
+            break;
+            
+        case kCommandCAT:
+            text =
+            "Print the contents of a file to stdout.\n\n"
+            "apfm cat file ...\n"
+            ;
+            break;
+
+        case kCommandCP:
+            text =
+            "Copy a file.\n\n"
+            "apfm cp [-fi] source target\n"
+            "Options:\n"
+            "  -f            Force\n"
+            "  -i            Interactive\n"
+            ;
+            break;            
+            
+        case kCommandMV:
+            text =
+            "Rename a file.\n\n"
+            "apfm mv [-fi] source target\n"
+            "Options:\n"
+            "  -f            Force\n"
+            "  -i            Interactive\n"
+            ;
+            break;
+            
+        case kCommandGET:
+            text =
+            "Copy a file from the Pascal volume to the native file system.\n\n"
+            "apfm get [-fi] source [target]\n"
+            "Options:\n"
+            "  -f            Force\n"
+            "  -i            Interactive\n"
+            ;
+            break;
+            
+        case kCommandPUT:
+            text =
+            "Copy a file from the native file system to the Pascal volume.\n\n"
+            "apfm put [-fi] source [target]\n"
+            "Options:\n"
+            "  -f            Force\n"
+            "  -i            Interactive\n"
+            "  -t type       Set the file type.  Valid values:\n"
+            "                  code\n"
+            "                  data\n"
+            "                  foto\n"
+            "                  graf\n"
+            "                  info\n"
+            "                  text\n"
+            ;
+            break;
+    }
+    
+    std::fputs(text, stdout);
+}
+
+
+
+// from BSD rm, prompt question on stderr.
+bool yes_or_no()
+{
+	int ch, first;
+	(void)fflush(stderr);
+    
+	first = ch = getchar();
+	while (ch != '\n' && ch != EOF)
+		ch = getchar();
+	return (first == 'y' || first == 'Y');
+}
+
+
 const char *MonthName(unsigned m)
 {
     static const char *months[] = {
@@ -109,24 +246,30 @@ int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
     unsigned max = 0;
     unsigned volumeSize = volume->volumeBlocks();
     unsigned lastBlock = volume->lastBlock();
-    int ch;
+    int c;
     
     std::fprintf(stdout, "%s:\n", volume->name()); 
     
     //argv[0] = "afpm ls";
     
-    while ((ch = ::getopt(argc, argv, "l")) != -1)
+    while ((c = ::getopt(argc, argv, "lh")) != -1)
     {
-        switch(ch)
+        switch(c)
         {
-        case 'l':
-            extended = true;
-            break;
+            case 'l':
+                extended = true;
+                break;
+            case 'h':
+            default:
+                commandUsage(kCommandLS);
+                return c == 'h' ? 0 : 1;
+                break;
         }
     }
     
     argc -= optind;
     argv += optind;
+    // only print listed files?
     
     for (unsigned i = 0; i < fileCount; ++i)
     {
@@ -180,13 +323,31 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
     // cat file1, file2...
     //argv[0] = "afpm cat";
     
-    if (argc < 2)
+    int c;
+    
+    while ((c = ::getopt(argc, argv, "h")) != -1)
     {
-        std::fprintf(stderr, "apfm cat: Please specify one or more files.\n");
+        switch(c)
+        {
+            case 'h':
+            default:
+                commandUsage(kCommandRM);
+                return c == 'h' ? 0 : 1;
+                break;
+        }
+    }
+    
+    
+    argc += optind;
+    argv -= optind;    
+    
+    if (argc < 1)
+    {
+        commandUsage(kCommandCAT);
         return 1;
     }
 
-    for (unsigned i = 1; i < argc; ++i)
+    for (unsigned i = 0; i < argc; ++i)
     {
         const char *fname = argv[i];
         unsigned fileSize;
@@ -195,12 +356,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
         Pascal::FileEntry *e = NULL;
         // find it...
 
-        for (unsigned i = 0, l = volume->fileCount(); i < l; ++i)
-        {
-            e = volume->fileAtIndex(i);
-            if (::strcasecmp(e->name(), fname) == 0) break;
-            e = NULL;
-        }
+        e = volume->fileByName(argv[i]);
         
         if (!e)
         {
@@ -223,27 +379,52 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
     return 0;
 }
 
-int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
-{
-    // cp src dest
-    // first character of ':' indicates pascal file, otherwise, is native file?
-    return 0;
-}
+
 
 int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // mv src dest
-    // first character of ':' indicates pascal file, otherwise is native file?
+    return 0;
+}
+
+int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
+{
+    // mv src dest
     return 0;
 }
 
 int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // rm file [file ....]
-
-    // TODO -- -f flag to prompt for each file.
+    
+    bool tty = ::isatty(STDIN_FILENO);
+    bool fFlag = !tty;
+    int c;
+    
+    while ((c = ::getopt(argc, argv, "fih")) != -1)
+    {
+        switch(c)
+        {
+            case 'f':
+                fFlag = true;
+                break;
+            case 'i':
+                fFlag = false;
+                
+            case 'h':
+            default:
+                commandUsage(kCommandRM);
+                return c == 'h' ? 0 : 1;
+                break;
+        }
+    }
+    
+    argc += optind;
+    argv -= optind;
+    
+    // TODO -- honor fFlag
     // TODO -- catch errors.
-    for (unsigned i = 1; i < argc; ++i)
+    for (unsigned i = 0; i < argc; ++i)
     {
         volume->unlink(argv[i]);
     }
@@ -254,6 +435,34 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
 int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // compress file to remove gaps.
+    
+    bool tty = ::isatty(STDIN_FILENO);
+    bool fFlag = !tty;
+    int c;
+    
+    while ((c = ::getopt(argc, argv, "fih")) != -1)
+    {
+        switch(c)
+        {
+            case 'f':
+                fFlag = true;
+                break;
+            case 'i':
+                fFlag = false;
+                
+            case 'h':
+            default:
+                commandUsage(kCommandKRUNCH);
+                return c == 'h' ? 0 : 1;
+                break;
+        }
+    }    
+    
+    argc += optind;
+    argv -= optind;
+    
+    //check if it needs krunching, volume->krunch();
+    
     return 0;
 }
 
@@ -261,10 +470,35 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
 
 int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
-    // get pascal_file [native file];
+    // get [-f] pascal_file [native file];
     
     char *infile;
     char *outfile;
+    
+    bool tty = ::isatty(STDIN_FILENO);
+    bool fFlag = !tty;
+    int c;
+    
+    while ((c = ::getopt(argc, argv, "fih")) != -1)
+    {
+        switch(c)
+        {
+            case 'f':
+                fFlag = true;
+                break;
+            case 'i':
+                fFlag = false;
+                
+            case 'h':
+            default:
+                commandUsage(kCommandKRUNCH);
+                return c == 'h' ? 0 : 1;
+                break;
+        }
+    }      
+    
+    argc += optind;
+    argv -= optind;
     
     Pascal::FileEntry *entry;
     
@@ -278,11 +512,15 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
             outfile = argv[1];
             break;
         default:
-            std::fprintf(stderr, "apfm cat: Please specify an infile (and an optional outfile)\n");
+            commandUsage(kCommandKRUNCH);
+            return 1;
+            break;
     }
     
     entry = volume->fileByName(infile);
     
+    
+    // if outfile exists, !fFlag, prompt before overwriting.
     
     File::File file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     
@@ -402,27 +640,8 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
 }
 #endif
 
-void usage()
-{
-    std::printf(
-        "Pascal File Manager v 0.0\n\n"
-        "Usage: fileman [-h] [-f format] diskimage action ...\n"
-        "Options:\n"
-        "  -h            Show usage information.\n"
-        "  -f format     Specify disk format.  Valid values are:\n"
-        "                  po: ProDOS order disk image\n"
-        "                  do: DOS Order disk image\n"
-        "\n"
-        "Actions:\n"
-        "  cat\n"
-        "  cp\n"
-        "  krunch\n"
-        "  ls\n"
-        "  mv\n"
-        "  rm\n"              
-    );
 
-}
+
 
 int main(int argc, char **argv)
 {
@@ -438,18 +657,7 @@ int main(int argc, char **argv)
     putenv((char *)"POSIXLY_CORRECT=1"); // fix getopt to not mutate
     #endif
 
-    /*
-    char *argv2[] = {
-        (char *)"afpm",
-        //(char *)"/Users/kelvin/Desktop/ucsd/pascal.dsk",
-        (char *)"/Users/kelvin/Desktop/ucsd/UCSD Pascal 1.2_3.DSK",
-        (char *)"cat",
-        (char *)"SPIRODEMO.TEXT",
-        NULL
-    };
-    char **argv = argv2;
-    int argc = 4;
-    */
+
 
     // getop stops at first non '-' arg so it will not affect action flags.    
     while ((c = ::getopt(argc, argv, "f:h")) != -1)
@@ -457,20 +665,19 @@ int main(int argc, char **argv)
         std::printf("%c\n", c);
         switch(c)
         {
-        case 'f':
-            fmt = Device::BlockDevice::ImageType(optarg);
-            if (!fmt)
-            {
-                std::fprintf(stderr, "Error: Invalid file format: ``%s''.\n",
-                    optarg);
-            }
-            break;
-            
-        case 'h':
-        case '?':
-        case ':':
-            usage();
-            return c == 'h' ? 0 : 1;
+            case 'f':
+                fmt = Device::BlockDevice::ImageType(optarg);
+                if (!fmt)
+                {
+                    std::fprintf(stderr, "Error: Invalid file format: ``%s''.\n",
+                        optarg);
+                }
+                break;
+                
+            case 'h':
+            default:
+                usage();
+                return c == 'h' ? 0 : 1;
         }
     }
     
