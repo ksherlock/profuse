@@ -31,12 +31,12 @@ namespace Pascal {
         
         Pascal::Date lastBoot() const { return _lastBoot; }
         
+        unsigned freeBlocks(bool krunched = false) const;
+        
+        
         FileEntry *fileAtIndex(unsigned i) const;
         FileEntry *fileByName(const char *name) const;
         
-        void addChild(FileEntry *child, unsigned blocks);
-
-
 
         void *loadBlock(unsigned block);
         void unloadBlock(unsigned block, bool dirty = false);
@@ -50,9 +50,9 @@ namespace Pascal {
 
         unsigned unlink(const char *name);
         unsigned rename(const char *oldName, const char *newName);
-        
-        
         FileEntry *create(const char *name, unsigned blocks);
+        
+        
         
         
         unsigned krunch();

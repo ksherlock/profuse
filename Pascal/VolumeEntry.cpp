@@ -339,6 +339,7 @@ unsigned VolumeEntry::unlink(const char *name)
 }
 
 
+// TODO -- if newName exists, atomically remove it.
 unsigned VolumeEntry::rename(const char *oldName, const char *newName)
 {
     FileEntry *e;
@@ -558,6 +559,42 @@ unsigned VolumeEntry::krunch()
     return 0;
 }
 
+
+
+
+/*
+ * return the number of free blocks.
+ * if krunched is true, returns sum of all free blocks
+ * if krunched is false, returns free blocks at end.
+ *
+ */
+unsigned VolumeEntry::freeBlocks(bool krunched) const
+{
+    unsigned freeBlocks = 0;
+    unsigned lastBlock = 0;
+    
+    if (krunched)
+    {
+        std::vector<FileEntry *>::const_iterator iter;
+        
+        lastBlock = _lastBlock;
+        
+        for (iter = _files.begin(); iter != _files.end(); ++iter)
+        {
+            const FileEntry *e = *iter;
+            freeBlocks += e->_firstBlock - lastBlock;
+            lastBlock = e->_lastBlock;
+        }
+    }
+    else
+    {
+        lastBlock = _fileCount ? _files.back()->_lastBlock : _lastBlock;
+    }
+
+    
+    freeBlocks += _lastVolumeBlock - lastBlock;
+    return freeBlocks;
+}
 
 
 
