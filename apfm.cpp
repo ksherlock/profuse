@@ -146,6 +146,17 @@ void commandUsage(unsigned command)
 }
 
 
+bool isReadOnly(const char *command)
+{
+    if (!::strcasecmp(command, "mv")) return false;
+    if (!::strcasecmp(command, "rm")) return false;
+    if (!::strcasecmp(command, "cp")) return false;
+    if (!::strcasecmp(command, "put")) return false;
+    if (!::strcasecmp(command, "krunch")) return false;    
+    
+    return true;
+}
+
 
 // from BSD rm, prompt question on stderr.
 bool yes_or_no()
@@ -708,7 +719,7 @@ int main(int argc, char **argv)
         
         // should we peek at the action to determine if read only?
         
-        device.reset( Device::BlockDevice::Open(file, false, fmt) );
+        device.reset( Device::BlockDevice::Open(file, isReadOnly(action), fmt) );
     
 
                      
