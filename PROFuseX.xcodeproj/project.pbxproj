@@ -129,9 +129,8 @@
 		B63EFBE811A244EE00C90DCE /* Date.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Date.cpp; sourceTree = "<group>"; };
 		B63EFBE911A244EE00C90DCE /* Date.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Date.h; sourceTree = "<group>"; };
 		B63EFBEA11A244EE00C90DCE /* Entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entry.cpp; sourceTree = "<group>"; };
-		B63EFBEB11A244EE00C90DCE /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
 		B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileEntry.cpp; sourceTree = "<group>"; };
-		B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VolumeEntry.cpp; sourceTree = "<group>"; };
+		B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = VolumeEntry.cpp; sourceTree = "<group>"; };
 		B63EFC4311A31B7200C90DCE /* IOBuffer.cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.cpp.h; sourceTree = "<group>"; };
 		B63EFC9911A35F7200C90DCE /* fuse_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fuse_pascal.cpp; sourceTree = "<group>"; };
 		B63EFC9B11A35F7B00C90DCE /* newfs_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newfs_pascal.cpp; sourceTree = "<group>"; };
@@ -145,6 +144,10 @@
 		B656AF0311AA105500AB578A /* NibbleTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NibbleTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6F3647B11AB361D0045E114 /* xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xattr.cpp; sourceTree = "<group>"; };
 		B6F3648011AB36260045E114 /* xattr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xattr; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6F3651A11ADD0280045E114 /* VolumeEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VolumeEntry.h; sourceTree = "<group>"; };
+		B6F3651B11ADD0280045E114 /* FileEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileEntry.h; sourceTree = "<group>"; };
+		B6F3651C11ADD0280045E114 /* Entry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entry.h; sourceTree = "<group>"; };
+		B6F3652711ADD52B0045E114 /* Pascal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pascal.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -292,12 +295,15 @@
 		B63EFBE711A244EE00C90DCE /* Pascal */ = {
 			isa = PBXGroup;
 			children = (
+				B6F3652711ADD52B0045E114 /* Pascal.h */,
 				B63EFBE811A244EE00C90DCE /* Date.cpp */,
 				B63EFBE911A244EE00C90DCE /* Date.h */,
 				B63EFBEA11A244EE00C90DCE /* Entry.cpp */,
-				B63EFBEB11A244EE00C90DCE /* File.h */,
 				B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */,
 				B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */,
+				B6F3651A11ADD0280045E114 /* VolumeEntry.h */,
+				B6F3651B11ADD0280045E114 /* FileEntry.h */,
+				B6F3651C11ADD0280045E114 /* Entry.h */,
 			);
 			path = Pascal;
 			sourceTree = "<group>";
