@@ -280,13 +280,21 @@ int main(int argc, char **argv)
             else
             {
                 size_t length = bf.length();
-
+                // either 1 or 2 blocks.
+                if (length == 512)
+                {
+                    device->write(0, bf.address());
+                }
+                else if (length == 1024)
+                {
+                    device->write(0, bf.address());
+                    device->write(1, (uint8_t*)bf.address() + 512);
+                }
+                else
+                {
+                    std::fprintf(stderr, "Warning: boot file must be 512 or 1024 bytes.\n");
+                }
             }
-
-        
-            
-            
-            
         }
         
         
@@ -295,21 +303,6 @@ int main(int argc, char **argv)
         );
         device.release();
 
-        /*
-        ProFUSE::MappedFile bootBlock("pascal.bootblock", true);
-        
-        if (bootBlock.fileSize() == 1024)
-        {
-            uint8_t buffer[512];
-            bootBlock.setBlocks(2);
-            
-            for (unsigned block = 0; block < 2; ++block)
-            {
-                bootBlock.readBlock(block, buffer);
-                volume->writeBlock(block, buffer);
-            }         
-        }
-        */
         
     }
     catch (ProFUSE::POSIXException& e)

@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <cstdarg>
 
 #include <algorithm>
 #include <memory>
@@ -191,10 +192,18 @@ File::FileFlags commandFlags(unsigned command)
 }
 
 // from BSD rm, prompt question on stderr.
-bool yes_or_no()
+
+bool yes_or_no(const char *format, ...)
 {
 	int ch, first;
-	(void)fflush(stderr);
+    va_list va;
+    
+    va_start(va, format);
+    std::vfprintf(stderr, format, va);
+    va_end(va);
+    
+    std::fputc(' ', stderr);
+    std::fflush(stderr);
     
 	first = ch = getchar();
 	while (ch != '\n' && ch != EOF)
@@ -381,8 +390,8 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
     }
     
     
-    argc += optind;
-    argv -= optind;    
+    argc -= optind;
+    argv += optind;    
     
     if (argc < 1)
     {
@@ -453,6 +462,7 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
                 break;
             case 'i':
                 fFlag = false;
+                break;
                 
             case 'h':
             default:
@@ -462,8 +472,8 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
         }
     }
     
-    argc += optind;
-    argv -= optind;
+    argc -= optind;
+    argv += optind;
     
     // TODO -- honor fFlag
     // TODO -- catch errors.
@@ -492,6 +502,7 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
                 break;
             case 'i':
                 fFlag = false;
+                break;
                 
             case 'h':
             default:
@@ -501,8 +512,8 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
         }
     }    
     
-    argc += optind;
-    argv -= optind;
+    argc -= optind;
+    argv += optind;
     
     //check if it needs krunching, volume->krunch();
     
@@ -531,17 +542,18 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
                 break;
             case 'i':
                 fFlag = false;
+                break;
                 
             case 'h':
             default:
-                commandUsage(kCommandKRUNCH);
+                commandUsage(kCommandGET);
                 return c == 'h' ? 0 : 1;
                 break;
         }
     }      
     
-    argc += optind;
-    argv -= optind;
+    argc -= optind;
+    argv += optind;
     
     Pascal::FileEntry *entry;
     
@@ -555,7 +567,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
             outfile = argv[1];
             break;
         default:
-            commandUsage(kCommandKRUNCH);
+            commandUsage(kCommandGET);
             return 1;
             break;
     }
@@ -563,15 +575,32 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     entry = volume->fileByName(infile);
     
     
-    // if outfile exists, !fFlag, prompt before overwriting.
-    
-    File::File file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    
     if (!entry)
     {
         std::fprintf(stderr, "apfm get: %s: no such file.\n", infile);
         return 1;
     }
+    
+    
+    // if not -f, check before overwriting file.
+    if (!fFlag)
+    {
+        struct stat st;
+        if (::stat(outfile, &st) == 0)
+        {
+            bool ok = yes_or_no("Overwrite %s?", outfile);
+            if (!ok)
+            {
+                std::fprintf(stderr, "Not overwritten.\n");
+                return 1;
+            }
+            
+        }
+    }
+    
+
+    
+    File::File file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     
     unsigned fileSize = entry->fileSize();
     unsigned offset = 0;
