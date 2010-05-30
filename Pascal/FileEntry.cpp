@@ -91,6 +91,13 @@ FileEntry::~FileEntry()
 void FileEntry::setFileKind(unsigned kind)
 {
     _fileKind = kind;
+    if (_pageSize)
+    {
+        delete _pageSize;
+        _fileSize = 0;
+        _pageSize = NULL;
+    }
+    
     parent()->writeEntry(this);
 }
 
