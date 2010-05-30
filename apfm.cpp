@@ -752,7 +752,6 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     return 0;
 }
 
-#if 0
 int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // put [-t type] native_file [pascal_file]
@@ -765,12 +764,16 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     char *infile;
     char *outfile;
     char *tmp;
+    bool iFlag = ::isatty(STDIN_FILENO);
+    bool tFlag = false;
     
-    while ((c = getopt(argc, argv, "t:")) != -1)
+    while ((c = getopt(argc, argv, "fhit:")) != -1)
     {
         switch (c)
         {
             case 't':
+                tFlag = true;
+                
                 if (!::strcasecmp("text", optarg))
                     type = Pascal::kTextFile;
                 else if (!::strcasecmp("txt", optarg))
@@ -788,11 +791,21 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
                 else type = Pascal::kUntypedFile;
                     
                 break;
+                
+            case 'i':
+                iFlag = true;
+                break;
+            case 'f':
+                iFlag = false;
+                break;
+            case 'h':
+            default:
+                commandUsage(kCommandPUT);
+                return c == 'h' ? 0 : -1;
         }
         
     }
     
-    // TODO -- if file is named .txt or .text, default to kTextFile.
     
     argc -= optind;
     argv += optind;
@@ -812,13 +825,35 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
             break;
     }
     
+    
+    // if no tFlag specified, check .text/.txt
+    if (!tFlag)
+    {
+        tmp = strrchr(outfile, '.');
+        if (tmp)
+        {
+            if (::strcasecmp(tmp, ".text") == 0 || strcasecmp(tmp, ".txt") == 0)
+                type = Pascal::kTextFile;
+        }
+    }
+    
     if (!Pascal::FileEntry::ValidName(outfile))
     {
         std::fprintf(stderr, "apfm put: `%s' is not a valid pascal name.\n", outfile);
     }
 
-    ::stat(infile, &st);
+    if (::stat(infile, &st) != 0)
+    {
+        std::fprintf(stderr, "apfm put: %s: no such file.\n", infile);
+        return 1;
+    }
 
+    if (!S_ISREG(st.st_mode))
+    {
+        std::fprintf(stderr, "apfm put: %s: not a regular file.\n", infile);
+        return -1;
+    }
+        
     File::File file(infile, O_RDONLY);
     
     
@@ -826,9 +861,14 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     
     // TODO -- if text file, ..
     
-    Pascal::FileEntry *entry = volume.createFile(infile, blocks);
+    Pascal::FileEntry *entry = volume->create(infile, blocks);
+    if (!entry)
+    {
+        perror(NULL);
+        return -1;
+    }
     
-    entry->setType(type);
+    entry->setFileKind(type);
     
     if (type == Pascal::kTextFile)
     {
@@ -836,14 +876,30 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     }
     else
     {
-        // ...
+        uint8_t buffer[512];
+        unsigned remaining = st.st_size;
+        unsigned offset = 0;
+        while (remaining)
+        {
+            int rv;
+            unsigned count = std::min(512u, remaining);
+            ::read(file.fd(), buffer, count);
+            rv = entry->write(buffer, count, offset);
+            if (rv == -1)
+            {
+                perror(NULL);
+                return -1;
+            }
+            offset += count;
+            remaining -= count;
+        }
         
     }
 
+    volume->sync();
     return 0;
     
 }
-#endif
 
 
 
