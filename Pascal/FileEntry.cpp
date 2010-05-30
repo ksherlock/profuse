@@ -109,10 +109,9 @@ void FileEntry::setName(const char *name)
     for (unsigned i = 0; i < length; ++i)
         _fileName[i] = std::toupper(name[i]);
 
-    // not sure if this is a good idea or not.
-    //_modification = Date::Today();
     
-    parent()->writeEntry(this);
+    // parent's responsibility.
+    //parent()->writeEntry(this);
 }
 
 unsigned FileEntry::fileSize()

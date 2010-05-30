@@ -32,6 +32,8 @@ namespace Pascal {
         Pascal::Date lastBoot() const { return _lastBoot; }
         
         unsigned freeBlocks(bool krunched = false) const;
+        unsigned maxContiguousBlocks() const;
+        bool canKrunch() const;
         
         
         FileEntry *fileAtIndex(unsigned i) const;
@@ -48,14 +50,13 @@ namespace Pascal {
         
         bool readOnly() { return _device->readOnly(); }
 
-        unsigned unlink(const char *name);
-        unsigned rename(const char *oldName, const char *newName);
-        unsigned copy(const char *oldName, const char *newName);
+        int unlink(const char *name);
+        int rename(const char *oldName, const char *newName);
+        int copy(const char *oldName, const char *newName);
         FileEntry *create(const char *name, unsigned blocks);
         
         
-        
-        unsigned krunch();
+        int krunch();
 
         
     protected:
@@ -77,6 +78,7 @@ namespace Pascal {
         void writeBlocks(void *buffer, unsigned startingBlock, unsigned count);
         
         void writeEntry(FileEntry *e);
+        void writeEntry();
         
         void calcMaxFileSize();
         

@@ -275,17 +275,26 @@ FileEntry *VolumeEntry::fileByName(const char *name) const
     return NULL;
 }
 
-unsigned VolumeEntry::unlink(const char *name)
+/*
+ * Remove a file.
+ * Returns 0 on succes, -1 (and errno) on failure.
+ * May also throw a device error.
+ */
+int VolumeEntry::unlink(const char *name)
 {
     unsigned index;
 
     std::vector<FileEntry *>::iterator iter;
+        
+    if (_device->readOnly())
+    {
+        errno = EROFS;
+        return -1;
+    }
     
-    // TODO -- update _maxFileSize.
+    // TODO -- consider having an unordered_map of file names.
     
-    if (_device->readOnly()) return ProFUSE::drvrWrtProt; // WRITE-PROTECTED DISK
-    
-    for (index = 0, iter = _files.begin(); iter != _files.end(); ++iter, ++index)
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
         FileEntry *e = *iter;
         if (::strcasecmp(name, e->name()) == 0)
@@ -304,11 +313,17 @@ unsigned VolumeEntry::unlink(const char *name)
             break;
         }
     }
-    if (iter == _files.end()) return ProFUSE::fileNotFound; // FILE NOT FOUND
+    if (iter == _files.end())
+    {
+        errno = ENOENT;
+        return -1;
+    }
 
     
     _files.erase(iter);
     _fileCount--;
+    
+    index = distance(_files.begin(), iter);
     
     // reset addresses.
     for ( ; iter != _files.end(); ++iter)
@@ -339,35 +354,49 @@ unsigned VolumeEntry::unlink(const char *name)
 }
 
 
-// TODO -- if newName exists, atomically remove it.
-unsigned VolumeEntry::rename(const char *oldName, const char *newName)
+/*
+ * Renames a file, removing any other file with newName (if present)
+ * Returns 0 on success, -1 on error (and sets errno)
+ * May also throw an error of some sort.
+ */
+int VolumeEntry::rename(const char *oldName, const char *newName)
 {
     FileEntry *e;
 
     
-    // 1. verify old name exists.
+    // check if read only.
+    if (_device->readOnly())
+    {
+        errno = EROFS;
+        return -1;
+    }
+    
+    // verify file exists.
     e = fileByName(oldName);
     if (!e)
-        return ProFUSE::fileNotFound;
+    {
+        errno = ENOENT;
+        return -1;
+    }
     
     
-    // 2. verify new name is valid
+    // verify new name is valid.
     if (!FileEntry::ValidName(newName)) 
-        return ProFUSE::badPathSyntax;
+    {
+        errno = EINVAL; // invalid name, at least.
+        return -1;
+    }
 
+    // delete the new file
+    if (unlink(newName) != 0)
+    {
+        if (errno != ENOENT) return -1;
+    }
 
-    // 3. verify new name does not exist.
-    
-    if (fileByName(newName))
-        return ProFUSE::dupPathName;
-    
-        
-    // 4. set the name (throws on error, which won't happen since
-    // we already verified the name is valid.
+    // update with the new name.
     e->setName(newName);
     
-    
-    // 5. write to disk.
+    // and commit to disk.
     
     writeEntry(e);
     _cache->sync();
@@ -381,9 +410,36 @@ unsigned VolumeEntry::rename(const char *oldName, const char *newName)
  * if newName exists, delete it.
  * 
  */
-unsigned VolumeEntry::copy(const char *oldName, const char *newName)
+int VolumeEntry::copy(const char *oldName, const char *newName)
 {
-
+    FileEntry * e;
+    // check if read only.
+    if (_device->readOnly())
+    {
+        errno = EROFS;
+        return -1;
+    }
+    
+    // verify file exists.
+    e = fileByName(oldName);
+    if (!e)
+    {
+        errno = ENOENT;
+        return -1;
+    }
+    
+    
+    // verify new name is valid.
+    if (!FileEntry::ValidName(newName)) 
+    {
+        errno = EINVAL; // invalid name, at least.
+        return -1;
+    }    
+    
+    // if newName does not exist, call create w/ block size and write everything.
+    // if newName does exist, overwrite it if it will fit.  Otherwise, remove it, create a file, etc.
+    
+    
     
     return 0;
 }
@@ -391,6 +447,7 @@ unsigned VolumeEntry::copy(const char *oldName, const char *newName)
 /*
  * create a file.  if blocks is defined, verifies the file could
  * expand to fit.
+ * returns FileEntry on success, NULL (and errno) on failure.
  *
  */
 /*
@@ -409,16 +466,18 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
     // 6. create the file entry.
     // 7. insert into _files, write to disk, update _maxFileSize
     
-    unsigned lastBlock;
-    unsigned maxBlocks;
+    unsigned lastBlock = _lastBlock;
 
+    
     std::auto_ptr<FileEntry>entry;
     FileEntry *prev = NULL;
     FileEntry *curr = NULL;
+    std::vector<FileEntry *>::iterator iter;
+    
     
     if (readOnly())
     {
-        errno = EACCES;
+        errno = EROFS;
         return NULL;
     }
     
@@ -428,26 +487,10 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
         return NULL;
     }
     
-    if (_fileCount)
-    {
-        prev = _files.back();
-        lastBlock = prev->_lastBlock;
-    }
-    else {
-        lastBlock = _lastBlock;
-    }
-
-    maxBlocks = _lastVolumeBlock - lastBlock;
-    
-    if (maxBlocks < blocks || maxBlocks == 0)
-    {
-        errno = ENOSPC;
-        return NULL;
-    }
     
     if (!FileEntry::ValidName(name))
     {
-        errno = ENAMETOOLONG; // or invalid.
+        errno = EINVAL;
         return NULL;
     }
     
@@ -460,24 +503,107 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
     
     entry.reset(new FileEntry(name, kUntypedFile));
     
-    _files.push_back(entry.get());
-
-    curr = entry.release();
     
-    curr->_firstBlock = lastBlock;
-    curr->_lastBlock = lastBlock + 1;
-    curr->_lastByte = 0;
-    curr->_maxFileSize = maxBlocks * 512;
-    
-    if (prev)
-    {    
-        prev->_maxFileSize = prev->blocks() * 512;
+    std::auto_ptr<uint8_t> buffer(readDirectoryHeader());
+        
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        FileEntry *e = *iter;
+        
+        unsigned freeSpace = e->_firstBlock - _lastBlock;
+        // this could do something stupid like selecting a slot with only 1 free block but too bad.
+        
+        if (freeSpace < blocks)
+        {
+            lastBlock = e->_lastBlock;
+            prev = e;
+            continue;
+        }
+        
+        // update previous entry max file size.
+        if (prev)
+        {
+            prev->_maxFileSize = prev->blocks() * 512;
+        }
+        
+        // insert() inserts an item *before* the current item.
+        // afterwards, iter will point to curr+1
+        
+        // keep track of the index *before* the insert.
+        unsigned index = distance(_files.begin(), iter); // current index.
+        
+        _files.insert(iter, entry.get());
+        _fileCount++;
+        curr = entry.release();
+        
+        curr->_firstBlock = lastBlock;
+        curr->_lastBlock = lastBlock + 1;
+        curr->_lastByte = 0;
+        curr->_maxFileSize = freeSpace * 512;
+        //curr->_address = 2 * 512 + 0x1a + 0x1a * index;
+        
+        // move all entries after this one up by 0x1a bytes, then write this header.
+        unsigned count = _fileCount - index - 1;
+        unsigned offset = index * 0x1a + 0x1a;
+        std::memmove(buffer.get() + offset + 0x1a, buffer.get() + offset, count * 0x1a);
+        break;
     }
     
-    writeEntry(curr);
-    
+    if (iter == _files.end())
+    {
+
+        // check if we can append
+        unsigned freeSpace = _lastVolumeBlock - lastBlock;
+        if (freeSpace < blocks)
+        {
+            errno = ENOSPC;
+            return NULL;        
+        }
+                
+        _files.push_back(entry.get());
+        _fileCount++;
+        
+        curr = entry.release();
+        
+        curr->_firstBlock = lastBlock;
+        curr->_lastBlock = lastBlock + 1;
+        curr->_lastByte = 0;
+        curr->_maxFileSize = freeSpace * 512;
+        curr->_address = 2 * 512 + 0x1a * _fileCount; // s/b +1 since entry 0 is the header.
+        
+        if (prev)
+        {    
+            prev->_maxFileSize = prev->blocks() * 512;
+        }
+        
+        writeEntry(curr);
+        writeEntry(); // header.        
+        
+    }
+    else
+    {
+
+
+        // update all addresses to make life easier.
+        unsigned address = 2 * 512 + 0x1a;
+        for (iter = _files.begin(); iter != _files.end(); ++iter, address += 0x1a)
+        {
+            FileEntry *e = *iter;
+            e->_address = address;
+        }
+             
+        IOBuffer b(buffer.get(), 4 * 512);
+        writeDirectoryEntry(&b);
+        
+        b.setOffset(curr->_address - 2 * 512);
+        curr->writeDirectoryEntry(&b);
+        
+        writeDirectoryHeader(buffer.get());
+
+    }
+        
+    _cache->sync();
     return curr;
-    
 }
 
 
@@ -486,8 +612,15 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
  * TODO -- consider trying to move files from the end to fill gaps
  * if it would reduce the number of blocks that need to be re-arranged.
  *
+ * build a list of gaps, reverse iterate and move last file to first gap
+ * only 77 files, so can consider all options.
+ *
+ *
+ *
+ *
+ *
  */
-unsigned VolumeEntry::krunch()
+int VolumeEntry::krunch()
 {
     unsigned prevBlock;
     
@@ -619,6 +752,54 @@ unsigned VolumeEntry::freeBlocks(bool krunched) const
 }
 
 
+/*
+ * return true if there are any gaps, false otherwise.
+ *
+ *
+ */
+bool VolumeEntry::canKrunch() const
+{
+    
+    std::vector<FileEntry *>::const_iterator iter;
+    
+    unsigned lastBlock = _lastBlock;
+
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        const FileEntry *e = *iter;
+        if (e->_lastBlock != lastBlock) return true;
+        lastBlock = e->_lastBlock;
+    }
+    
+    return false;
+}
+
+/*
+ * returns the largest free block.
+ *
+ */
+unsigned VolumeEntry::maxContiguousBlocks() const
+{
+    unsigned max = 0;
+    
+    std::vector<FileEntry *>::const_iterator iter;
+    
+    unsigned lastBlock = _lastBlock;
+    
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        const FileEntry *e = *iter;
+        unsigned free = e->_firstBlock - lastBlock;
+        max = std::max(max, free);
+        
+        lastBlock = e->_lastBlock;
+    }
+    
+    max = std::max(max, _lastVolumeBlock - lastBlock);
+    
+    return max;    
+    
+}
 
 
 
@@ -692,6 +873,14 @@ void VolumeEntry::writeBlocks(void *buffer, unsigned startingBlock, unsigned cou
         _cache->write(startingBlock + i, (uint8_t *)buffer + 512 * i);
 }
 
+
+// write directory entry, does not sync.
+void VolumeEntry::writeEntry()
+{
+    IOBuffer iob(loadBlock(2),512);
+    writeDirectoryEntry(&iob);
+    unloadBlock(2, true);
+}
 
 // does not sync.
 void VolumeEntry::writeEntry(FileEntry *e)
