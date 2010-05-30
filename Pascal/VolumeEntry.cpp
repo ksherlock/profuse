@@ -412,7 +412,8 @@ int VolumeEntry::rename(const char *oldName, const char *newName)
  */
 int VolumeEntry::copy(const char *oldName, const char *newName)
 {
-    FileEntry * e;
+    FileEntry *oldEntry;
+    FileEntry *newEntry;
     // check if read only.
     if (_device->readOnly())
     {
@@ -421,8 +422,8 @@ int VolumeEntry::copy(const char *oldName, const char *newName)
     }
     
     // verify file exists.
-    e = fileByName(oldName);
-    if (!e)
+    oldEntry = fileByName(oldName);
+    if (!oldEntry)
     {
         errno = ENOENT;
         return -1;
@@ -439,6 +440,64 @@ int VolumeEntry::copy(const char *oldName, const char *newName)
     // if newName does not exist, call create w/ block size and write everything.
     // if newName does exist, overwrite it if it will fit.  Otherwise, remove it, create a file, etc.
     
+    unsigned blocks = oldEntry->blocks();
+    newEntry = fileByName(newName);
+    
+    if (newEntry)
+    {
+        // if newEntry is large enough, overwrite it.
+        if (newEntry->_maxFileSize >= blocks * 512)
+        {
+            if (newEntry->_pageSize)
+            {
+                delete newEntry->_pageSize;
+                newEntry->_pageSize = NULL;
+                newEntry->_fileSize = 0;
+            }
+        }
+        else
+        {
+            if (maxContiguousBlocks() < blocks)
+            {
+                errno = ENOSPC;
+                return -1;                
+            }
+            
+            newEntry = NULL;
+            
+            if (unlink(newName) != 0) return -1;
+        }        
+    }
+        
+    
+    if (newEntry == NULL)
+    {
+        // newName does not exist (or was just deleted), so create a new file (if possible) and write to it.
+        if (maxContiguousBlocks() < blocks)
+        {
+            errno = ENOSPC;
+            return -1;
+        }
+        
+        newEntry = create(newName, blocks);
+        
+        if (!newEntry) return -1; // create() sets errno.
+        
+    }
+
+    newEntry->_fileKind = oldEntry->fileKind();
+    newEntry->_lastByte = oldEntry->lastByte();
+    newEntry->_lastBlock = newEntry->firstBlock() + blocks;
+    newEntry->_modification = Date::Today();
+   
+    for (unsigned i = 0; i < blocks; i++)
+    {
+        void *src = loadBlock(oldEntry->firstBlock() + i);
+        _cache->write(newEntry->firstBlock() + i, src);
+        unloadBlock(oldEntry->firstBlock() + i, false);
+    }
+    
+    _cache->sync();
     
     
     return 0;
