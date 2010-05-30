@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdarg>
+#include <cerrno>
 
 #include <algorithm>
 #include <memory>
@@ -383,7 +384,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
         {
             case 'h':
             default:
-                commandUsage(kCommandRM);
+                commandUsage(kCommandCAT);
                 return c == 'h' ? 0 : 1;
                 break;
         }
@@ -436,21 +437,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
 int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // mv src dest
-    return 0;
-}
-
-int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
-{
-    // mv src dest
-    return 0;
-}
-
-int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
-{
-    // rm file [file ....]
-    
-    bool tty = ::isatty(STDIN_FILENO);
-    bool fFlag = !tty;
+    bool iFlag = ::isatty(STDIN_FILENO);
     int c;
     
     while ((c = ::getopt(argc, argv, "fih")) != -1)
@@ -458,10 +445,130 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
         switch(c)
         {
             case 'f':
-                fFlag = true;
+                iFlag = false;
                 break;
             case 'i':
-                fFlag = false;
+                iFlag = true;
+                break;
+                
+            case 'h':
+            default:
+                commandUsage(kCommandMV);
+                return c == 'h' ? 0 : 1;
+                break;
+        }
+    }
+    
+    argc -= optind;
+    argv += optind;
+    
+    if (argc != 2)
+    {
+        commandUsage(kCommandMV);
+        return 1;
+    }
+    
+    const char *source = argv[0];
+    const char *dest = argv[1];
+    
+    if (!volume->fileByName(source))
+    {
+        std::fprintf(stderr, "apfm mv: %s: no such file.\n", source);
+        return 1;
+    }
+    
+    // if -i and destination file exists, confirm overwritting it.
+    if (iFlag && volume->fileByName(dest))
+    {
+        bool ok = yes_or_no("Overwrite %s?", dest);
+        if (!ok)
+        {
+            std::fprintf(stderr, "Not overwritten.\n");
+            return 1;
+        }        
+    }
+    
+    volume->rename(source, dest);
+    
+    return 0;
+}
+
+int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
+{
+    // cp src dest
+    
+    bool iFlag = ::isatty(STDIN_FILENO);
+    int c;
+    
+    while ((c = ::getopt(argc, argv, "fih")) != -1)
+    {
+        switch(c)
+        {
+            case 'f':
+                iFlag = false;
+                break;
+            case 'i':
+                iFlag = true;
+                break;
+                
+            case 'h':
+            default:
+                commandUsage(kCommandCP);
+                return c == 'h' ? 0 : 1;
+                break;
+        }
+    }
+    
+    argc -= optind;
+    argv += optind;
+    
+    if (argc != 2)
+    {
+        commandUsage(kCommandCP);
+        return 1;
+    }
+    
+    const char *source = argv[0];
+    const char *dest = argv[1];
+    
+    if (!volume->fileByName(source))
+    {
+        std::fprintf(stderr, "apfm cp: %s: no such file.\n", source);
+        return 1;
+    }
+
+    // if -i and destination file exists, confirm overwritting it.
+    if (iFlag && volume->fileByName(dest))
+    {
+        bool ok = yes_or_no("Overwrite %s?", dest);
+        if (!ok)
+        {
+            std::fprintf(stderr, "Not overwritten.\n");
+            return 1;
+        }        
+    }
+    
+    volume->copy(source, dest);
+    
+    return 0;
+}
+
+int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
+{
+    // rm file [file ....]
+    
+    bool iFlag = ::isatty(STDIN_FILENO);
+    int c;
+    
+    while ((c = ::getopt(argc, argv, "fih")) != -1)
+    {
+        switch(c)
+        {
+            case 'f':
+                iFlag = false;
+                break;
+            case 'i':
+                iFlag = true;
                 break;
                 
             case 'h':
@@ -475,10 +582,23 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
     argc -= optind;
     argv += optind;
     
-    // TODO -- honor fFlag
-    // TODO -- catch errors.
+    // TODO -- catch errors ?
     for (unsigned i = 0; i < argc; ++i)
     {
+        Pascal::FileEntry *e = volume->fileByName(argv[i]);
+        
+        if (!e)
+        {
+            if (iFlag) std::fprintf(stderr, "apfm rm: %s: No such file.\n", argv[i]);
+            continue;
+        }
+        
+        if (iFlag)
+        {
+            bool ok = yes_or_no("Remove %s?", argv[i]);
+            if (!ok) continue;
+        }
+              
         volume->unlink(argv[i]);
     }
     return 0;
@@ -489,8 +609,7 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
 {
     // compress file to remove gaps.
     
-    bool tty = ::isatty(STDIN_FILENO);
-    bool fFlag = !tty;
+    bool iFlag = ::isatty(STDIN_FILENO);
     int c;
     
     while ((c = ::getopt(argc, argv, "fih")) != -1)
@@ -498,10 +617,10 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
         switch(c)
         {
             case 'f':
-                fFlag = true;
+                iFlag = false;
                 break;
             case 'i':
-                fFlag = false;
+                iFlag = true;
                 break;
                 
             case 'h':
@@ -515,8 +634,23 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
     argc -= optind;
     argv += optind;
     
-    //check if it needs krunching, volume->krunch();
+
     
+    if (!volume->canKrunch())
+    {
+        if (iFlag)
+            std::fprintf(stderr, "apfm krunch: Volume already optimized.\n");
+            
+        return 0;
+    }
+
+    if (iFlag)
+    {
+        bool ok = yes_or_no("Are you sure you want to krunch this volume?");
+        if (!ok) return 1;
+    }
+    
+    volume->krunch();
     return 0;
 }
 
@@ -529,8 +663,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     char *infile;
     char *outfile;
     
-    bool tty = ::isatty(STDIN_FILENO);
-    bool fFlag = !tty;
+    bool iFlag = ::isatty(STDIN_FILENO);
     int c;
     
     while ((c = ::getopt(argc, argv, "fih")) != -1)
@@ -538,10 +671,10 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
         switch(c)
         {
             case 'f':
-                fFlag = true;
+                iFlag = false;
                 break;
             case 'i':
-                fFlag = false;
+                iFlag = true;
                 break;
                 
             case 'h':
@@ -583,7 +716,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     
     
     // if not -f, check before overwriting file.
-    if (!fFlag)
+    if (iFlag)
     {
         struct stat st;
         if (::stat(outfile, &st) == 0)
