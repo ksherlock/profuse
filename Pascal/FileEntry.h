@@ -8,6 +8,8 @@
 
 namespace Pascal {
 
+    class TextWriter;
+    
     class FileEntry : public Entry {
 
     public:
@@ -38,6 +40,8 @@ namespace Pascal {
         int read(uint8_t *buffer, unsigned size, unsigned offset);
         int write(uint8_t *buffer, unsigned size, unsigned offset);
         
+        int write(TextWriter& text);
+        
         int truncate(unsigned newSize);
         
         
@@ -52,7 +56,7 @@ namespace Pascal {
         
         void setName(const char *name);
         
-        void truncateCommon(unsigned newSize);
+        int truncateCommon(unsigned newSize);
         
         
         

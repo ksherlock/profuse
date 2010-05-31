@@ -6,6 +6,7 @@
 #include <cerrno>
 
 #include <Pascal/Pascal.h>
+#include <Pascal/TextWriter.h>
 
 #include <ProFUSE/auto.h>
 #include <ProFUSE/Exception.h>
@@ -176,12 +177,21 @@ int FileEntry::truncate(unsigned newSize)
     if (fileKind() == kTextFile)
     {
         if (newSize)
-            throw ProFUSE::Exception(__METHOD__ ": unable to truncate text file.");
+        {
+            errno = EINVAL;
+            return -1;
+        }
+        newSize = 2; // text files have a 2-page scratch buffer for the editor.
         
-        if (_pageSize) _pageSize->clear();
+        if (_pageSize)
+        {
+            _pageSize->clear();
+            _fileSize = 0;
+        }
     }
     
-    truncateCommon(newSize);
+    if (truncateCommon(newSize) != 0)
+        return -1;
     
     _modification = Date::Today();
     parent()->writeEntry(this);
@@ -194,19 +204,22 @@ int FileEntry::truncate(unsigned newSize)
  * updates _lastByte and _lastBlock but does
  * not update _modification or commit to disk.
  */
-void FileEntry::truncateCommon(unsigned newSize)
+int FileEntry::truncateCommon(unsigned newSize)
 {
 #undef __METHOD__
 #define __METHOD__  "FileEntry::truncateCommon"
     
     unsigned currentSize = fileSize();
     
-    if (newSize == currentSize) return;
+    if (newSize == currentSize) return 0;
     if (newSize > currentSize)
     {
         
         if (newSize > _maxFileSize)
-            throw ProFUSE::POSIXException(__METHOD__ ": Unable to expand file.", ENOSPC);
+        {
+            errno = ENOSPC;
+            return -1;
+        }
         
         unsigned remainder = newSize - currentSize;
         unsigned block = _lastBlock - 1;
@@ -245,17 +258,65 @@ void FileEntry::truncateCommon(unsigned newSize)
     _lastByte = newSize % 512;
     if (_lastByte == 0) _lastByte = 512;
 
+    return 0;
 }
 
+
+int FileEntry::write(TextWriter &text)
+{
+    unsigned blocks = text.blocks();
+    
+    if (parent()->readOnly())
+    {
+        errno = EROFS;
+        return -1;
+    }
+    
+    if (fileKind() != kTextFile)
+    {
+        errno = EINVAL;
+        return -1;
+    }    
+    
+    
+    if (blocks * 512 > _maxFileSize)
+    {
+        errno = ENOSPC;
+        return -1;
+    }
+    
+    for (unsigned i = 0; i < blocks; ++i)
+    {
+        void *buffer = text.data(i);
+        parent()->writeBlock(_firstBlock + i, buffer);
+        
+    }
+    
+    _modification = Date::Today();
+    _lastBlock = 1 + firstBlock() + blocks;
+    _lastByte = 512;
+    
+    parent()->writeEntry(this);
+    parent()->sync();
+    
+    return blocks * 512;
+}
 
 int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
 {
 #undef __METHOD__
 #define __METHOD__ "FileEntry::write"
     
+    if (parent()->readOnly())
+    {
+        errno = EROFS;
+        return -1;
+    }
+    
     if (fileKind() == kTextFile)
     {
-        throw ProFUSE::Exception(__METHOD__ ": Text Files are too weird.");
+        errno = EINVAL;
+        return -1;
     }
 
     unsigned currentSize = fileSize();
@@ -265,17 +326,18 @@ int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
 
     if (newSize > _maxFileSize)
     {
-        throw ProFUSE::POSIXException(__METHOD__ ": Unable to expand file.", ENOSPC);
+        errno = ENOSPC;
+        return -1;
     }
     
     if (offset > currentSize)
     {
-        truncateCommon(offset);
+        if (truncateCommon(offset) != 0) return -1;
     }
     
     // now write the data...
     
-    unsigned block = _firstBlock +  offset / 512;
+    unsigned block = firstBlock() +  offset / 512;
     unsigned start = offset % 512;
     unsigned remainder = size;
     
