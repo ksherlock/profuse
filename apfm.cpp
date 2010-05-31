@@ -1051,11 +1051,10 @@ int main(int argc, char **argv)
             case kCommandGET:
                 return action_get(argc -1, argv + 1, volume.get());
                 break;
-                /*
             case kCommandPUT:
                 return action_put(argc -1, argv + 1, volume.get());
                 break;
-                 */
+                 
         }
         usage();
         return 3;
