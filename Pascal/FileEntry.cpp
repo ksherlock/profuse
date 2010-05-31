@@ -254,9 +254,7 @@ int FileEntry::truncateCommon(unsigned newSize)
         
     }
     
-    _lastBlock = 1 + _firstBlock + newSize / 512;
-    _lastByte = newSize % 512;
-    if (_lastByte == 0) _lastByte = 512;
+    setFileSize(newSize);
 
     return 0;
 }
@@ -293,8 +291,8 @@ int FileEntry::write(TextWriter &text)
     }
     
     _modification = Date::Today();
-    _lastBlock = 1 + firstBlock() + blocks;
-    _lastByte = 512;
+    
+    setFileSize(blocks * 512);
     
     parent()->writeEntry(this);
     parent()->sync();
@@ -302,7 +300,7 @@ int FileEntry::write(TextWriter &text)
     return blocks * 512;
 }
 
-int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
+int FileEntry::write(const uint8_t *buffer, unsigned size, unsigned offset)
 {
 #undef __METHOD__
 #define __METHOD__ "FileEntry::write"
@@ -368,13 +366,9 @@ int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
         block++;
     }
     
-    if (newSize > currentSize)
-    {
-        _lastBlock = 1 + _firstBlock + currentSize / 512;
-        _lastByte = currentSize % 512;
-        if (_lastByte == 0) _lastByte = 512;
-        
-    }
+    
+    if (newSize > currentSize) setFileSize(newSize);
+
     
     _modification = Date::Today();
     parent()->writeEntry(this);
@@ -382,6 +376,26 @@ int FileEntry::write(uint8_t *buffer, unsigned size, unsigned offset)
     return size;
 }
 
+
+/* 
+ * private
+ * set the file size.  Does not check if > _maxFileSize.
+ * 
+ */
+void FileEntry::setFileSize(unsigned size)
+{
+    if (size == 0)
+    {
+        // TODO -- verify how 0 byte files are handled.
+        _lastBlock = _firstBlock + 1;
+        _lastByte = 0;
+        return;
+    }
+
+    _lastBlock = 1 + _firstBlock + size / 512;
+    _lastByte = size % 512;
+    if (_lastByte == 0) _lastByte = 512;
+}
 
 unsigned FileEntry::dataFileSize()
 {
@@ -633,11 +647,13 @@ bool FileEntry::Compress(std::string& text)
     
     if (count < 3) return false;
     
-    count = std::max((int)count, 255 - 32);
+    count = std::min((int)count, 255 - 32);
     
     out.push_back(kDLE);
     out.push_back(32 + count);
     out.append(text.begin() + count, text.end());
+    
+    text.swap(out);
     
     return true;
 }
@@ -662,6 +678,7 @@ bool FileEntry::Uncompress(std::string& text)
     out.append(c - 32, ' ');
     out.append(text.begin() + 2, text.end());
     
+    text.swap(out);
     return true;
 }
 

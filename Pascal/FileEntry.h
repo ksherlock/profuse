@@ -38,7 +38,7 @@ namespace Pascal {
         void setFileKind(unsigned kind);
         
         int read(uint8_t *buffer, unsigned size, unsigned offset);
-        int write(uint8_t *buffer, unsigned size, unsigned offset);
+        int write(const uint8_t *buffer, unsigned size, unsigned offset);
         
         int write(TextWriter& text);
         
@@ -58,7 +58,7 @@ namespace Pascal {
         
         int truncateCommon(unsigned newSize);
         
-        
+        void setFileSize(unsigned size);
         
         unsigned _status;
         
