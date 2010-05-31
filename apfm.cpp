@@ -893,6 +893,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
             char c = address[i];
             if (c == 0x0d || c == 0x0a)
             {
+                //std::fprintf(stdout, "%.*s\n", i - start, address + start);
                 text.writeLine(address + start, i - start);
                 start = i + 1;
                 
