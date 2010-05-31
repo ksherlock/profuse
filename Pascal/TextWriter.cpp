@@ -42,11 +42,13 @@ unsigned TextWriter::blocks() const
 void *TextWriter::data(unsigned block) const
 {  
     unsigned offset = (block & 0x01) * 512;
-    if (( block >> 1 ) < _blocks.size())
+    unsigned halfBlock = block >> 1;
+    
+    if (halfBlock < _blocks.size())
     {
-        return _blocks[block >> 1] + offset;
+        return _blocks[halfBlock] + offset;
     }
-    if (block == _blocks.size())
+    if (halfBlock == _blocks.size())
     {
         if (offset > _offset) return NULL;
         return _current + offset;
@@ -83,8 +85,8 @@ void TextWriter::writeLine(const char *line, unsigned length)
         text.push_back(0x0d);
     }
     
-    
     length = text.length();
+    
     if (length > 1024)
     {
         throw ProFUSE::Exception(__METHOD__ ": String is too long.");
