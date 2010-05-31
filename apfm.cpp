@@ -21,9 +21,12 @@
 
 #include <Pascal/Pascal.h>
 #include <Pascal/Date.h>
+#include <Pascal/TextWriter.h>
+
 #include <Device/BlockDevice.h>
 
 #include <File/File.h>
+#include <File/MappedFile.h>
 
 
 enum commands {
@@ -854,28 +857,68 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
         return -1;
     }
         
-    File::File file(infile, O_RDONLY);
+    File file(infile, File::ReadOnly);
     
     
     unsigned blocks = (st.st_size + 511) / 511;
     
-    // TODO -- if text file, ..
     
-    Pascal::FileEntry *entry = volume->create(infile, blocks);
-    if (!entry)
-    {
-        perror(NULL);
-        return -1;
-    }
-    
-    entry->setFileKind(type);
-    
+
     if (type == Pascal::kTextFile)
     {
-        //...
+        Pascal::TextWriter text;
+        
+        MappedFile mf(file, File::ReadOnly, st.st_size);
+        
+        const char *address = (const char *)mf.address();
+
+        unsigned start = 0;
+        unsigned length = st.st_size;
+        
+        for (unsigned i = 0; i < length; ++i)
+        {
+            char c = address[i];
+            if (c == 0x0d || c == 0x0a)
+            {
+                text.writeLine(address + start, i - start);
+                start = i + 1;
+                
+                if (c == 0x0a && i < length && address[i +1 ] == 0x0d)
+                {
+                    ++start;
+                    ++i;
+                }
+            }
+        }
+        
+        //any remainder.
+        if (start != length) text.writeLine(address + start, length - start);
+        
+        blocks = text.blocks();
+        
+        Pascal::FileEntry *entry = volume->create(infile, blocks);
+        if (!entry)
+        {
+            perror(NULL);
+            return -1;
+        }
+        
+        entry->setFileKind(type);
+        entry->write(text);
+        
     }
     else
     {
+        Pascal::FileEntry *entry = volume->create(infile, blocks);
+        if (!entry)
+        {
+            perror(NULL);
+            return -1;
+        }
+        
+        entry->setFileKind(type);
+        
+        
         uint8_t buffer[512];
         unsigned remaining = st.st_size;
         unsigned offset = 0;
