@@ -861,11 +861,20 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
         std::fprintf(stderr, "apfm put: %s: not a regular file.\n", infile);
         return -1;
     }
-        
+    
+    unsigned blocks = (st.st_size + 511) / 512;
+    if (blocks > (0xffff - 6))
+    {
+        std::fprintf(stderr, "apfm put: %s: file is too large.\n", infile);
+        return -1;
+    }
+    
+    
+    
     File file(infile, File::ReadOnly);
+    MappedFile mf(file, File::ReadOnly, st.st_size);
     
     
-    unsigned blocks = (st.st_size + 511) / 511;
     
     
 
@@ -873,7 +882,6 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     {
         Pascal::TextWriter text;
         
-        MappedFile mf(file, File::ReadOnly, st.st_size);
         
         const char *address = (const char *)mf.address();
 
@@ -901,7 +909,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
         
         blocks = text.blocks();
         
-        Pascal::FileEntry *entry = volume->create(infile, blocks);
+        Pascal::FileEntry *entry = volume->create(outfile, blocks);
         if (!entry)
         {
             perror(NULL);
@@ -914,7 +922,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     }
     else
     {
-        Pascal::FileEntry *entry = volume->create(infile, blocks);
+        Pascal::FileEntry *entry = volume->create(outfile, blocks);
         if (!entry)
         {
             perror(NULL);
@@ -922,17 +930,16 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
         }
         
         entry->setFileKind(type);
-        
-        
-        uint8_t buffer[512];
+                
         unsigned remaining = st.st_size;
         unsigned offset = 0;
+        const uint8_t *address = (const uint8_t *)mf.address();
         while (remaining)
         {
             int rv;
             unsigned count = std::min(512u, remaining);
-            ::read(file.fd(), buffer, count);
-            rv = entry->write(buffer, count, offset);
+    
+            rv = entry->write(address + offset, count, offset);
             if (rv == -1)
             {
                 perror(NULL);
