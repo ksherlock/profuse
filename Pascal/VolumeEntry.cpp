@@ -595,6 +595,7 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
         _fileCount++;
         curr = entry.release();
         
+        curr->_parent = this;
         curr->_firstBlock = lastBlock;
         curr->_lastBlock = lastBlock + 1;
         curr->_lastByte = 0;
@@ -624,6 +625,7 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
         
         curr = entry.release();
         
+        curr->_parent = this;
         curr->_firstBlock = lastBlock;
         curr->_lastBlock = lastBlock + 1;
         curr->_lastByte = 0;
