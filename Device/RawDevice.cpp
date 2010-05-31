@@ -188,7 +188,7 @@ void RawDevice::read(unsigned block, void *bp)
     // apple - read full native block(s) ?
 
     off_t offset = block * 512;    
-    size_t ok = ::pread(_file.fd(), bp, 512, offset);
+    ssize_t ok = ::pread(_file.fd(), bp, 512, offset);
     
     // TODO -- EINTR?
     if (ok != 512)
@@ -211,7 +211,7 @@ void RawDevice::read(TrackSector ts, void *bp)
     // apple - read full native block(s) ?
 
     off_t offset = (ts.track * 16 + ts.sector) * 256;    
-    size_t ok = ::pread(_file.fd(), bp, 256, offset);
+    ssize_t ok = ::pread(_file.fd(), bp, 256, offset);
     
     // TODO -- EINTR?
     if (ok != 256)
@@ -233,7 +233,7 @@ void RawDevice::write(unsigned block, const void *bp)
 
 
     off_t offset = block * 512;    
-    size_t ok = ::pwrite(_file.fd(), bp, 512, offset);
+    ssize_t ok = ::pwrite(_file.fd(), bp, 512, offset);
     
     if (ok != 512)
         throw ok < 0 
@@ -255,7 +255,7 @@ void RawDevice::write(TrackSector ts, const void *bp)
 
 
     off_t offset = (ts.track * 16 + ts.sector) * 256;    
-    size_t ok = ::pwrite(_file.fd(), bp, 256, offset);
+    ssize_t ok = ::pwrite(_file.fd(), bp, 256, offset);
     
     if (ok != 256)
         throw ok < 0 

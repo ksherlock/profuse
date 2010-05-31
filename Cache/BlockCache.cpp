@@ -22,8 +22,6 @@ using namespace Device;
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
-#pragma mark -
-#pragma mark BlockCache
 
 BlockCache::BlockCache(BlockDevice *device)
 {
