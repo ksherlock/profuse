@@ -400,7 +400,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
     if (argc < 1)
     {
         commandUsage(kCommandCAT);
-        return 1;
+        return -1;
     }
 
     for (unsigned i = 0; i < argc; ++i)
@@ -468,7 +468,7 @@ int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (argc != 2)
     {
         commandUsage(kCommandMV);
-        return 1;
+        return -1;
     }
     
     const char *source = argv[0];
@@ -477,7 +477,7 @@ int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (!volume->fileByName(source))
     {
         std::fprintf(stderr, "apfm mv: %s: no such file.\n", source);
-        return 1;
+        return -1;
     }
     
     // if -i and destination file exists, confirm overwritting it.
@@ -487,7 +487,7 @@ int action_mv(int argc, char **argv, Pascal::VolumeEntry *volume)
         if (!ok)
         {
             std::fprintf(stderr, "Not overwritten.\n");
-            return 1;
+            return -1;
         }        
     }
     
@@ -528,7 +528,7 @@ int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (argc != 2)
     {
         commandUsage(kCommandCP);
-        return 1;
+        return -1;
     }
     
     const char *source = argv[0];
@@ -537,7 +537,7 @@ int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (!volume->fileByName(source))
     {
         std::fprintf(stderr, "apfm cp: %s: no such file.\n", source);
-        return 1;
+        return -1;
     }
 
     // if -i and destination file exists, confirm overwritting it.
@@ -547,7 +547,7 @@ int action_cp(int argc, char **argv, Pascal::VolumeEntry *volume)
         if (!ok)
         {
             std::fprintf(stderr, "Not overwritten.\n");
-            return 1;
+            return -1;
         }        
     }
     
@@ -650,7 +650,7 @@ int action_krunch(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (iFlag)
     {
         bool ok = yes_or_no("Are you sure you want to krunch this volume?");
-        if (!ok) return 1;
+        if (!ok) return -1;
     }
     
     volume->krunch();
@@ -683,7 +683,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
             case 'h':
             default:
                 commandUsage(kCommandGET);
-                return c == 'h' ? 0 : 1;
+                return c == 'h' ? 0 : -1;
                 break;
         }
     }      
@@ -704,7 +704,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
             break;
         default:
             commandUsage(kCommandGET);
-            return 1;
+            return -1;
             break;
     }
     
@@ -714,7 +714,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (!entry)
     {
         std::fprintf(stderr, "apfm get: %s: no such file.\n", infile);
-        return 1;
+        return -1;
     }
     
     
@@ -728,7 +728,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
             if (!ok)
             {
                 std::fprintf(stderr, "Not overwritten.\n");
-                return 1;
+                return -1;
             }
             
         }
@@ -805,6 +805,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
             default:
                 commandUsage(kCommandPUT);
                 return c == 'h' ? 0 : -1;
+                break;
         }
         
     }
@@ -825,6 +826,10 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
         case 2:
             infile = argv[0];
             outfile = argv[1];
+            break;
+        default:
+            commandUsage(kCommandPUT);
+            return -1;
             break;
     }
     
@@ -848,7 +853,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     if (::stat(infile, &st) != 0)
     {
         std::fprintf(stderr, "apfm put: %s: no such file.\n", infile);
-        return 1;
+        return -1;
     }
 
     if (!S_ISREG(st.st_mode))
