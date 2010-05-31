@@ -586,7 +586,7 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
     argv += optind;
     
     // TODO -- catch errors ?
-    for (unsigned i = 0; i < argc; ++i)
+    for (int i = 0; i < argc; ++i)
     {
         Pascal::FileEntry *e = volume->fileByName(argv[i]);
         
