@@ -46,10 +46,10 @@ private:
     File _file;
     bool _readOnly;
     
-    uint64_t _size;
-    unsigned _blocks;
+    uint64_t _size;         // size of device in bytes.
+    unsigned _blocks;       // # of 512k blocks i.e. _size / 512
     
-    unsigned _blockSize;
+    unsigned _blockSize;    // native block size.
 };
 
 }

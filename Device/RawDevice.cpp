@@ -25,6 +25,10 @@
 #include <sys/disk.h>
 #endif
 
+#ifdef __minix
+#include <minix/partition.h>
+#endif
+
 #include <Device/RawDevice.h>
 
 #include <ProFUSE/Exception.h>
@@ -105,7 +109,7 @@ void RawDevice::devSize(int fd)
 #undef __METHOD__
 #define __METHOD__ "RawDevice::devSize"
 
-    unisgned blockSize;
+    unsigned blockSize;
     off_t mediaSize;
 
     if (::ioctl(fd, DIOCGSECTORSIZE, &blockSize)
@@ -116,10 +120,32 @@ void RawDevice::devSize(int fd)
 
     _blockSize = blockSize;
     _size = mediaSize;
-    _blocks = mediaSize / blockSize;
+    _blocks = mediaSize / 512;
 
 }
 
+#endif
+        
+        
+#ifdef __minix
+        
+void RawDevice::devSize(int fd)
+{
+#undef __METHOD__
+#define __METHOD__ "RawDevice::devSize"
+    
+    struct partition entry;   
+    
+    
+    if (::ioctl(fd, DIOCGETP, &entry) < 0)
+        throw POSIXException(__METHOD__ ": Unable to determine device size.", errno);
+    
+    _size = entry.size
+    _blockSize = 512; // not really but whatever.
+    _blocks = _size / 512;
+    
+}
+        
 #endif
 
 RawDevice::RawDevice(const char *name, File::FileFlags flags) :
