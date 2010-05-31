@@ -79,6 +79,13 @@ File::~File()
     close();
 }
 
+int File::release()
+{
+    int tmp = _fd;
+    _fd = -1;
+    return tmp;
+}
+
 void File::close()
 {
     #undef __METHOD__

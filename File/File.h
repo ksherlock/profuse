@@ -39,6 +39,8 @@ class File {
     
     int fd() const { return _fd; }
     
+    int release();
+    
     void close();
     
     void adopt(File &f);
