@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B6272A9311D5AC440073C73A /* apfm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A8E11D5AC3C0073C73A /* apfm.cpp */; };
+		B6272A9411D5AC4C0073C73A /* fuse_pascal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A8F11D5AC3C0073C73A /* fuse_pascal.cpp */; };
+		B6272A9511D5AC530073C73A /* fuse_pascal_ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */; };
+		B6272A9611D5AC560073C73A /* newfs_pascal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */; };
+		B6272A9711D5AC5B0073C73A /* xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A9211D5AC3C0073C73A /* xattr.cpp */; };
 		B63EFCD211A36C8B00C90DCE /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
 		B63EFCD311A36C8B00C90DCE /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
 		B63EFCD411A36C8B00C90DCE /* DavexDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9711A094E000C90DCE /* DavexDiskImage.cpp */; };
@@ -26,7 +31,6 @@
 		B63EFCE211A36C8B00C90DCE /* Entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEA11A244EE00C90DCE /* Entry.cpp */; };
 		B63EFCE311A36C8B00C90DCE /* FileEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */; };
 		B63EFCE511A36C8B00C90DCE /* VolumeEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */; };
-		B63EFCE911A36C8B00C90DCE /* apfm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFC9F11A35F8F00C90DCE /* apfm.cpp */; };
 		B63EFE8511A4888500C90DCE /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
 		B63EFE8611A4888500C90DCE /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
 		B63EFE8711A4888500C90DCE /* DavexDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9711A094E000C90DCE /* DavexDiskImage.cpp */; };
@@ -46,7 +50,6 @@
 		B63EFE9511A4888500C90DCE /* Entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEA11A244EE00C90DCE /* Entry.cpp */; };
 		B63EFE9611A4888500C90DCE /* FileEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */; };
 		B63EFE9711A4888500C90DCE /* VolumeEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */; };
-		B63EFE9911A4888500C90DCE /* newfs_pascal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFC9B11A35F7B00C90DCE /* newfs_pascal.cpp */; };
 		B656AE0811A84F6C00AB578A /* libfuse_ino64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */; };
 		B656AE0911A84F7700AB578A /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
 		B656AE0A11A84F7700AB578A /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
@@ -67,8 +70,6 @@
 		B656AE1911A84F7700AB578A /* Entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEA11A244EE00C90DCE /* Entry.cpp */; };
 		B656AE1A11A84F7700AB578A /* FileEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */; };
 		B656AE1B11A84F7700AB578A /* VolumeEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */; };
-		B656AE1D11A84F9300AB578A /* fuse_pascal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFC9911A35F7200C90DCE /* fuse_pascal.cpp */; };
-		B656AE1E11A84F9300AB578A /* fuse_pascal_ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFC9D11A35F8200C90DCE /* fuse_pascal_ops.cpp */; };
 		B656AF0811AA106400AB578A /* NibbleTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */; };
 		B656AF0911AA106C00AB578A /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
 		B656AF0A11AA106C00AB578A /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
@@ -89,7 +90,6 @@
 		B656AF1911AA106C00AB578A /* Entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEA11A244EE00C90DCE /* Entry.cpp */; };
 		B656AF1A11AA106C00AB578A /* FileEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */; };
 		B656AF1B11AA106C00AB578A /* VolumeEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */; };
-		B6F3648511AB363B0045E114 /* xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3647B11AB361D0045E114 /* xattr.cpp */; };
 		B6F3676511B323680045E114 /* TextWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3676411B323680045E114 /* TextWriter.cpp */; };
 		B6F3676611B323680045E114 /* TextWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3676411B323680045E114 /* TextWriter.cpp */; };
 		B6F3676711B323680045E114 /* TextWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3676411B323680045E114 /* TextWriter.cpp */; };
@@ -113,6 +113,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B6272A8E11D5AC3C0073C73A /* apfm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = apfm.cpp; sourceTree = "<group>"; };
+		B6272A8F11D5AC3C0073C73A /* fuse_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fuse_pascal.cpp; sourceTree = "<group>"; };
+		B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fuse_pascal_ops.cpp; sourceTree = "<group>"; };
+		B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newfs_pascal.cpp; sourceTree = "<group>"; };
+		B6272A9211D5AC3C0073C73A /* xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xattr.cpp; sourceTree = "<group>"; };
 		B63EFA7511A0948500C90DCE /* Endian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endian.cpp; sourceTree = "<group>"; };
 		B63EFA7611A0948500C90DCE /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
 		B63EFA7711A0948500C90DCE /* IOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.h; sourceTree = "<group>"; };
@@ -152,17 +157,12 @@
 		B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileEntry.cpp; sourceTree = "<group>"; };
 		B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = VolumeEntry.cpp; sourceTree = "<group>"; };
 		B63EFC4311A31B7200C90DCE /* IOBuffer.cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.cpp.h; sourceTree = "<group>"; };
-		B63EFC9911A35F7200C90DCE /* fuse_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fuse_pascal.cpp; sourceTree = "<group>"; };
-		B63EFC9B11A35F7B00C90DCE /* newfs_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newfs_pascal.cpp; sourceTree = "<group>"; };
-		B63EFC9D11A35F8200C90DCE /* fuse_pascal_ops.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fuse_pascal_ops.cpp; sourceTree = "<group>"; };
-		B63EFC9F11A35F8F00C90DCE /* apfm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = apfm.cpp; sourceTree = "<group>"; };
 		B63EFCCE11A36C7300C90DCE /* apfpm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = apfpm; sourceTree = BUILT_PRODUCTS_DIR; };
 		B63EFE8111A4886C00C90DCE /* newfs_pascal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = newfs_pascal; sourceTree = BUILT_PRODUCTS_DIR; };
 		B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfuse_ino64.dylib; path = /usr/local/lib/libfuse_ino64.dylib; sourceTree = "<absolute>"; };
 		B656AE0311A84F5800AB578A /* fuse_pascal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_pascal; sourceTree = BUILT_PRODUCTS_DIR; };
 		B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NibbleTest.cpp; sourceTree = "<group>"; };
 		B656AF0311AA105500AB578A /* NibbleTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NibbleTest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6F3647B11AB361D0045E114 /* xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xattr.cpp; sourceTree = "<group>"; };
 		B6F3648011AB36260045E114 /* xattr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xattr; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6F3651A11ADD0280045E114 /* VolumeEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VolumeEntry.h; sourceTree = "<group>"; };
 		B6F3651B11ADD0280045E114 /* FileEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileEntry.h; sourceTree = "<group>"; };
@@ -224,12 +224,8 @@
 		08FB7794FE84155DC02AAC07 /* PROFuseX */ = {
 			isa = PBXGroup;
 			children = (
-				B6F3647B11AB361D0045E114 /* xattr.cpp */,
-				B63EFC9F11A35F8F00C90DCE /* apfm.cpp */,
+				B6272A8D11D5AC3C0073C73A /* bin */,
 				B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */,
-				B63EFC9B11A35F7B00C90DCE /* newfs_pascal.cpp */,
-				B63EFC9911A35F7200C90DCE /* fuse_pascal.cpp */,
-				B63EFC9D11A35F8200C90DCE /* fuse_pascal_ops.cpp */,
 				B6F3682111B430870045E114 /* newfs_prodos.cpp */,
 				B63EFBE711A244EE00C90DCE /* Pascal */,
 				B63EFACF11A09DB500C90DCE /* ProFUSE */,
@@ -254,6 +250,18 @@
 				B6F3682511B431AC0045E114 /* newfs_prodos */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B6272A8D11D5AC3C0073C73A /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				B6272A8E11D5AC3C0073C73A /* apfm.cpp */,
+				B6272A8F11D5AC3C0073C73A /* fuse_pascal.cpp */,
+				B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */,
+				B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */,
+				B6272A9211D5AC3C0073C73A /* xattr.cpp */,
+			);
+			path = bin;
 			sourceTree = "<group>";
 		};
 		B63EFA7411A0948500C90DCE /* Endian */ = {
@@ -496,8 +504,8 @@
 				B63EFCE211A36C8B00C90DCE /* Entry.cpp in Sources */,
 				B63EFCE311A36C8B00C90DCE /* FileEntry.cpp in Sources */,
 				B63EFCE511A36C8B00C90DCE /* VolumeEntry.cpp in Sources */,
-				B63EFCE911A36C8B00C90DCE /* apfm.cpp in Sources */,
 				B6F3676711B323680045E114 /* TextWriter.cpp in Sources */,
+				B6272A9311D5AC440073C73A /* apfm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -524,8 +532,8 @@
 				B63EFE9511A4888500C90DCE /* Entry.cpp in Sources */,
 				B63EFE9611A4888500C90DCE /* FileEntry.cpp in Sources */,
 				B63EFE9711A4888500C90DCE /* VolumeEntry.cpp in Sources */,
-				B63EFE9911A4888500C90DCE /* newfs_pascal.cpp in Sources */,
 				B6F3676811B323680045E114 /* TextWriter.cpp in Sources */,
+				B6272A9611D5AC560073C73A /* newfs_pascal.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,8 +541,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B656AE1D11A84F9300AB578A /* fuse_pascal.cpp in Sources */,
-				B656AE1E11A84F9300AB578A /* fuse_pascal_ops.cpp in Sources */,
 				B656AE0911A84F7700AB578A /* Endian.cpp in Sources */,
 				B656AE0A11A84F7700AB578A /* BlockDevice.cpp in Sources */,
 				B656AE0B11A84F7700AB578A /* DavexDiskImage.cpp in Sources */,
@@ -555,6 +561,8 @@
 				B656AE1A11A84F7700AB578A /* FileEntry.cpp in Sources */,
 				B656AE1B11A84F7700AB578A /* VolumeEntry.cpp in Sources */,
 				B6F3676511B323680045E114 /* TextWriter.cpp in Sources */,
+				B6272A9411D5AC4C0073C73A /* fuse_pascal.cpp in Sources */,
+				B6272A9511D5AC530073C73A /* fuse_pascal_ops.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,7 +598,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6F3648511AB363B0045E114 /* xattr.cpp in Sources */,
+				B6272A9711D5AC5B0073C73A /* xattr.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

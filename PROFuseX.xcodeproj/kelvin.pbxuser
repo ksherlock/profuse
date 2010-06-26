@@ -64,7 +64,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_ObjectSize_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					10,
+					660,
 					20,
 					48,
 					43,
@@ -107,6 +107,13 @@
 			PBXWorkspaceStateSaveDate = 299215102;
 		};
 		perUserProjectItems = {
+			B6272A9811D5AC5E0073C73A /* PBXTextBookmark */ = B6272A9811D5AC5E0073C73A /* PBXTextBookmark */;
+			B6272A9911D5AC5E0073C73A /* PBXTextBookmark */ = B6272A9911D5AC5E0073C73A /* PBXTextBookmark */;
+			B6272A9A11D5AC5E0073C73A /* PBXTextBookmark */ = B6272A9A11D5AC5E0073C73A /* PBXTextBookmark */;
+			B6272A9B11D5AC5E0073C73A /* PBXTextBookmark */ = B6272A9B11D5AC5E0073C73A /* PBXTextBookmark */;
+			B6272A9C11D5AC5E0073C73A /* PBXTextBookmark */ = B6272A9C11D5AC5E0073C73A /* PBXTextBookmark */;
+			B6272A9D11D5AC5E0073C73A /* PBXBookmark */ = B6272A9D11D5AC5E0073C73A /* PBXBookmark */;
+			B6272A9E11D5AC5E0073C73A /* PBXTextBookmark */ = B6272A9E11D5AC5E0073C73A /* PBXTextBookmark */;
 			B63EFC2611A2D5A400C90DCE = B63EFC2611A2D5A400C90DCE /* PBXTextBookmark */;
 			B63EFC3211A2D5A400C90DCE = B63EFC3211A2D5A400C90DCE /* PBXTextBookmark */;
 			B63EFDA011A4488200C90DCE = B63EFDA011A4488200C90DCE /* PBXTextBookmark */;
@@ -169,6 +176,105 @@
 		sourceControlManager = B63EFA6711A093C200C90DCE /* Source Control */;
 		userBuildSettings = {
 		};
+	};
+	B6272A8E11D5AC3C0073C73A /* apfm.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {838, 13975}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 562}";
+		};
+	};
+	B6272A8F11D5AC3C0073C73A /* fuse_pascal.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {838, 4095}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 724}";
+		};
+	};
+	B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {838, 6396}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 643}";
+		};
+	};
+	B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {838, 4615}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 477}";
+		};
+	};
+	B6272A9211D5AC3C0073C73A /* xattr.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {838, 5434}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 936}";
+		};
+	};
+	B6272A9811D5AC5E0073C73A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */;
+		name = "VolumeEntry.cpp: 618";
+		rLen = 6;
+		rLoc = 13761;
+		rType = 0;
+		vrLen = 1289;
+		vrLoc = 13115;
+	};
+	B6272A9911D5AC5E0073C73A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6272A8E11D5AC3C0073C73A /* apfm.cpp */;
+		name = "apfm.cpp: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 562;
+		vrLoc = 0;
+	};
+	B6272A9A11D5AC5E0073C73A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6272A8F11D5AC3C0073C73A /* fuse_pascal.cpp */;
+		name = "fuse_pascal.cpp: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 724;
+		vrLoc = 0;
+	};
+	B6272A9B11D5AC5E0073C73A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */;
+		name = "fuse_pascal_ops.cpp: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 643;
+		vrLoc = 0;
+	};
+	B6272A9C11D5AC5E0073C73A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */;
+		name = "newfs_pascal.cpp: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 477;
+		vrLoc = 0;
+	};
+	B6272A9D11D5AC5E0073C73A /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = B6272A9211D5AC3C0073C73A /* xattr.cpp */;
+	};
+	B6272A9E11D5AC5E0073C73A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B6272A9211D5AC3C0073C73A /* xattr.cpp */;
+		name = "xattr.cpp: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 936;
+		vrLoc = 0;
 	};
 	B63EFA6711A093C200C90DCE /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -445,9 +551,9 @@
 	};
 	B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {838, 12779}}";
+			sepNavIntBoundsRect = "{{0, 0}, {838, 13208}}";
 			sepNavSelRange = "{13761, 6}";
-			sepNavVisRange = "{13015, 1389}";
+			sepNavVisRange = "{13115, 1289}";
 		};
 	};
 	B63EFC2611A2D5A400C90DCE /* PBXTextBookmark */ = {
@@ -478,6 +584,12 @@
 		};
 	};
 	B63EFC9911A35F7200C90DCE /* fuse_pascal.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = fuse_pascal.cpp;
+		path = /Users/kelvin/Projects/PROFuseX/fuse_pascal.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {838, 4082}}";
 			sepNavSelRange = "{4414, 0}";
@@ -485,6 +597,12 @@
 		};
 	};
 	B63EFC9B11A35F7B00C90DCE /* newfs_pascal.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = newfs_pascal.cpp;
+		path = /Users/kelvin/Projects/PROFuseX/newfs_pascal.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1009, 4381}}";
 			sepNavSelRange = "{4492, 0}";
@@ -492,6 +610,12 @@
 		};
 	};
 	B63EFC9D11A35F8200C90DCE /* fuse_pascal_ops.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = fuse_pascal_ops.cpp;
+		path = /Users/kelvin/Projects/PROFuseX/fuse_pascal_ops.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {701, 6448}}";
 			sepNavSelRange = "{855, 6}";
@@ -499,6 +623,12 @@
 		};
 	};
 	B63EFC9F11A35F8F00C90DCE /* apfm.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = apfm.cpp;
+		path = /Users/kelvin/Projects/PROFuseX/apfm.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1009, 14040}}";
 			sepNavSelRange = "{13109, 0}";
@@ -1019,6 +1149,12 @@
 		vrLoc = 442;
 	};
 	B6F3647B11AB361D0045E114 /* xattr.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = xattr.cpp;
+		path = /Users/kelvin/Projects/PROFuseX/xattr.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {838, 5512}}";
 			sepNavSelRange = "{6657, 6}";
