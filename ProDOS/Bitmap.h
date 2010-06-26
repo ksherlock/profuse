@@ -5,7 +5,7 @@
 
 
 
-namespace ProFUSE {
+namespace ProDOS {
 
 class BlockDevice;
 
@@ -15,7 +15,7 @@ public:
 
     Bitmap(unsigned blocks);
     Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks);
-    //todo -- constructor by loading fro, block device...
+    //todo -- constructor by loading from, block device...
     ~Bitmap();
     
     int allocBlock();

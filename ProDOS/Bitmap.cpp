@@ -1,11 +1,11 @@
 #include <cstring>
 
-#include "Bitmap.h"
-#include "BlockDevice.h"
+#include <ProDOS/Bitmap.h>
+#include <ProDOS/BlockDevice.h>
 #include "auto.h"
 
 
-using namespace ProFUSE;
+using namespace ProDOS;
 
 // returns # of 1-bits set (0-8)
 inline static unsigned popCount(uint8_t x)
