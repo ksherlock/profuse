@@ -29,6 +29,29 @@ enum {
     kMaxFiles = 77
 };
 
+
+
+// djb hash, case insensitive.
+static unsigned NameHash(const char *cp)
+{
+    unsigned hash = 5381;
+    unsigned c;
+    while ((c = *cp++))
+    {
+        c = std::toupper(c);
+        hash = ((hash << 5) + hash) + c;
+    }
+
+    return hash & 0x7FFFFFFF;
+}
+
+static bool NameEqual(const char *a, const char *b)
+{
+    return ::strcasecmp(a, b) == 0;
+}
+
+
+
 unsigned VolumeEntry::ValidName(const char *cp)
 {
     // 7 chars max.  Legal values: ascii, printable, 
@@ -585,14 +608,16 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
             prev->_maxFileSize = prev->blocks() * 512;
         }
         
-        // insert() inserts an item *before* the current item.
+        // insert() inserts an item *before* the current item and returns an iterator to the 
+        // element inserted.
         // afterwards, iter will point to curr+1
         
         // keep track of the index *before* the insert.
         unsigned index = distance(_files.begin(), iter); // current index.
         
-        _files.insert(iter, entry.get());
-        _fileCount++;
+        iter = _files.insert(iter, entry.get());
+        ++_fileCount;
+        
         curr = entry.release();
         
         curr->_parent = this;

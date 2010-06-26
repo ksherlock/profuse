@@ -7,13 +7,8 @@
 
 #include <unistd.h>
 
-#include "BlockDevice.h"
-#include "DavexDiskImage.h"
-#include "DiskCopy42Image.h"
-#include "Entry.h"
-#include "Exception.h"
-#include "RawDevice.h"
-#include "UniversalDiskImage.h"
+#include <Device/BlockDevice.h>
+#include <ProFUSE/Exception.h>
 
 
 #define NEWFS_VERSION "0.1"
@@ -173,7 +168,7 @@ int main(int argc, char **argv)
         
         case 'f':
             {
-                format = DiskImage::ImageType(optarg);
+                format = BlockDevice::ImageType(optarg);
                 if (format == 0)
                 {
                     std::fprintf(stderr, "Error: `%s' is not a supported disk image format.\n", optarg);
@@ -204,7 +199,7 @@ int main(int argc, char **argv)
             volumeName = "Untitled";
     }
     
-    if (format == 0) format = DiskImage::ImageType(fname, '2IMG');
+    if (format == 0) format = BlockDevice::ImageType(fname, '2IMG');
     
     
     try
