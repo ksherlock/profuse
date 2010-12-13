@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS += -Wall -W -I. -O2 -g 
+CPPFLAGS += -Wall -W -Wno-multichar -I. -O2 -g 
 LDFLAGS += -lpthread
 fuse_pascal_LDFLAGS += -lfuse
 
@@ -14,7 +14,7 @@ newfs_pascal: newfs_pascal.o \
   Endian/Endian.o \
   File/File.o File/MappedFile.o \
   ProFUSE/Exception.o ProFUSE/Lock.o \
-  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o 
+  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o Pascal/TextWriter.o
 
 apfm: apfm.o \
   Cache/BlockCache.o Cache/ConcreteBlockCache.o Cache/MappedBlockCache.o \
@@ -24,7 +24,7 @@ apfm: apfm.o \
   Endian/Endian.o \
   File/File.o File/MappedFile.o \
   ProFUSE/Exception.o ProFUSE/Lock.o \
-  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o 
+  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o Pascal/TextWriter.o
 
 
 fuse_pascal: fuse_pascal.o fuse_pascal_ops.o \
@@ -35,7 +35,7 @@ fuse_pascal: fuse_pascal.o fuse_pascal_ops.o \
   Endian/Endian.o \
   File/File.o File/MappedFile.o \
   ProFUSE/Exception.o ProFUSE/Lock.o \
-  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o 
+  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o Pascal/TextWriter.o
 	$(CC) -lfuse $(LDFLAGS) $^ -o $@
 
 
@@ -131,7 +131,7 @@ Pascal/FileEntry.o: Pascal/FileEntry.cpp Pascal/Pascal.h Pascal/Date.h \
   Pascal/Entry.h Pascal/FileEntry.h Pascal/VolumeEntry.h ProFUSE/auto.h \
   ProFUSE/Exception.h Endian/Endian.h Endian/IOBuffer.h \
   Endian/IOBuffer.cpp.h Device/BlockDevice.h Device/TrackSector.h \
-  Cache/BlockCache.h
+  Cache/BlockCache.h Pascal/TextWriter.h
 
 Pascal/VolumeEntry.o: Pascal/VolumeEntry.cpp Pascal/Pascal.h Pascal/Date.h \
   Pascal/Entry.h Pascal/FileEntry.h Pascal/VolumeEntry.h ProFUSE/auto.h \
@@ -139,3 +139,5 @@ Pascal/VolumeEntry.o: Pascal/VolumeEntry.cpp Pascal/Pascal.h Pascal/Date.h \
   Endian/IOBuffer.cpp.h Device/BlockDevice.h Device/TrackSector.h \
   Cache/BlockCache.h
 
+Pascal/TextWriter.o: Pascal/TextWriter.cpp Pascal/TextWriter.h \
+  Pascal/FileEntry.h Pascal/Entry.h Pascal/Date.h ProFUSE/Exception.h
