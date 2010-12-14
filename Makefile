@@ -3,56 +3,101 @@ CPPFLAGS += -Wall -W -Wno-multichar -I. -O2 -g
 LDFLAGS += -lpthread
 fuse_pascal_LDFLAGS += -lfuse
 
-xattr: xattr.o
-	$(CC) $^ -o $@
+OBJECTS += ${wildcard *.o}
+OBJECTS += ${wildcard bin/*.o}
+OBJECTS += ${wildcard Cache/*.o}
+OBJECTS += ${wildcard Device/*.o}
+OBJECTS += ${wildcard Endian/*.o}
+OBJECTS += ${wildcard File/*.o}
+OBJECTS += ${wildcard Pascal/*.o}
+OBJECTS += ${wildcard ProFUSE/*.o}
 
-newfs_pascal: newfs_pascal.o \
-  Cache/BlockCache.o Cache/ConcreteBlockCache.o Cache/MappedBlockCache.o \
-  Device/Adaptor.o Device/BlockDevice.o Device/DavexDiskImage.o \
-  Device/DiskCopy42Image.o Device/DiskImage.o Device/RawDevice.o \
-  Device/UniversalDiskImage.o \
-  Endian/Endian.o \
-  File/File.o File/MappedFile.o \
-  ProFUSE/Exception.o ProFUSE/Lock.o \
-  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o Pascal/TextWriter.o
+TARGETS = apfm newfs_pascal profuse_pascal xattr
 
-apfm: apfm.o \
-  Cache/BlockCache.o Cache/ConcreteBlockCache.o Cache/MappedBlockCache.o \
-  Device/Adaptor.o Device/BlockDevice.o Device/DavexDiskImage.o \
-  Device/DiskCopy42Image.o Device/DiskImage.o Device/RawDevice.o \
-  Device/UniversalDiskImage.o \
-  Endian/Endian.o \
-  File/File.o File/MappedFile.o \
-  ProFUSE/Exception.o ProFUSE/Lock.o \
-  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o Pascal/TextWriter.o
+BIN_OBJECTS += bin/apfm.o
+BIN_OBJECTS += bin/fuse_pascal_ops.o
+BIN_OBJECTS += bin/newfs_prodos.o
+BIN_OBJECTS += bin/fuse_pascal.o
+BIN_OBJECTS += bin/newfs_pascal.o
+BIN_OBJECTS += bin/xattr.o
+
+CACHE_OBJECTS += Cache/BlockCache.o
+CACHE_OBJECTS += Cache/ConcreteBlockCache.o
+CACHE_OBJECTS += Cache/MappedBlockCache.o
+
+DEVICE_OBJECTS += Device/Adaptor.o
+DEVICE_OBJECTS += Device/BlockDevice.o
+DEVICE_OBJECTS += Device/DavexDiskImage.o
+DEVICE_OBJECTS += Device/DiskCopy42Image.o
+DEVICE_OBJECTS += Device/DiskImage.o
+DEVICE_OBJECTS += Device/RawDevice.o
+DEVICE_OBJECTS += Device/UniversalDiskImage.o
+
+ENDIAN_OBJECTS += Endian/Endian.o
+
+FILE_OBJECTS += File/File.o
+FILE_OBJECTS += File/MappedFile.o
+
+PASCAL_OBJECTS += Pascal/Date.o
+PASCAL_OBJECTS += Pascal/FileEntry.o
+PASCAL_OBJECTS += Pascal/TextWriter.o
+PASCAL_OBJECTS += Pascal/Entry.o
+PASCAL_OBJECTS += Pascal/VolumeEntry.o
+
+PROFUSE_OBJECTS += ProFUSE/Exception.o
+PROFUSE_OBJECTS += ProFUSE/Lock.o
 
 
-fuse_pascal: fuse_pascal.o fuse_pascal_ops.o \
-  Cache/BlockCache.o Cache/ConcreteBlockCache.o Cache/MappedBlockCache.o \
-  Device/Adaptor.o Device/BlockDevice.o Device/DavexDiskImage.o \
-  Device/DiskCopy42Image.o Device/DiskImage.o Device/RawDevice.o \
-  Device/UniversalDiskImage.o \
-  Endian/Endian.o \
-  File/File.o File/MappedFile.o \
-  ProFUSE/Exception.o ProFUSE/Lock.o \
-  Pascal/Date.o Pascal/Entry.o Pascal/FileEntry.o Pascal/VolumeEntry.o Pascal/TextWriter.o
+
+xattr: bin/xattr.o
+	$(CC) $(LDFLAGS) $^ -o $@
+
+newfs_pascal: bin/newfs_pascal.o \
+  ${CACHE_OBJECTS} \
+  ${DEVICE_OBJECTS} \
+  ${ENDIAN_OBJECTS} \
+  ${FILE_OBJECTS} \
+  ${PROFUSE_OBJECTS} \
+  ${PASCAL_OBJECTS}
+	$(CC) $(LDFLAGS) $^ -o $@
+
+apfm: bin/apfm.o \
+  ${CACHE_OBJECTS} \
+  ${DEVICE_OBJECTS} \
+  ${ENDIAN_OBJECTS} \
+  ${FILE_OBJECTS} \
+  ${PROFUSE_OBJECTS} \
+  ${PASCAL_OBJECTS}
+	$(CC) $(LDFLAGS) $^ -o $@
+
+
+fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
+  ${CACHE_OBJECTS} \
+  ${DEVICE_OBJECTS} \
+  ${ENDIAN_OBJECTS} \
+  ${FILE_OBJECTS} \
+  ${PROFUSE_OBJECTS} \
+  ${PASCAL_OBJECTS}
 	$(CC) -lfuse $(LDFLAGS) $^ -o $@
 
 
-xattr.o: xattr.cpp
+clean:
+	rm -f  ${OBJECTS} ${TARGETS}
+
+xattr.o: bin/xattr.cpp
  
-newfs_pascal.o: newfs_pascal.cpp Device/BlockDevice.h ProFUSE/Exception.h \
+newfs_pascal.o: bin/newfs_pascal.cpp Device/BlockDevice.h ProFUSE/Exception.h \
   Device/TrackSector.h Cache/BlockCache.h Device/RawDevice.h File/File.h \
   Pascal/Pascal.h Pascal/Date.h
 
-fuse_pascal.o: fuse_pascal.cpp Pascal/Pascal.h Pascal/Date.h \
+fuse_pascal.o: bin/fuse_pascal.cpp Pascal/Pascal.h Pascal/Date.h \
   ProFUSE/Exception.h Device/BlockDevice.h Device/TrackSector.h \
   Cache/BlockCache.h
 
-fuse_pascal_ops.o: fuse_pascal_ops.cpp Pascal/Pascal.h Pascal/Date.h \
+fuse_pascal_ops.o: bin/fuse_pascal_ops.cpp Pascal/Pascal.h Pascal/Date.h \
   ProFUSE/auto.h ProFUSE/Exception.h
 
-apfm.o: apfm.cpp Pascal/Pascal.h Pascal/Date.h Device/BlockDevice.h \
+apfm.o: bin/apfm.cpp Pascal/Pascal.h Pascal/Date.h Device/BlockDevice.h \
   ProFUSE/Exception.h Device/TrackSector.h Cache/BlockCache.h
 
 File/File.o: File/File.cpp File/File.h ProFUSE/Exception.h
