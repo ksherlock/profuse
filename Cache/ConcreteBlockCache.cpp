@@ -55,7 +55,7 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-typedef std::vector<ConcreteBlockCache::Entry *>::iterator EntryIter;
+//typedef std::vector<ConcreteBlockCache::Entry *>::iterator EntryIter;
 
 
 

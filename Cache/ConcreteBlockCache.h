@@ -36,6 +36,8 @@ private:
 
     };
 
+    typedef std::vector<Entry *>::iterator EntryIter;
+    
     enum { HashTableSize = 23 };
 
     std::vector<Entry *>_buffers;
