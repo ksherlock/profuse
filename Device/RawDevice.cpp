@@ -157,7 +157,7 @@ RawDevice::RawDevice(const char *name, File::FileFlags flags) :
 
     if (!_file.isValid())
     {
-        throw new Exception(__METHOD__ ": Invalid file handle.");
+        throw Exception(__METHOD__ ": Invalid file handle.");
     }
     
     _readOnly = flags == File::ReadOnly;
@@ -178,7 +178,7 @@ RawDevice::RawDevice(File& file, File::FileFlags flags) :
     
     if (!_file.isValid())
     {
-        throw new Exception(__METHOD__ ": Invalid file handle.");
+        throw Exception(__METHOD__ ": Invalid file handle.");
     }
     
     _readOnly = flags == File::ReadOnly;

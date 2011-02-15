@@ -262,7 +262,7 @@ void VolumeEntry::init(void *vp)
     
     // verify filenamelength <= 7
     if (_fileNameLength > 7)
-        throw new  ProDOSException(__METHOD__ ": invalid name length", ProFUSE::badPathSyntax);
+        throw ProDOSException(__METHOD__ ": invalid name length", ProFUSE::badPathSyntax);
     
     // verify fileKind == 0
     // verify _fileCount reasonable
