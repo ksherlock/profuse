@@ -77,6 +77,7 @@ public:
     virtual ~Exception() throw ();
     
     virtual const char *what();
+    virtual const char *errorString();
     
     int error() const { return _error; }
 
@@ -94,12 +95,16 @@ class POSIXException : public Exception {
 public:
     POSIXException(const char *cp, int error);
     POSIXException(const std::string& string, int error);
+    
+    virtual const char *errorString();    
 };
 
 class ProDOSException : public Exception {
 public:
     ProDOSException(const char *cp, int error);
     ProDOSException(const std::string& string, int error);
+    
+    virtual const char *errorString();
 };
 
 inline Exception::Exception(const char *cp):
