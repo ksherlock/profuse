@@ -1025,15 +1025,9 @@ int main(int argc, char **argv)
         
         unsigned actionCode = command(action);
         
-        
         device.reset( Device::BlockDevice::Open(file, commandFlags(actionCode), fmt) );
     
-
-                     
-                     
-        
         volume.reset( new Pascal::VolumeEntry(device.get()));
-        
         device.release();
 
         switch (actionCode)
@@ -1070,7 +1064,7 @@ int main(int argc, char **argv)
     catch (ProFUSE::Exception& e)
     {
         std::fprintf(stderr, "%s\n", e.what());
-        std::fprintf(stderr, "%s\n", strerror(e.error()));
+        std::fprintf(stderr, "%s\n", e.errorString());
     }
     
     return 0;
