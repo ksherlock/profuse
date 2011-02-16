@@ -12,6 +12,8 @@
 		B6272A9511D5AC530073C73A /* fuse_pascal_ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */; };
 		B6272A9611D5AC560073C73A /* newfs_pascal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */; };
 		B6272A9711D5AC5B0073C73A /* xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272A9211D5AC3C0073C73A /* xattr.cpp */; };
+		B6272AAA11D5AE0C0073C73A /* Bitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272AA511D5AE0C0073C73A /* Bitmap.cpp */; };
+		B6272AAB11D5AE0C0073C73A /* DateTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272AA711D5AE0C0073C73A /* DateTime.cpp */; };
 		B63EFCD211A36C8B00C90DCE /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
 		B63EFCD311A36C8B00C90DCE /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
 		B63EFCD411A36C8B00C90DCE /* DavexDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9711A094E000C90DCE /* DavexDiskImage.cpp */; };
@@ -109,7 +111,6 @@
 		B6F3683611B431CC0045E114 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAD111A09DB500C90DCE /* Exception.cpp */; };
 		B6F3683711B431CC0045E114 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAD311A09DB500C90DCE /* Lock.cpp */; };
 		B6F3683811B431CC0045E114 /* Adaptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFB0711A0AC4800C90DCE /* Adaptor.cpp */; };
-		B6F3683F11B431E20045E114 /* newfs_prodos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3682111B430870045E114 /* newfs_prodos.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,6 +119,11 @@
 		B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fuse_pascal_ops.cpp; sourceTree = "<group>"; };
 		B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newfs_pascal.cpp; sourceTree = "<group>"; };
 		B6272A9211D5AC3C0073C73A /* xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xattr.cpp; sourceTree = "<group>"; };
+		B6272AA211D5AC840073C73A /* newfs_prodos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newfs_prodos.cpp; sourceTree = "<group>"; };
+		B6272AA511D5AE0C0073C73A /* Bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bitmap.cpp; sourceTree = "<group>"; };
+		B6272AA611D5AE0C0073C73A /* Bitmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bitmap.h; sourceTree = "<group>"; };
+		B6272AA711D5AE0C0073C73A /* DateTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DateTime.cpp; sourceTree = "<group>"; };
+		B6272AA811D5AE0C0073C73A /* DateTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateTime.h; sourceTree = "<group>"; };
 		B63EFA7511A0948500C90DCE /* Endian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endian.cpp; sourceTree = "<group>"; };
 		B63EFA7611A0948500C90DCE /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
 		B63EFA7711A0948500C90DCE /* IOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.h; sourceTree = "<group>"; };
@@ -170,7 +176,6 @@
 		B6F3652711ADD52B0045E114 /* Pascal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pascal.h; sourceTree = "<group>"; };
 		B6F3676311B323680045E114 /* TextWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextWriter.h; sourceTree = "<group>"; };
 		B6F3676411B323680045E114 /* TextWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextWriter.cpp; sourceTree = "<group>"; };
-		B6F3682111B430870045E114 /* newfs_prodos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newfs_prodos.cpp; sourceTree = "<group>"; };
 		B6F3682511B431AC0045E114 /* newfs_prodos */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = newfs_prodos; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -226,7 +231,7 @@
 			children = (
 				B6272A8D11D5AC3C0073C73A /* bin */,
 				B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */,
-				B6F3682111B430870045E114 /* newfs_prodos.cpp */,
+				B6272AA411D5AE0C0073C73A /* ProDOS */,
 				B63EFBE711A244EE00C90DCE /* Pascal */,
 				B63EFACF11A09DB500C90DCE /* ProFUSE */,
 				B63EFAC811A09DAA00C90DCE /* File */,
@@ -259,9 +264,21 @@
 				B6272A8F11D5AC3C0073C73A /* fuse_pascal.cpp */,
 				B6272A9011D5AC3C0073C73A /* fuse_pascal_ops.cpp */,
 				B6272A9111D5AC3C0073C73A /* newfs_pascal.cpp */,
+				B6272AA211D5AC840073C73A /* newfs_prodos.cpp */,
 				B6272A9211D5AC3C0073C73A /* xattr.cpp */,
 			);
 			path = bin;
+			sourceTree = "<group>";
+		};
+		B6272AA411D5AE0C0073C73A /* ProDOS */ = {
+			isa = PBXGroup;
+			children = (
+				B6272AA511D5AE0C0073C73A /* Bitmap.cpp */,
+				B6272AA611D5AE0C0073C73A /* Bitmap.h */,
+				B6272AA711D5AE0C0073C73A /* DateTime.cpp */,
+				B6272AA811D5AE0C0073C73A /* DateTime.h */,
+			);
+			path = ProDOS;
 			sourceTree = "<group>";
 		};
 		B63EFA7411A0948500C90DCE /* Endian */ = {
@@ -465,7 +482,11 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "PROFuseX" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* PROFuseX */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -621,7 +642,8 @@
 				B6F3683611B431CC0045E114 /* Exception.cpp in Sources */,
 				B6F3683711B431CC0045E114 /* Lock.cpp in Sources */,
 				B6F3683811B431CC0045E114 /* Adaptor.cpp in Sources */,
-				B6F3683F11B431E20045E114 /* newfs_prodos.cpp in Sources */,
+				B6272AAA11D5AE0C0073C73A /* Bitmap.cpp in Sources */,
+				B6272AAB11D5AE0C0073C73A /* DateTime.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -634,6 +656,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -642,7 +665,7 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -651,10 +674,11 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -697,6 +721,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = newfs_pascal;
@@ -711,6 +736,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = newfs_pascal;
@@ -724,6 +750,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -732,7 +759,7 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = "Debug fuse";
 		};
@@ -760,6 +787,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = newfs_pascal;
