@@ -8,7 +8,7 @@ namespace Device {
 class MappedBlockCache : public BlockCache {
     public:
 
-    MappedBlockCache(BlockDevice *, void *data);
+    MappedBlockCache(BlockDevicePointer device, void *data);
     virtual ~MappedBlockCache();
 
     virtual void sync();

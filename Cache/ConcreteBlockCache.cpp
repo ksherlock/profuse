@@ -59,7 +59,7 @@ using ProFUSE::POSIXException;
 
 
 
-ConcreteBlockCache::ConcreteBlockCache(BlockDevice *device, unsigned size) :
+ConcreteBlockCache::ConcreteBlockCache(BlockDevicePointer device, unsigned size) :
     BlockCache(device)
 {
     if (size < 16) size = 16;

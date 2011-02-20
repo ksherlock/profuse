@@ -158,8 +158,9 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
 }
 
 
-BlockCache *DavexDiskImage::createBlockCache()
+BlockCachePointer DavexDiskImage::createBlockCache(BlockDevicePointer device)
 {
-    return new MappedBlockCache(this, 512 + (uint8_t *)address());
+    // need a smart pointer, but only have this....
+    return BlockCachePointer(new MappedBlockCache(device, 512 + (uint8_t *)address()));
     
 }

@@ -20,7 +20,7 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-MappedBlockCache::MappedBlockCache(BlockDevice *device, void *data) :
+MappedBlockCache::MappedBlockCache(BlockDevicePointer device, void *data) :
     BlockCache(device)
 {
     _data = (uint8_t *)data;

@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <ProFUSE/Exception.h>
-
+#include <Device/Device.h>
 #include <Device/TrackSector.h>
 
-#include <Cache/BlockCache.h>
+#include <ProFUSE/Exception.h>
+
 
 #include <File/File.h>
 
@@ -30,7 +30,7 @@ public:
     
     virtual ~BlockDevice();
     
-    virtual BlockCache *createBlockCache();
+    virtual BlockCachePointer createBlockCache(BlockDevicePointer device);
     
     
     virtual void read(unsigned block, void *bp) = 0;

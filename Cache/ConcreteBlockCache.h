@@ -9,7 +9,7 @@ namespace Device {
 
 class ConcreteBlockCache : public BlockCache {
 public:
-    ConcreteBlockCache(BlockDevice *device, unsigned size = 16);
+    ConcreteBlockCache(BlockDevicePointer device, unsigned size = 16);
     virtual ~ConcreteBlockCache();
 
     virtual void sync();
