@@ -6,7 +6,8 @@
  *
  */
 
-#include "File.h"
+#include <ProDOS/File.h>
+#include <ProDOS/DateTime.h>
 
 #include "common.h"
 #include <string.h>
@@ -14,7 +15,6 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#include "DateTime.h"
 
 
 bool FileEntry::Load(const void *data)

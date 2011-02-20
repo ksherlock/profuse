@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef __FILE_H__
-#define __FILE_H__
+#ifndef __PRODOS_FILE_H__
+#define __PRODOS_FILE_H__
 
 #include <time.h>
 #include <stdint.h>
