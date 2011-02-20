@@ -13,7 +13,10 @@
 
 #include <vector>
 
-#include "File.h"
+#include <ProDOS/File.h>
+#include <Device/BlockDevice.h>
+
+#include <tr1/memory>
 
 
 enum {
@@ -40,6 +43,8 @@ enum {
     
 };
 
+class Disk;
+typedef std::tr1::shared_ptr<Disk> DiskPointer;
 
 class Disk {
 
@@ -47,7 +52,7 @@ public:
     ~Disk();
     
     //static Disk *Open2MG(const char *file);
-    static Disk *OpenFile(const char *file, unsigned flags);
+    static DiskPointer OpenFile(Device::BlockDevicePointer device);
     
 
     int Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee = NULL);
@@ -65,13 +70,14 @@ public:
     
 private:
     Disk();
-    uint8_t *_data;
-    unsigned _offset;
-    unsigned _blocks;
-    size_t _size;
+    Disk(Device::BlockDevicePointer device);
     
-    unsigned _flags;
+    unsigned _blocks;
+
+    Device::BlockDevicePointer _device;
 };
+
+
 
 #endif
 

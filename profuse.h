@@ -9,7 +9,7 @@
 #ifndef __PROFUSE_H__
 #define __PROFUSE_H__
 
-#include "File.h"
+#include <ProDOS/File.h>
 #include "Disk.h"
 #include "common.h"
 
@@ -22,7 +22,7 @@
 #define ERROR(cond,errno) if ( (cond) ){ fuse_reply_err(req, errno); return; }
 
 
-extern Disk *disk;
+extern DiskPointer disk;
 
 bool validProdosName(const char *name);
 

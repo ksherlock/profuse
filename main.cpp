@@ -14,28 +14,38 @@
 #define _POSIX_C_SOURCE 200112L
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 
 #include <vector>
 #include <string>
 
+#include <tr1/memory>
+
+#include <Device/BlockDevice.h>
+
 
 #include "profuse.h"
 
+
+
 using std::vector;
 using std::string;
+using std::tr1::shared_ptr;
 
-Disk *disk = NULL;
-char *dfile = NULL;
+
+/*
+ * globals variables.
+ *
+ */
+ 
+std::string fDiskImage;
+
+
+DiskPointer disk;
 VolumeEntry volume;
-
-bool dos_order = false;
-
-
 
 bool validProdosName(const char *name)
 {
@@ -70,46 +80,81 @@ static struct fuse_lowlevel_ops prodos_oper;
 enum {
     PRODOS_OPT_HELP,
     PRODOS_OPT_VERSION,
-    PRODOS_OPT_DOS_ORDER
+    PRODOS_OPT_WRITE,
+    PRODOS_OPT_FORMAT,
+    PRODOS_OPT_VERBOSE
 };
+
+struct options {
+    char *format;
+    int readOnly;
+    int readWrite;
+    int verbose;
+    int debug;
+    
+} options;
+
+#define PRODOS_OPT_KEY(T, P, V) {T, offsetof(struct options, P), V}
+
 
 static struct fuse_opt prodos_opts[] = {
     FUSE_OPT_KEY("-h",             PRODOS_OPT_HELP),
     FUSE_OPT_KEY("--help",         PRODOS_OPT_HELP),
+
     FUSE_OPT_KEY("-V",             PRODOS_OPT_VERSION),
     FUSE_OPT_KEY("--version",      PRODOS_OPT_VERSION),
-    FUSE_OPT_KEY("--dos-order",    PRODOS_OPT_DOS_ORDER),
+    
+    PRODOS_OPT_KEY("-v", verbose, 1),
+    
+    PRODOS_OPT_KEY("-w", readWrite, 1),
+    PRODOS_OPT_KEY("rw", readWrite, 1),
+    
+    PRODOS_OPT_KEY("-d", debug, 1),
+
+    PRODOS_OPT_KEY("--format=%s", format, 0),
+    PRODOS_OPT_KEY("format=%s", format, 0),
     {0, 0, 0}
 };
 
 static void usage()
 {
-    fprintf(stderr, "profuse [options] disk_image mountpoint\n");
+    fprintf(stderr, "profuse [options] disk_image [mountpoint]\n"
+            
+            "Options:\n"
+            "  -d                debug\n"
+            "  -r                readonly\n"
+            "  -w                mount writable [not yet]\n"
+            "  -v                verbose\n"
+            "  --format=format   specify the disk image format. Valid values are:\n"
+            "                    dc42  DiskCopy 4.2 Image\n"
+            "                    davex Davex Disk Image\n"
+            "                    2img  Universal Disk Image\n"
+            "                    do    DOS Order Disk Image\n"
+            "                    po    ProDOS Order Disk Image (default)\n"
+            "  -o opt1,opt2...   other mount parameters.\n"            
+            
+            );
 }
 
 static int prodos_opt_proc(void *data, const char *arg, int key, struct fuse_args *outargs)
 {
     switch(key)
     {
-            /*
         case PRODOS_OPT_HELP:
             usage();
             exit(0);
             break;
-             */
+
         case PRODOS_OPT_VERSION:
             // TODO
             exit(1);
             break;
-        case PRODOS_OPT_DOS_ORDER:
-            dos_order = true;
-            return 0;
-            break;
-            
+
         case FUSE_OPT_KEY_NONOPT:
-            if (dfile == NULL)
+            // first arg is the disk image.
+            if (fDiskImage.empty())
             {
-                dfile = strdup(arg);
+                fDiskImage = arg;
                 return 0;
             }
             return 1;
@@ -159,15 +204,25 @@ int main(int argc, char *argv[])
 	struct fuse_chan *ch;
 	char *mountpoint = NULL;
 	int err = -1;
+    struct options options;
+    
+    unsigned format = 0;
+    
+    int foreground = false; 
+    int multithread = false;    
+    
     
 #if __APPLE__
     string mountpath;
 #endif
     
     
-    disk = NULL;
     
-    bzero(&prodos_oper, sizeof(prodos_oper));
+        
+    std::memset(&prodos_oper, 0, sizeof(prodos_oper));
+
+    std::memset(&options, 0, sizeof(options));    
+
     
     prodos_oper.listxattr = prodos_listxattr;
     prodos_oper.getxattr = prodos_getxattr;
@@ -185,23 +240,54 @@ int main(int argc, char *argv[])
     
 
     // scan the argument list, looking for the name of the disk image.
-    if (fuse_opt_parse(&args, NULL , prodos_opts, prodos_opt_proc) == -1)
+    if (fuse_opt_parse(&args, &options , prodos_opts, prodos_opt_proc) == -1)
         exit(1);
     
-    if (dfile == NULL || *dfile == 0)
+    if (fDiskImage.empty())
     {
         usage();
-        exit(0);
+        exit(1);
     }
     
-    disk = Disk::OpenFile(dfile, dos_order);
-    
-    if (!disk)
+    // default prodos-order disk image.
+    if (options.format)
     {
-        fprintf(stderr, "Unable to mount disk %s\n", dfile);
-        exit(1);
+        format = Device::BlockDevice::ImageType(options.format);
+        if (!format)
+            std::fprintf(stderr, "Warning: Unknown image type ``%s''\n", options.format);
+    }
+    
+    try {
+        Device::BlockDevicePointer device;
+        
+        device.reset ( Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format) );
+        
+        if (!device.get())
+        {
+            std::fprintf(stderr, "Error: Unknown or unsupported device type.\n");
+            exit(1);
+        }
+        
+        disk = Disk::OpenFile(device);
+        
+        if (!disk.get())
+        {
+            fprintf(stderr, "Unable to mount disk %s\n", fDiskImage.c_str());
+            exit(1);
+        }    
+    }
+    catch (ProFUSE::POSIXException &e)
+    {
+        std::fprintf(stderr, "%s\n", e.what());
+        std::fprintf(stderr, "%s\n", e.errorString());
+        return -1;
     }    
-
+    catch (ProFUSE::Exception &e)
+    {
+        std::fprintf(stderr, "%s\n", e.what());
+        return -1;
+    }  
+    
 
     
     disk->ReadVolume(&volume, NULL);
@@ -235,6 +321,7 @@ int main(int argc, char *argv[])
         
 #endif
         
+        foreground = options.debug;
         
         
         if (mountpoint == NULL || *mountpoint == 0)
@@ -244,26 +331,32 @@ int main(int argc, char *argv[])
         }
         
         
-        
 
-        
 	    if ( (ch = fuse_mount(mountpoint, &args)) != NULL)
         {
             struct fuse_session *se;
             
             se = fuse_lowlevel_new(&args, &prodos_oper, sizeof(prodos_oper), NULL);
-            if (se != NULL) 
-            {
-                if (fuse_set_signal_handlers(se) != -1)
-                {
-                    fuse_session_add_chan(se, ch);
-                    err = fuse_session_loop(se);
-                    fuse_remove_signal_handlers(se);
-                    fuse_session_remove_chan(ch);
-                }
+            if (se != NULL) do {
+            
+                err = fuse_daemonize(foreground);
+                if (err < 0 ) break;
                 
-                fuse_session_destroy(se);
-            }
+                err = fuse_set_signal_handlers(se);
+                if (err < 0) break;
+                
+
+                fuse_session_add_chan(se, ch);
+
+                if (multithread) err = fuse_session_loop_mt(se);
+                else err = fuse_session_loop(se);
+                
+                fuse_remove_signal_handlers(se);
+                fuse_session_remove_chan(ch);
+                
+            } while (false);
+            
+            if (se) fuse_session_destroy(se);
             fuse_unmount(mountpoint, ch);
         }
         
@@ -271,9 +364,8 @@ int main(int argc, char *argv[])
     
     fuse_opt_free_args(&args);
     
-    if (disk) delete disk;
+    disk.reset();
     
-    if (dfile) free(dfile);
     
 #ifdef __APPLE__
     if (mountpath.size()) rmdir(mountpath.c_str());

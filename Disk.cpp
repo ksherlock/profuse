@@ -24,6 +24,7 @@
 #include <set>
 #include <vector>
 
+
 struct ucmp
 {
     bool operator()(unsigned a, unsigned b) const
@@ -39,20 +40,28 @@ typedef set<unsigned, ucmp> uset;
 
 Disk::Disk()
 {
-    _data = (uint8_t *)-1;
     _blocks = 0;
-    _offset = 0;
-    _size = 0;
-    _flags = 0;
+
 }
 
 Disk::~Disk()
 {
-    if (_data != (uint8_t *)-1)
-        munmap(_data, _size);
 }
 
+Disk::Disk(Device::BlockDevicePointer device) :
+    _device(device)
+{
+    _blocks = _device->blocks();
+}
 
+DiskPointer Disk::OpenFile(Device::BlockDevicePointer device)
+{
+    DiskPointer disk(new Disk(device));
+    
+    return disk;
+}
+
+#if 0
 Disk *Disk::OpenFile(const char *file, unsigned flags)
 {
     int fd;
@@ -155,7 +164,7 @@ Disk *Disk::OpenFile(const char *file, unsigned flags)
     
     return d;
 }
-
+#endif
 
 // load the mini entry into the regular entry.
 int Disk::Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee)
@@ -200,31 +209,11 @@ int Disk::Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee)
 
 int Disk::Read(unsigned block, void *buffer)
 {
-    if (block > _blocks) return -P8_INVALID_BLOCK;
-    
-    
-    if (_flags & P8_DOS_ORDER)
-    {
-        static unsigned do_map[] = {0x00, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x0f };
-                
-        unsigned track = (block & ~0x07) << 9;
-        unsigned sector = (block & 0x07) << 1;
-        
-        for (unsigned i = 0; i < 2; i++)
-        {
-            unsigned offset = track | (do_map[sector+i] << 8); 
-            
-            memcpy(buffer, _data + _offset + offset, 256);
-            
-            buffer = (char *)buffer + 256;
-            
-        }
-        return 1;
-    }
-    
 
+    if (block > _blocks) return -P8_INVALID_BLOCK;
+
+    _device->read(block, buffer);
     
-    memcpy(buffer, _data + _offset + (block << 9), BLOCK_SIZE);
     return 1;
 }
 
