@@ -14,7 +14,7 @@
 
 namespace Device {
 
-class BlockDevice {
+    class BlockDevice : public std::tr1::enable_shared_from_this<BlockDevice> {
 public:
 
 
@@ -30,7 +30,7 @@ public:
     
     virtual ~BlockDevice();
     
-    virtual BlockCachePointer createBlockCache(BlockDevicePointer device);
+    virtual BlockCachePointer createBlockCache();
     
     
     virtual void read(unsigned block, void *bp) = 0;

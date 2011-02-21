@@ -20,7 +20,7 @@ public:
     static DavexDiskImage *Create(const char *name, size_t blocks, const char *vname);
     static DavexDiskImage *Open(MappedFile *);
 
-    virtual BlockCachePointer createBlockCache(BlockDevicePointer device);
+    virtual BlockCachePointer createBlockCache();
 
 private:
 

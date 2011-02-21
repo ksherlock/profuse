@@ -22,7 +22,7 @@ public:
     virtual void write(unsigned block, const void *bp);
     
 
-    virtual BlockCachePointer createBlockCache(BlockDevicePointer device);    
+    virtual BlockCachePointer createBlockCache();    
     
 private:
 

@@ -141,14 +141,14 @@ bool UniversalDiskImage::readOnly()
 }
 
 
-BlockCachePointer UniversalDiskImage::createBlockCache(BlockDevicePointer device)
+BlockCachePointer UniversalDiskImage::createBlockCache()
 {
     if (_format == 1)
     {
-        return BlockCachePointer(new MappedBlockCache(device, _dataOffset + (uint8_t *)address()));
+        return BlockCachePointer(new MappedBlockCache(shared_from_this(), _dataOffset + (uint8_t *)address()));
     }
     
-    return DiskImage::createBlockCache(device);
+    return DiskImage::createBlockCache();
 }
 
 

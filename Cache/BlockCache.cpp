@@ -53,7 +53,7 @@ BlockCachePointer BlockCache::Create(BlockDevicePointer device)
 {
     if (!device.get()) return BlockCachePointer();
     
-    return device->createBlockCache(device);
+    return device->createBlockCache();
 }
 
 
