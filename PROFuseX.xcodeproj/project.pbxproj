@@ -169,6 +169,7 @@
 		B656AE0311A84F5800AB578A /* fuse_pascal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_pascal; sourceTree = BUILT_PRODUCTS_DIR; };
 		B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NibbleTest.cpp; sourceTree = "<group>"; };
 		B656AF0311AA105500AB578A /* NibbleTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NibbleTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B659C142131368BA0058DC9C /* Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
 		B6F3648011AB36260045E114 /* xattr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xattr; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6F3651A11ADD0280045E114 /* VolumeEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VolumeEntry.h; sourceTree = "<group>"; };
 		B6F3651B11ADD0280045E114 /* FileEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileEntry.h; sourceTree = "<group>"; };
@@ -295,6 +296,7 @@
 		B63EFA9411A094E000C90DCE /* Device */ = {
 			isa = PBXGroup;
 			children = (
+				B659C142131368BA0058DC9C /* Device.h */,
 				B63EFA9511A094E000C90DCE /* BlockDevice.cpp */,
 				B63EFA9611A094E000C90DCE /* BlockDevice.h */,
 				B63EFA9711A094E000C90DCE /* DavexDiskImage.cpp */,
