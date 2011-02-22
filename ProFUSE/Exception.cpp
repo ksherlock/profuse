@@ -1,6 +1,7 @@
 
 #include <ProFUSE/Exception.h>
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
 
 using namespace ProFUSE;
 
