@@ -3,12 +3,13 @@
 
 #include <stdint.h>
 #include <vector>
+#include <Device/Device.h>
+
 
 class MappedFile;
 
 namespace Device {
 
-class BlockDevice;
 
 enum BlockReleaseFlags {
     kBlockDirty = 1,
@@ -19,13 +20,13 @@ enum BlockReleaseFlags {
 class BlockCache {
 public:
 
-    static BlockCache *Create(BlockDevice *device);
+    static BlockCachePointer Create(BlockDevicePointer device);
 
     virtual ~BlockCache();
 
     bool readOnly() { return _readOnly; }
     unsigned blocks() { return _blocks; }
-    BlockDevice *device() { return _device; }
+    BlockDevicePointer device() { return _device; }
     
         
     virtual void sync() = 0;
@@ -46,16 +47,16 @@ public:
     }
 
 protected:
-    BlockCache(BlockDevice *device);
+    BlockCache(BlockDevicePointer device);
 
-    BlockDevice *_device;
+    BlockDevicePointer _device;
     
 private:
     unsigned _blocks;
     bool _readOnly;
 };
 
-
+    
 } // namespace
 
 #endif

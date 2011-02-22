@@ -61,7 +61,7 @@ public:
     static ProDOSOrderDiskImage *Open(MappedFile *);
 
     
-    virtual BlockCache *createBlockCache();
+    virtual BlockCachePointer createBlockCache();
     
 private:
     ProDOSOrderDiskImage();

@@ -218,11 +218,11 @@ void DiskCopy42Image::write(unsigned block, const void *bp)
 }
 
 
-BlockCache *DiskCopy42Image::createBlockCache()
+BlockCachePointer DiskCopy42Image::createBlockCache()
 {
     // if not readonly, mark changed so crc will be updated at close.
     
     if (!readOnly()) _changed = true;
     
-    return new MappedBlockCache(this, address());
+    return MappedBlockCache::Create(shared_from_this(), address());
 }

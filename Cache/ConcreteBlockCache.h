@@ -9,7 +9,9 @@ namespace Device {
 
 class ConcreteBlockCache : public BlockCache {
 public:
-    ConcreteBlockCache(BlockDevice *device, unsigned size = 16);
+
+    static BlockCachePointer Create(BlockDevicePointer device, unsigned size = 16);
+
     virtual ~ConcreteBlockCache();
 
     virtual void sync();
@@ -21,8 +23,11 @@ public:
     virtual void markDirty(unsigned block);
 
     
-
 private:
+    
+    
+    ConcreteBlockCache(BlockDevicePointer device, unsigned size);
+    
     struct Entry {
         unsigned block;
         unsigned count;

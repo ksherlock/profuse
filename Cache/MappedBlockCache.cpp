@@ -19,8 +19,13 @@ using namespace Device;
 using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
+BlockCachePointer MappedBlockCache::Create(BlockDevicePointer device, void *data)
+{
+    return BlockCachePointer(new MappedBlockCache(device, data));
+}
 
-MappedBlockCache::MappedBlockCache(BlockDevice *device, void *data) :
+
+MappedBlockCache::MappedBlockCache(BlockDevicePointer device, void *data) :
     BlockCache(device)
 {
     _data = (uint8_t *)data;

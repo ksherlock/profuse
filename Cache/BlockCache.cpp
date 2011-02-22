@@ -23,16 +23,15 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
-BlockCache::BlockCache(BlockDevice *device)
+BlockCache::BlockCache(BlockDevicePointer device) :
+    _device(device)
 {
-    _device = device;
     _blocks = device->blocks();
     _readOnly = device->readOnly();
 }
 
 BlockCache::~BlockCache()
 {
-    delete _device;
 }
 
 void BlockCache::write(unsigned block, const void *bp)
@@ -50,9 +49,9 @@ void BlockCache::read(unsigned block, void *bp)
 }
 
 
-BlockCache *BlockCache::Create(BlockDevice *device)
+BlockCachePointer BlockCache::Create(BlockDevicePointer device)
 {
-    if (!device) return NULL;
+    if (!device.get()) return BlockCachePointer();
     
     return device->createBlockCache();
 }

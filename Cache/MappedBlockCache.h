@@ -8,7 +8,8 @@ namespace Device {
 class MappedBlockCache : public BlockCache {
     public:
 
-    MappedBlockCache(BlockDevice *, void *data);
+    static BlockCachePointer Create(BlockDevicePointer device, void *data);
+
     virtual ~MappedBlockCache();
 
     virtual void sync();
@@ -22,7 +23,9 @@ class MappedBlockCache : public BlockCache {
     virtual void markDirty(unsigned block);
 
     private:
-    
+
+    MappedBlockCache(BlockDevicePointer device, void *data);
+
     void sync(unsigned block);
         
     uint8_t *_data;

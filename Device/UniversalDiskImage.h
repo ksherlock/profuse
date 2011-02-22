@@ -19,7 +19,7 @@ public:
 
     virtual bool readOnly();
 
-    virtual BlockCache *createBlockCache();
+    virtual BlockCachePointer createBlockCache();
 
     
 private:
