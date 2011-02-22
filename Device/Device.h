@@ -16,6 +16,7 @@ namespace Device {
     class BlockDevice;
     class BlockCache;
     
+    
     typedef std::tr1::shared_ptr<BlockDevice> BlockDevicePointer;
     typedef std::tr1::shared_ptr<BlockCache> BlockCachePointer;
 

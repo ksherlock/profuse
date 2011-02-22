@@ -19,10 +19,10 @@ namespace Pascal {
 
         
         // create new 
-        VolumeEntry(const char *name, Device::BlockDevice *);
+        VolumeEntry(const char *name, Device::BlockDevicePointer);
         
         // open existing
-        VolumeEntry(Device::BlockDevice *);
+        VolumeEntry(Device::BlockDevicePointer);
         virtual ~VolumeEntry();
 
         const char *name() const { return _fileName; }
@@ -93,8 +93,8 @@ namespace Pascal {
         std::vector<FileEntry *> _files;
         unsigned _inodeGenerator;
         
-        Device::BlockDevice *_device;
-        Device::BlockCache *_cache;
+        Device::BlockDevicePointer _device;
+        Device::BlockCachePointer _cache;
     };
 
 

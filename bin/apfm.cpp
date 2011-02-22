@@ -5,7 +5,6 @@
  * E - 
  */
 
-
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -23,6 +22,7 @@
 #include <Pascal/Date.h>
 #include <Pascal/TextWriter.h>
 
+#include <Device/Device.h>
 #include <Device/BlockDevice.h>
 
 #include <File/File.h>
@@ -963,7 +963,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
 int main(int argc, char **argv)
 {
     std::auto_ptr<Pascal::VolumeEntry> volume;
-    std::auto_ptr<Device::BlockDevice> device;
+    Device::BlockDevicePointer device;
   
     unsigned fmt = 0;
     
@@ -1025,10 +1025,10 @@ int main(int argc, char **argv)
         
         unsigned actionCode = command(action);
         
-        device.reset( Device::BlockDevice::Open(file, commandFlags(actionCode), fmt) );
+        device = Device::BlockDevice::Open(file, commandFlags(actionCode), fmt);
     
-        volume.reset( new Pascal::VolumeEntry(device.get()));
-        device.release();
+        volume.reset( new Pascal::VolumeEntry(device));
+        device.reset();
 
         switch (actionCode)
         {

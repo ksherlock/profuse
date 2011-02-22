@@ -57,8 +57,8 @@ class ProDOSOrderDiskImage : public DiskImage {
 public:
 
     
-    static ProDOSOrderDiskImage *Create(const char *name, size_t blocks);
-    static ProDOSOrderDiskImage *Open(MappedFile *);
+    static BlockDevicePointer Create(const char *name, size_t blocks);
+    static BlockDevicePointer Open(MappedFile *);
 
     
     virtual BlockCachePointer createBlockCache();
@@ -75,8 +75,8 @@ class DOSOrderDiskImage : public DiskImage {
 public:
     
 
-    static DOSOrderDiskImage *Create(const char *name, size_t blocks);
-    static DOSOrderDiskImage *Open(MappedFile *);
+    static BlockDevicePointer Create(const char *name, size_t blocks);
+    static BlockDevicePointer Open(MappedFile *);
 
 private:
     DOSOrderDiskImage();

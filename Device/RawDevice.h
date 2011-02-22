@@ -17,7 +17,7 @@ public:
 
 
     
-    static RawDevice *Open(const char *name, File::FileFlags flags);
+    static BlockDevicePointer Open(const char *name, File::FileFlags flags);
     
     
     virtual ~RawDevice();

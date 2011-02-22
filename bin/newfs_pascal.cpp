@@ -214,7 +214,7 @@ int main(int argc, char **argv)
         struct stat st;
         bool rawDevice;
         
-        std::auto_ptr<BlockDevice> device;
+        BlockDevicePointer device;
         std::auto_ptr<VolumeEntry> volume;
         
         // Check for block device.  if so, verify.
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "`%s' is a raw device. Are you sure you want to initialize it? ", fname);
                 if (!yes_or_no()) return -1;
                 
-                device.reset( RawDevice::Open(fname, File::ReadWrite) );
+                device = RawDevice::Open(fname, File::ReadWrite);
                 blocks = device->blocks();
                 rawDevice = true;
                 
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
         }              
         
         if (!rawDevice)
-            device.reset( BlockDevice::Create(fname, volumeName.c_str(), blocks, format));
+            device = BlockDevice::Create(fname, volumeName.c_str(), blocks, format);
         
         if (!device.get())
         {
@@ -271,7 +271,7 @@ int main(int argc, char **argv)
         
         if (!bootFile.empty())
         {
-            MappedFile bf(bootFile.c_str(), File::ReadOnly , std::nothrow);
+            MappedFile bf(bootFile.c_str(), File::ReadOnly, std::nothrow);
             
             if (!bf.isValid())
             {
@@ -299,9 +299,8 @@ int main(int argc, char **argv)
         
         
         volume.reset(
-            new VolumeEntry(volumeName.c_str(), device.get())
+            new VolumeEntry(volumeName.c_str(), device)
         );
-        device.release();
 
         
     }

@@ -196,9 +196,9 @@ RawDevice::~RawDevice()
 }
 
 
-RawDevice *RawDevice::Open(const char *name, File::FileFlags flags)
+BlockDevicePointer RawDevice::Open(const char *name, File::FileFlags flags)
 {
-    return new RawDevice(name, flags);
+    return BlockDevicePointer(new RawDevice(name, flags));
 }
 
 

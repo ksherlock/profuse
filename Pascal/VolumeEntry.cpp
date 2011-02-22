@@ -71,12 +71,11 @@ VolumeEntry::VolumeEntry()
     
     setInode(1);
     
-    _inodeGenerator = 1; 
-    _cache = NULL;
-    _device = NULL;
+    _inodeGenerator = 1;
 }
 
-VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
+VolumeEntry::VolumeEntry(const char *name, Device::BlockDevicePointer device) :
+    _device(device)
 {
 #undef __METHOD__
 #define __METHOD__ "VolumeEntry::VolumeEntry"
@@ -114,8 +113,8 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
     _accessTime = 0;
     _lastBoot = Date::Today(); 
     
-    _cache = BlockCache::Create(device);
     _device = device;
+    _cache = BlockCache::Create(device);
     
     _address = 512 * 2;
 
@@ -136,10 +135,10 @@ VolumeEntry::VolumeEntry(const char *name, Device::BlockDevice *device)
 }
 
 
-VolumeEntry::VolumeEntry(Device::BlockDevice *device)
+VolumeEntry::VolumeEntry(Device::BlockDevicePointer device)
 {
     unsigned blockCount;
-    unsigned deviceBlocks = device->blocks();
+    //unsigned deviceBlocks = device->blocks();
     ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
     
     
@@ -245,10 +244,7 @@ VolumeEntry::~VolumeEntry()
     {
         if (*iter) delete *iter;
     }
-    
-    delete _cache;
-    // _device is deleted by _cache.
-    //delete _device;
+
 }
 
 

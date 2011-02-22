@@ -17,15 +17,16 @@
 #include <fuse/fuse_opt.h>
 #include <fuse/fuse_lowlevel.h>
 
-
 #include <Pascal/Pascal.h>
 #include <ProFUSE/Exception.h>
 
-#include <Device/BlockDevice.h>
-
 #include <File/File.h>
 
+#include <Device/Device.h>
+#include <Device/BlockDevice.h>
+
 std::string fDiskImage;
+
 
 
 void usage()
@@ -196,9 +197,11 @@ int main(int argc, char **argv)
     try
     {
         
-        std::auto_ptr<Device::BlockDevice> device;
+        //std::tr1::shared_ptr<Device::BlockDevice> device;
         
-        device.reset( Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format) );
+        Device::BlockDevicePointer device;
+        
+        device = Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format);
         
        
         if (!device.get())
@@ -207,8 +210,8 @@ int main(int argc, char **argv)
             exit(1);
         }
         
-        volume.reset( new Pascal::VolumeEntry(device.get()) );
-        device.release();
+        volume.reset( new Pascal::VolumeEntry(device) );
+        device.reset();
     }
     catch (ProFUSE::POSIXException &e)
     {

@@ -14,8 +14,8 @@ public:
 
     
     
-    static UniversalDiskImage *Create(const char *name, size_t blocks);
-    static UniversalDiskImage *Open(MappedFile *);
+    static BlockDevicePointer Create(const char *name, size_t blocks);
+    static BlockDevicePointer Open(MappedFile *);
 
     virtual bool readOnly();
 

@@ -14,6 +14,7 @@
 #define NEWFS_VERSION "0.1"
 
 using namespace ProFUSE;
+using namespace Device;
 
 void usage()
 {
