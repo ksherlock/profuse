@@ -237,5 +237,5 @@ BlockCachePointer BlockDevice::createBlockCache()
 {
     unsigned b = blocks();
     unsigned size = std::max(16u, b / 16);
-    return BlockCachePointer(new ConcreteBlockCache(shared_from_this(), size));
+    return ConcreteBlockCache::Create(shared_from_this(), size);
 }

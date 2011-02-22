@@ -145,7 +145,7 @@ BlockCachePointer UniversalDiskImage::createBlockCache()
 {
     if (_format == 1)
     {
-        return BlockCachePointer(new MappedBlockCache(shared_from_this(), _dataOffset + (uint8_t *)address()));
+        return MappedBlockCache::Create(shared_from_this(), _dataOffset + (uint8_t *)address());
     }
     
     return DiskImage::createBlockCache();

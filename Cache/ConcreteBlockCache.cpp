@@ -58,6 +58,10 @@ using ProFUSE::POSIXException;
 //typedef std::vector<ConcreteBlockCache::Entry *>::iterator EntryIter;
 
 
+BlockCachePointer ConcreteBlockCache::Create(BlockDevicePointer device, unsigned size)
+{
+    return BlockCachePointer(new ConcreteBlockCache(device, size));
+}
 
 ConcreteBlockCache::ConcreteBlockCache(BlockDevicePointer device, unsigned size) :
     BlockCache(device)

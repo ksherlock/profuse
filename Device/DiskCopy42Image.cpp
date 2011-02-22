@@ -224,5 +224,5 @@ BlockCachePointer DiskCopy42Image::createBlockCache()
     
     if (!readOnly()) _changed = true;
     
-    return BlockCachePointer(new MappedBlockCache(shared_from_this(), address()));
+    return MappedBlockCache::Create(shared_from_this(), address());
 }

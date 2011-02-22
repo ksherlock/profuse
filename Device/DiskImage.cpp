@@ -140,7 +140,7 @@ void ProDOSOrderDiskImage::Validate(MappedFile *f)
 
 BlockCachePointer ProDOSOrderDiskImage::createBlockCache()
 {
-    return BlockCachePointer(new MappedBlockCache(shared_from_this(), address()));
+    return MappedBlockCache::Create(shared_from_this(), address());
 }
 
 #pragma mark -

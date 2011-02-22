@@ -161,6 +161,6 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
 BlockCachePointer DavexDiskImage::createBlockCache()
 {
     // need a smart pointer, but only have this....
-    return BlockCachePointer(new MappedBlockCache(shared_from_this(), 512 + (uint8_t *)address()));
+    return MappedBlockCache::Create(shared_from_this(), 512 + (uint8_t *)address());
     
 }
