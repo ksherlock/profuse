@@ -7,8 +7,7 @@
  */
 
 #include "Disk.h"
-#include "DiskCopy42.h"
-#include "UniversalDiskImage.h"
+
 
 #include "common.h"
 
@@ -24,6 +23,7 @@
 #include <set>
 #include <vector>
 
+#include <Endian/Endian.h>
 
 struct ucmp
 {
@@ -35,6 +35,8 @@ struct ucmp
 
 using std::set;
 using std::vector;
+
+using namespace LittleEndian;
 
 typedef set<unsigned, ucmp> uset;
 
@@ -60,111 +62,6 @@ DiskPointer Disk::OpenFile(Device::BlockDevicePointer device)
     
     return disk;
 }
-
-#if 0
-Disk *Disk::OpenFile(const char *file, unsigned flags)
-{
-    int fd;
-    struct stat st;
-    size_t size;
-    unsigned blocks;
-    
-    unsigned offset;
-    
-    
-    void *map;
-    Disk *d = NULL;
-
-
-    
-    fd = open(file, O_RDONLY);
-    if (fd >= 0)
-    {
-    
-        if (fstat(fd, &st) == 0)
-        {
-            size = st.st_size;
-            
-            // raw disk images must be a blocksize multiple and <= 32 Meg.
-            
-            if ( (size & 0x1ff) == 0
-                && size > 0
-                && size <= 32 * 1024 * 1024
-            )
-            {
-                blocks = size >> 9;
-                offset = 0;
-            }
-            else {
-
-                // check for disk copy4.2 / universal disk image.
-                uint8_t buffer[1024];
-                
-                if (read(fd, buffer, 1024) != 1024)
-                {
-                    close(fd);
-                    return NULL;
-                }
-
-                bool ok = false;
-                do {
-                    
-                    DiskCopy42 dc;
-                    
-                    if (dc.Load(buffer)
-                        && size == 84 + dc.data_size + dc.tag_size 
-                        && (dc.data_size & 0x1ff) == 0)
-                    {
-                        offset = 84;
-                        blocks = dc.data_size >> 9;
-                        ok = true;
-                        flags |= P8_DC42;
-                        break;
-                    }
-                    
-                    UniversalDiskImage udi;
-                    
-                    if (udi.Load(buffer) 
-                        //&& udi.version == 1 
-                        && udi.image_format == UDI_FORMAT_PRODOS_ORDER)
-                    {
-                        
-                        blocks = udi.data_blocks;
-                        offset = udi.data_offset;
-                        ok = true;
-                        flags |= P8_2MG;
-                        break;
-                    }
-
-                } while (false);
-                
-                if (!ok)
-                {
-                    close(fd);
-                    return NULL;
-                }
-                lseek(fd, 0, SEEK_SET);
-            }
-            
-
-            map = mmap(NULL, size, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, 0);
-            if (map != (void *)-1)
-            {
-                d = new Disk();
-                d->_size = size;
-                d->_data = (uint8_t *)map;
-                d->_blocks = blocks;
-                d->_offset = offset;
-                d->_flags = flags;
-            }
-
-        }
-        close(fd);
-    }
-    
-    return d;
-}
-#endif
 
 // load the mini entry into the regular entry.
 int Disk::Normalize(FileEntry &f, unsigned fork, ExtendedEntry *ee)
@@ -447,8 +344,8 @@ int Disk::ReadVolume(VolumeEntry *volume, std::vector<FileEntry> *files)
     
     if (ok < 0) return ok;
     
-    prev = load16(&buffer[0x00]);
-    next = load16(&buffer[0x02]);
+    prev = Read16(&buffer[0x00]);
+    next = Read16(&buffer[0x02]);
     
     VolumeEntry v;
     v.Load(buffer + 0x04);
@@ -494,8 +391,8 @@ int Disk::ReadVolume(VolumeEntry *volume, std::vector<FileEntry> *files)
                 if (ok < 0) return ok;
                 block = next;
                 
-                prev = load16(&buffer[0x00]);
-                next = load16(&buffer[0x02]);                
+                prev = Read16(&buffer[0x00]);
+                next = Read16(&buffer[0x02]);                
 
                 index = 0;
             }
@@ -524,8 +421,8 @@ int Disk::ReadDirectory(unsigned block, SubdirEntry *dir, std::vector<FileEntry>
     
     if (ok < 0) return ok;
     
-    prev = load16(&buffer[0x00]);
-    next = load16(&buffer[0x02]);
+    prev = Read16(&buffer[0x00]);
+    next = Read16(&buffer[0x02]);
     
     SubdirEntry v;
     v.Load(buffer + 0x04);
@@ -574,8 +471,8 @@ int Disk::ReadDirectory(unsigned block, SubdirEntry *dir, std::vector<FileEntry>
                 block = next;
                 
                 
-                prev = load16(&buffer[0x00]);
-                next = load16(&buffer[0x02]);                
+                prev = Read16(&buffer[0x00]);
+                next = Read16(&buffer[0x02]);                
                 
                 index = 0;
             }

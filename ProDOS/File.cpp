@@ -8,6 +8,7 @@
 
 #include <ProDOS/File.h>
 #include <ProDOS/DateTime.h>
+#include <Endian/Endian.h>
 
 #include "common.h"
 #include <string.h>
@@ -15,6 +16,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
+using namespace LittleEndian;
 
 
 bool FileEntry::Load(const void *data)
@@ -31,18 +33,18 @@ bool FileEntry::Load(const void *data)
     
     file_type = cp[0x10];
     
-    key_pointer = load16(&cp[0x11]);
+    key_pointer = Read16(&cp[0x11]);
     
-    blocks_used = load16(&cp[0x13]);
+    blocks_used = Read16(&cp[0x13]);
     
-    eof = load24(&cp[0x15]);
+    eof = Read24(&cp[0x15]);
 
-    creation = ProDOS::DateTime(load16(&cp[0x18]), load16(&cp[0x1a]));
+    creation = ProDOS::DateTime(Read16(&cp[0x18]), Read16(&cp[0x1a]));
     
     //version = cp[0x1c];
     //min_version = cp[0x1d];
     
-    unsigned xcase = load16(&cp[0x1c]);
+    unsigned xcase = Read16(&cp[0x1c]);
     if (xcase & 0x8000)
     {
         // gsos technote #8
@@ -59,11 +61,11 @@ bool FileEntry::Load(const void *data)
     access = cp[0x1e];
 
 
-    aux_type = load16(&cp[0x1f]);
+    aux_type = Read16(&cp[0x1f]);
     
-    last_mod = ProDOS::DateTime(load16(&cp[0x21]), load16(&cp[0x23]));
+    last_mod = ProDOS::DateTime(Read16(&cp[0x21]), Read16(&cp[0x23]));
     
-    header_pointer = load16(&cp[0x25]);
+    header_pointer = Read16(&cp[0x25]);
     
     return true;
 }
@@ -79,16 +81,16 @@ bool ExtendedEntry::Load(const void *data)
     // offset 0 - mini entry for data fork
     
     dataFork.storage_type = cp[0x00] & 0x0f;
-    dataFork.key_block = load16(&cp[0x01]);
-    dataFork.blocks_used = load16(&cp[0x03]);
-    dataFork.eof = load24(&cp[0x05]);
+    dataFork.key_block = Read16(&cp[0x01]);
+    dataFork.blocks_used = Read16(&cp[0x03]);
+    dataFork.eof = Read24(&cp[0x05]);
     
     // offset 256 - mini entry for resource fork.
 
     resourceFork.storage_type = cp[256 + 0x00] & 0x0f;
-    resourceFork.key_block = load16(&cp[256 + 0x01]);
-    resourceFork.blocks_used = load16(&cp[256 + 0x03]);
-    resourceFork.eof = load24(&cp[256 + 0x05]);
+    resourceFork.key_block = Read16(&cp[256 + 0x01]);
+    resourceFork.blocks_used = Read16(&cp[256 + 0x03]);
+    resourceFork.eof = Read24(&cp[256 + 0x05]);
     
     // xFInfo may be missing.
     bzero(FInfo, sizeof(FInfo));
@@ -135,15 +137,15 @@ bool VolumeEntry::Load(const void *data)
 
     // 0x14--0x1b reserved
     
-    creation = ProDOS::DateTime(load16(&cp[0x18]), load16(&cp[0x1a]));
-    last_mod = ProDOS::DateTime(load16(&cp[0x12]), load16(&cp[0x14]));
+    creation = ProDOS::DateTime(Read16(&cp[0x18]), Read16(&cp[0x1a]));
+    last_mod = ProDOS::DateTime(Read16(&cp[0x12]), Read16(&cp[0x14]));
 
     if (last_mod == 0) last_mod = creation;
     
     //version = cp[0x1c];
     //min_version = cp[0x1d];
     
-    unsigned xcase = load16(&cp[0x16]);
+    unsigned xcase = Read16(&cp[0x16]);
     if (xcase & 0x8000)
     {
         // gsos technote #8
@@ -162,11 +164,11 @@ bool VolumeEntry::Load(const void *data)
 
     entries_per_block = cp[0x20];
 
-    file_count = load16(&cp[0x21]);
+    file_count = Read16(&cp[0x21]);
 
-    bit_map_pointer = load16(&cp[0x23]);
+    bit_map_pointer = Read16(&cp[0x23]);
     
-    total_blocks = load16(&cp[0x25]);
+    total_blocks = Read16(&cp[0x25]);
     
     return true;
 }
@@ -192,7 +194,7 @@ bool SubdirEntry::Load(const void *data)
     
     // 0x145-0x1b reserved
     
-    creation = ProDOS::DateTime(load16(&cp[0x18]), load16(&cp[0x1a]));
+    creation = ProDOS::DateTime(Read16(&cp[0x18]), Read16(&cp[0x1a]));
     
     //version = cp[0x1c];
     //min_version = cp[0x1d];
@@ -216,9 +218,9 @@ bool SubdirEntry::Load(const void *data)
     
     entries_per_block = cp[0x20];
     
-    file_count = load16(&cp[0x21]);
+    file_count = Read16(&cp[0x21]);
     
-    parent_pointer = load16(&cp[0x23]);
+    parent_pointer = Read16(&cp[0x23]);
     
     parent_entry = cp[0x25];
     
