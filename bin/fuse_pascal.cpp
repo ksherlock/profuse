@@ -195,10 +195,7 @@ int main(int argc, char **argv)
 
         
     try
-    {
-        
-        //std::tr1::shared_ptr<Device::BlockDevice> device;
-        
+    {        
         Device::BlockDevicePointer device;
         
         device = Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format);
