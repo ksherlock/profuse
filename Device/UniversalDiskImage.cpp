@@ -81,13 +81,17 @@ BlockDevicePointer UniversalDiskImage::Create(const char *name, size_t blocks)
     std::memcpy(file->address(), header.buffer(), 64);
     
 
-    return BlockDevicePointer(new UniversalDiskImage(file));
+    //return BlockDevicePointer(new UniversalDiskImage(file));
+    
+    return MAKE_SHARED(UniversalDiskImage, file);
 }
 
 BlockDevicePointer UniversalDiskImage::Open(MappedFile *file)
 {
     Validate(file);
-    return BlockDevicePointer(new UniversalDiskImage(file));
+
+    //return BlockDevicePointer(new UniversalDiskImage(file));
+    return MAKE_SHARED(UniversalDiskImage, file);
 }
 
 

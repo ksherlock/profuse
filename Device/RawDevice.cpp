@@ -198,7 +198,8 @@ RawDevice::~RawDevice()
 
 BlockDevicePointer RawDevice::Open(const char *name, File::FileFlags flags)
 {
-    return BlockDevicePointer(new RawDevice(name, flags));
+    //return BlockDevicePointer(new RawDevice(name, flags));
+    return MAKE_SHARED(RawDevice, name, flags); 
 }
 
 

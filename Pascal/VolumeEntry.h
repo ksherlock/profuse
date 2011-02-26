@@ -71,7 +71,7 @@ namespace Pascal {
 
         VolumeEntryPointer thisPointer() 
         {
-            return std::tr1::static_pointer_cast<VolumeEntry>(shared_from_this()); 
+            return STATIC_POINTER_CAST(VolumeEntry, shared_from_this()); 
         }
                 
         void init(void *);

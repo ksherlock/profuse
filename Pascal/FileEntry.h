@@ -2,6 +2,7 @@
 #define __PASCAL_FILEENTRY_H__
 
 #include <Pascal/Entry.h>
+#include <Pascal/Date.h>
 
 #include <vector>
 #include <string>
@@ -61,7 +62,7 @@ namespace Pascal {
         
         FileEntryPointer thisPointer() 
         {
-            return std::tr1::static_pointer_cast<FileEntry>(shared_from_this()); 
+            return STATIC_POINTER_CAST(FileEntry, shared_from_this()); 
         }
         
         

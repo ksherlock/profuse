@@ -60,7 +60,9 @@ using ProFUSE::POSIXException;
 
 BlockCachePointer ConcreteBlockCache::Create(BlockDevicePointer device, unsigned size)
 {
-    return BlockCachePointer(new ConcreteBlockCache(device, size));
+    //return BlockCachePointer(new ConcreteBlockCache(device, size));
+    
+    return MAKE_SHARED(ConcreteBlockCache, device, size);
 }
 
 ConcreteBlockCache::ConcreteBlockCache(BlockDevicePointer device, unsigned size) :

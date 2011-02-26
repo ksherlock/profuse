@@ -8,13 +8,13 @@
 #include <Device/TrackSector.h>
 
 #include <ProFUSE/Exception.h>
-
+#include <ProFUSE/smart_pointers.h>
 
 #include <File/File.h>
 
 namespace Device {
 
-    class BlockDevice : public std::tr1::enable_shared_from_this<BlockDevice> {
+    class BlockDevice : public ENABLE_SHARED_FROM_THIS(BlockDevice) {
 public:
 
 

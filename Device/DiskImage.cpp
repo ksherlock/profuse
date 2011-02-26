@@ -115,13 +115,15 @@ ProDOSOrderDiskImage::ProDOSOrderDiskImage(MappedFile *file) :
 BlockDevicePointer ProDOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = MappedFile::Create(name, blocks * 512);
-    return BlockDevicePointer(new ProDOSOrderDiskImage(file));
+    //return BlockDevicePointer(new ProDOSOrderDiskImage(file));
+    return MAKE_SHARED(ProDOSOrderDiskImage, file);
 }
 
 BlockDevicePointer ProDOSOrderDiskImage::Open(MappedFile *file)
 {
     Validate(file);
-    return BlockDevicePointer(new ProDOSOrderDiskImage(file));
+    //return BlockDevicePointer(new ProDOSOrderDiskImage(file));
+    return MAKE_SHARED(ProDOSOrderDiskImage, file);
 }
 
 void ProDOSOrderDiskImage::Validate(MappedFile *f)
@@ -168,13 +170,16 @@ DOSOrderDiskImage::DOSOrderDiskImage(MappedFile *file) :
 BlockDevicePointer DOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = MappedFile::Create(name, blocks * 512);
-    return BlockDevicePointer(new DOSOrderDiskImage(file));
+    //return BlockDevicePointer(new DOSOrderDiskImage(file));
+    return MAKE_SHARED(DOSOrderDiskImage, file);
 }
 
 BlockDevicePointer DOSOrderDiskImage::Open(MappedFile *file)
 {
     Validate(file);
-    return BlockDevicePointer(new DOSOrderDiskImage(file));
+    //return BlockDevicePointer(new DOSOrderDiskImage(file));
+    return MAKE_SHARED(DOSOrderDiskImage, file);
+    
 }
 
 void DOSOrderDiskImage::Validate(MappedFile *f)

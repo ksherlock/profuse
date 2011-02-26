@@ -44,12 +44,14 @@ unsigned FileEntry::ValidName(const char *cp)
 
 FileEntryPointer FileEntry::Open(void *vp)
 {
-    return FileEntryPointer(new FileEntry(vp));
+    //return FileEntryPointer(new FileEntry(vp));
+    return MAKE_SHARED(FileEntry, vp);
 }
 
 FileEntryPointer FileEntry::Create(const char *name, unsigned fileKind)
 {
-    return FileEntryPointer(new FileEntry(name, fileKind));
+    //return FileEntryPointer(new FileEntry(name, fileKind));
+    return MAKE_SHARED(FileEntry, name, fileKind);
 }
 
 FileEntry::FileEntry(void *vp) :

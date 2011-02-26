@@ -91,7 +91,9 @@ BlockDevicePointer DavexDiskImage::Open(MappedFile *file)
 #define __METHOD__ "DavexDiskImage::Open"
     Validate(file);
     
-    return BlockDevicePointer(new DavexDiskImage(file));
+    //return BlockDevicePointer(new DavexDiskImage(file));
+    
+    return MAKE_SHARED(DavexDiskImage, file);
 }
 
 BlockDevicePointer DavexDiskImage::Create(const char *name, size_t blocks)
@@ -154,7 +156,9 @@ BlockDevicePointer DavexDiskImage::Create(const char *name, size_t blocks, const
     std::memcpy(file->address(), header.buffer(), 512);
     file->sync();
     
-    return BlockDevicePointer(new DavexDiskImage(file));
+    //return BlockDevicePointer(new DavexDiskImage(file));
+    
+    return MAKE_SHARED(DavexDiskImage, file);
 }
 
 

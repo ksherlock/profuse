@@ -1,9 +1,7 @@
 #ifndef __PASCAL_ENTRY_H__
 #define __PASCAL_ENTRY_H__
 
-#include <tr1/memory>
-
-#include <Pascal/Date.h>
+#include <ProFUSE/smart_pointers.h>
 
 
 namespace Device {
@@ -34,13 +32,13 @@ namespace Pascal {
     class VolumeEntry;
 
 
-    typedef std::tr1::shared_ptr<FileEntry> FileEntryPointer;
-    typedef std::tr1::shared_ptr<VolumeEntry> VolumeEntryPointer;
+    typedef SHARED_PTR(FileEntry) FileEntryPointer;
+    typedef SHARED_PTR(VolumeEntry) VolumeEntryPointer;
     
-    typedef std::tr1::weak_ptr<FileEntry> FileEntryWeakPointer;
-    typedef std::tr1::weak_ptr<VolumeEntry> VolumeEntryWeakPointer;
+    typedef WEAK_PTR(FileEntry) FileEntryWeakPointer;
+    typedef WEAK_PTR(VolumeEntry) VolumeEntryWeakPointer;
 
-    class Entry : public std::tr1::enable_shared_from_this<Entry> {
+    class Entry : public ENABLE_SHARED_FROM_THIS(Entry) {
         
     public:
         

@@ -21,7 +21,8 @@ using ProFUSE::POSIXException;
 
 BlockCachePointer MappedBlockCache::Create(BlockDevicePointer device, void *data)
 {
-    return BlockCachePointer(new MappedBlockCache(device, data));
+    //return BlockCachePointer(new MappedBlockCache(device, data));
+    return MAKE_SHARED(MappedBlockCache, device, data);
 }
 
 

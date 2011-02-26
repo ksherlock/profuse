@@ -51,7 +51,8 @@ void BlockCache::read(unsigned block, void *bp)
 
 BlockCachePointer BlockCache::Create(BlockDevicePointer device)
 {
-    if (!device.get()) return BlockCachePointer();
+    // this just calls the device virtual function to create a cache.
+    if (!device) return BlockCachePointer();
     
     return device->createBlockCache();
 }

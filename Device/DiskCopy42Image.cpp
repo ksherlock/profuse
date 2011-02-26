@@ -78,7 +78,9 @@ uint32_t DiskCopy42Image::Checksum(void *data, size_t size)
 BlockDevicePointer DiskCopy42Image::Open(MappedFile *f)
 {
     Validate(f);
-    return BlockDevicePointer(new DiskCopy42Image(f));
+    //return BlockDevicePointer(new DiskCopy42Image(f));
+    
+    return MAKE_SHARED(DiskCopy42Image, f);
 }
 
 static uint8_t DiskFormat(size_t blocks)
@@ -163,7 +165,9 @@ BlockDevicePointer DiskCopy42Image::Create(const char *name, size_t blocks, cons
     std::memcpy(file->address(), header.buffer(), oUserData);
     file->sync();
     
-    return BlockDevicePointer(new DiskCopy42Image(file));
+    //return BlockDevicePointer(new DiskCopy42Image(file));
+    
+    return MAKE_SHARED(DiskCopy42Image, file);
 }
 
 void DiskCopy42Image::Validate(MappedFile *file)
