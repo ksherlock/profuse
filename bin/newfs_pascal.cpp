@@ -215,7 +215,7 @@ int main(int argc, char **argv)
         bool rawDevice;
         
         BlockDevicePointer device;
-        std::auto_ptr<VolumeEntry> volume;
+        VolumeEntryPointer volume;
         
         // Check for block device.  if so, verify.
         // if file exists, verify before overwrite.
@@ -298,9 +298,7 @@ int main(int argc, char **argv)
         }
         
         
-        volume.reset(
-            new VolumeEntry(volumeName.c_str(), device)
-        );
+        volume = VolumeEntry::Create(device, volumeName.c_str());
 
         
     }

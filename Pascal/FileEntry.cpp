@@ -42,6 +42,16 @@ unsigned FileEntry::ValidName(const char *cp)
     return Entry::ValidName(cp, 15);
 }
 
+FileEntryPointer FileEntry::Open(void *vp)
+{
+    return FileEntryPointer(new FileEntry(vp));
+}
+
+FileEntryPointer FileEntry::Create(const char *name, unsigned fileKind)
+{
+    return FileEntryPointer(new FileEntry(name, fileKind));
+}
+
 FileEntry::FileEntry(void *vp) :
     Entry(vp)
 {
@@ -99,7 +109,10 @@ void FileEntry::setFileKind(unsigned kind)
         _pageSize = NULL;
     }
     
-    parent()->writeEntry(this);
+    VolumeEntryPointer v = parent().lock();
+    
+    // throw if expired?
+    if (v) v->writeEntry(this);
 }
 
 
@@ -194,7 +207,9 @@ int FileEntry::truncate(unsigned newSize)
         return -1;
     
     _modification = Date::Today();
-    parent()->writeEntry(this);
+    
+    VolumeEntryPointer v = parent().lock();
+    if (v) v->writeEntry(this);
     
     return 0;
 }
@@ -210,6 +225,8 @@ int FileEntry::truncateCommon(unsigned newSize)
 #define __METHOD__  "FileEntry::truncateCommon"
     
     unsigned currentSize = fileSize();
+    
+    VolumeEntryPointer v = parent().lock();
     
     if (newSize == currentSize) return 0;
     if (newSize > currentSize)
@@ -228,12 +245,13 @@ int FileEntry::truncateCommon(unsigned newSize)
         {
             // last page not full
             unsigned count = std::min(512 - _lastByte, remainder);
-            uint8_t *address = (uint8_t *)parent()->loadBlock(block);
             
-            std::memset(address + _lastByte, 0, count);
-
-            parent()->unloadBlock(block, true);
-            
+            if (v)
+            {
+                uint8_t *address = (uint8_t *)v->loadBlock(block);
+                std::memset(address + _lastByte, 0, count);
+                v->unloadBlock(block, true);
+            }
             remainder -= count;
         }
         block++;
@@ -241,12 +259,12 @@ int FileEntry::truncateCommon(unsigned newSize)
         while (remainder)
         {
             unsigned count = std::min(512u, remainder);
-            uint8_t *address = (uint8_t *)parent()->loadBlock(block);
-            
-            std::memset(address, 0, count);
-            
-            parent()->unloadBlock(block, true);
-            
+            if (v)
+            {
+                uint8_t *address = (uint8_t *)v->loadBlock(block);       
+                std::memset(address, 0, count);
+                v->unloadBlock(block, true);
+            }
             remainder -= count;
             block++;            
         }
@@ -264,7 +282,15 @@ int FileEntry::write(TextWriter &text)
 {
     unsigned blocks = text.blocks();
     
-    if (parent()->readOnly())
+    VolumeEntryPointer v = parent().lock();
+    if (!v)
+    {
+        errno = EROFS;
+        return -1;
+    }
+
+    
+    if (v->readOnly())
     {
         errno = EROFS;
         return -1;
@@ -286,7 +312,7 @@ int FileEntry::write(TextWriter &text)
     for (unsigned i = 0; i < blocks; ++i)
     {
         void *buffer = text.data(i);
-        parent()->writeBlock(_firstBlock + i, buffer);
+        v->writeBlock(_firstBlock + i, buffer);
         
     }
     
@@ -294,8 +320,8 @@ int FileEntry::write(TextWriter &text)
     
     setFileSize(blocks * 512);
     
-    parent()->writeEntry(this);
-    parent()->sync();
+    v->writeEntry(this);
+    v->sync();
     
     return blocks * 512;
 }
@@ -304,8 +330,15 @@ int FileEntry::write(const uint8_t *buffer, unsigned size, unsigned offset)
 {
 #undef __METHOD__
 #define __METHOD__ "FileEntry::write"
-    
-    if (parent()->readOnly())
+
+    VolumeEntryPointer v = parent().lock();
+    if (!v)
+    {
+        errno = EROFS;
+        return -1;
+    }
+        
+    if (v->readOnly())
     {
         errno = EROFS;
         return -1;
@@ -342,10 +375,10 @@ int FileEntry::write(const uint8_t *buffer, unsigned size, unsigned offset)
     if (start)
     {
         unsigned count = std::min(512 - start, remainder);
-        uint8_t *address = (uint8_t *)parent()->loadBlock(block);
+        uint8_t *address = (uint8_t *)v->loadBlock(block);
                 
         std::memcpy(address + start, buffer, count);
-        parent()->unloadBlock(block, true);
+        v->unloadBlock(block, true);
         
         remainder -= count;
         buffer += count;
@@ -354,12 +387,12 @@ int FileEntry::write(const uint8_t *buffer, unsigned size, unsigned offset)
     
     while (remainder)
     {
-        uint8_t *address = (uint8_t *)parent()->loadBlock(block);
+        uint8_t *address = (uint8_t *)v->loadBlock(block);
 
         unsigned count = std::min(512u, size);
         
         std::memcpy(address, buffer, count);
-        parent()->unloadBlock(block, true);
+        v->unloadBlock(block, true);
         
         remainder -= count;
         buffer += count;
@@ -371,7 +404,7 @@ int FileEntry::write(const uint8_t *buffer, unsigned size, unsigned offset)
 
     
     _modification = Date::Today();
-    parent()->writeEntry(this);
+    v->writeEntry(this);
     
     return size;
 }
@@ -419,6 +452,13 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
     
     unsigned count = 0;
     unsigned block = 0;
+    
+    VolumeEntryPointer v = parent().lock();
+    if (!v)
+    {
+        errno = EROFS;
+        return 0;
+    }    
         
     block = _firstBlock + (offset / 512);
     
@@ -433,7 +473,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
     {
         unsigned bytes = std::min(offset % 512, size);
         
-        parent()->readBlock(block++, tmp);
+        v->readBlock(block++, tmp);
         
         std::memcpy(buffer, tmp + 512 - bytes, bytes);
         
@@ -448,7 +488,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
      
      while (size >= 512)
      {
-        parent()->readBlock(block++, buffer);
+        v->readBlock(block++, buffer);
         
         buffer += 512;
         count += 512;
@@ -460,7 +500,7 @@ int FileEntry::dataRead(uint8_t *buffer, unsigned size, unsigned offset)
      */
     if (size)
     {
-        parent()->readBlock(block, tmp);
+        v->readBlock(block, tmp);
         std::memcpy(buffer, tmp, size);
         
         count += size; 
@@ -589,13 +629,20 @@ unsigned FileEntry::textReadPage(unsigned block, uint8_t *in)
     // reads up to 2 blocks.
     // assumes block within _startBlock ... _lastBlock - 1
 
-    parent()->readBlock(block, in); 
+    VolumeEntryPointer v = parent().lock();
+    if (!v)
+    {
+        errno = EROFS;
+        return 0;
+    }
+
+    v->readBlock(block, in); 
     if (block + 1 == _lastBlock)
     {
         return _lastByte;
     }
     
-    parent()->readBlock(block + 1, in + 512);
+    v->readBlock(block + 1, in + 512);
     if (block +2 == _lastBlock)
     {
         return 512 + _lastByte;

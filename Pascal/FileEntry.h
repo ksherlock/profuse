@@ -22,8 +22,10 @@ namespace Pascal {
         static bool Uncompress(std::string& text);
         
         
-        FileEntry(const char *name, unsigned fileKind);
-        FileEntry(void *vp);
+        static FileEntryPointer Create(const char *name, unsigned fileKind);
+        static FileEntryPointer Open(void *vp);
+        
+
         
         virtual ~FileEntry();
 
@@ -53,6 +55,15 @@ namespace Pascal {
         
         
         friend class VolumeEntry;
+        
+        FileEntry(const char *name, unsigned fileKind);
+        FileEntry(void *vp);
+        
+        FileEntryPointer thisPointer() 
+        {
+            return std::tr1::static_pointer_cast<FileEntry>(shared_from_this()); 
+        }
+        
         
         void setName(const char *name);
         

@@ -9,20 +9,18 @@
 
 namespace Pascal {
 
-    class FileEntry;
     
     class VolumeEntry : public Entry {
 
     public:
-
+    
         static unsigned ValidName(const char *);
+    
+        static VolumeEntryPointer Open(Device::BlockDevicePointer);
+        static VolumeEntryPointer Create(Device::BlockDevicePointer, const char *name);
 
+        //
         
-        // create new 
-        VolumeEntry(const char *name, Device::BlockDevicePointer);
-        
-        // open existing
-        VolumeEntry(Device::BlockDevicePointer);
         virtual ~VolumeEntry();
 
         const char *name() const { return _fileName; }
@@ -36,8 +34,8 @@ namespace Pascal {
         bool canKrunch() const;
         
         
-        FileEntry *fileAtIndex(unsigned i) const;
-        FileEntry *fileByName(const char *name) const;
+        FileEntryPointer fileAtIndex(unsigned i) const;
+        FileEntryPointer fileByName(const char *name) const;
         
 
         void *loadBlock(unsigned block);
@@ -53,7 +51,7 @@ namespace Pascal {
         int unlink(const char *name);
         int rename(const char *oldName, const char *newName);
         int copy(const char *oldName, const char *newName);
-        FileEntry *create(const char *name, unsigned blocks);
+        FileEntryPointer create(const char *name, unsigned blocks);
         
         
         int krunch();
@@ -65,10 +63,21 @@ namespace Pascal {
     private:
         
         friend class FileEntry;
+
         
         VolumeEntry();
-        
+        VolumeEntry(Device::BlockDevicePointer, const char *name);
+        VolumeEntry(Device::BlockDevicePointer);
+
+        VolumeEntryPointer thisPointer() 
+        {
+            return std::tr1::static_pointer_cast<VolumeEntry>(shared_from_this()); 
+        }
+                
         void init(void *);
+        void setParents();
+        
+
         
         
         uint8_t *readDirectoryHeader();
@@ -90,7 +99,7 @@ namespace Pascal {
         unsigned _accessTime;
         Pascal::Date _lastBoot;
 
-        std::vector<FileEntry *> _files;
+        std::vector<FileEntryPointer> _files;
         unsigned _inodeGenerator;
         
         Device::BlockDevicePointer _device;

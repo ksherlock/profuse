@@ -1,6 +1,8 @@
 #ifndef __PASCAL_ENTRY_H__
 #define __PASCAL_ENTRY_H__
 
+#include <tr1/memory>
+
 #include <Pascal/Date.h>
 
 
@@ -31,7 +33,14 @@ namespace Pascal {
     class FileEntry;
     class VolumeEntry;
 
-    class Entry {
+
+    typedef std::tr1::shared_ptr<FileEntry> FileEntryPointer;
+    typedef std::tr1::shared_ptr<VolumeEntry> VolumeEntryPointer;
+    
+    typedef std::tr1::weak_ptr<FileEntry> FileEntryWeakPointer;
+    typedef std::tr1::weak_ptr<VolumeEntry> VolumeEntryWeakPointer;
+
+    class Entry : public std::tr1::enable_shared_from_this<Entry> {
         
     public:
         
@@ -47,7 +56,7 @@ namespace Pascal {
         unsigned inode() const { return _inode; }
         void setInode(unsigned inode) { _inode = inode; }
 
-        VolumeEntry *parent() { return _parent; }
+        VolumeEntryWeakPointer parent() { return _parent; }
 
 
     protected:
@@ -70,7 +79,7 @@ namespace Pascal {
         
         friend class VolumeEntry;
         
-        VolumeEntry *_parent;
+        VolumeEntryWeakPointer _parent;
         unsigned _address;
 
     };

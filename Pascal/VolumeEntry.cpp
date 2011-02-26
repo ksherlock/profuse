@@ -61,6 +61,26 @@ unsigned VolumeEntry::ValidName(const char *cp)
     return Entry::ValidName(cp, 7);
 }
 
+
+VolumeEntryPointer VolumeEntry::Open(Device::BlockDevicePointer device)
+{
+    VolumeEntryPointer ptr(new VolumeEntry(device));
+
+    return ptr;
+}
+
+VolumeEntryPointer VolumeEntry::Create(Device::BlockDevicePointer device, const char *name)
+{
+    VolumeEntryPointer ptr(new VolumeEntry(device, name));
+    
+    
+    // set up the weak references from the file entry to this.
+    if (ptr) ptr->setParents();
+    
+    return ptr;
+}
+
+
 VolumeEntry::VolumeEntry()
 {
     _fileNameLength = 0;
@@ -74,7 +94,7 @@ VolumeEntry::VolumeEntry()
     _inodeGenerator = 1;
 }
 
-VolumeEntry::VolumeEntry(const char *name, Device::BlockDevicePointer device) :
+VolumeEntry::VolumeEntry(Device::BlockDevicePointer device, const char *name) :
     _device(device)
 {
 #undef __METHOD__
@@ -166,87 +186,78 @@ VolumeEntry::VolumeEntry(Device::BlockDevicePointer device)
     }
     
     // now load up all the children.
-    // if this throws, memory could be lost...
-
+    // the parent cannot be set (yet), since we need a shared_ptr to create a weak_ptr.
     
-    try
-    {    
-        
-        std::vector<FileEntry *>::iterator iter;
 
-        unsigned block;
-        
-        for (unsigned i = 1; i <= _fileCount; ++i)
-        {
-            std::auto_ptr<FileEntry> child;
-            
-            //
-            child.reset(new FileEntry(buffer.get() + i * 0x1a));
-            
-            child->setInode(++_inodeGenerator);
-            child->_parent = this;
-            child->_address = 512 * 2 + i * 0x1a;
-                        
-            _files.push_back(child.release());
-        }
-        
-        // sanity check _firstBlock, _lastBlock?
-        
-        block = _lastBlock;
-        
-        for (iter = _files.begin(); iter != _files.end(); ++iter)
-        {
-            FileEntry *e = *iter;
-            bool error = false;
-            if (e->_firstBlock > e->_lastBlock)
-                error = true;
+    std::vector<FileEntryPointer>::iterator iter;
 
-            if (e->_firstBlock >= _lastVolumeBlock)
-                error = true;
-
-            if (e->_lastBlock > _lastVolumeBlock)
-                error = true;
-            
-            if (e->_firstBlock < block)
-                error = true;
-            
-            if (error)
-                throw ProDOSException(__METHOD__ ": Invalid file entry.", ProFUSE::dirError);
-            
-            block = e->_lastBlock;
-            
-        }
-        
-        
-        calcMaxFileSize();
-        
-    } 
-    catch (...)
+    unsigned block;
+    
+    for (unsigned i = 1; i <= _fileCount; ++i)
     {
-        std::vector<FileEntry *>::iterator iter;
-
-        for(iter = _files.begin(); iter != _files.end(); ++iter)
-        {
-            if (*iter) delete *iter;
-        }
-       
-        throw;
+        FileEntryPointer child;
+        
+        //
+        child = FileEntry::Open(buffer.get() + i * 0x1a);
+        
+        child->setInode(++_inodeGenerator);
+        // need to set later....
+        //child->_parent = this;
+        child->_address = 512 * 2 + i * 0x1a;
+                    
+        _files.push_back(child);
     }
     
+    // sanity check _firstBlock, _lastBlock?
+    
+    block = _lastBlock;
+    
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        FileEntryPointer e = *iter;
+        bool error = false;
+        if (e->_firstBlock > e->_lastBlock)
+            error = true;
 
+        if (e->_firstBlock >= _lastVolumeBlock)
+            error = true;
+
+        if (e->_lastBlock > _lastVolumeBlock)
+            error = true;
+        
+        if (e->_firstBlock < block)
+            error = true;
+        
+        if (error)
+            throw ProDOSException(__METHOD__ ": Invalid file entry.", ProFUSE::dirError);
+        
+        block = e->_lastBlock;
+        
+    }
+    
+    
+    calcMaxFileSize();
 }
 
 VolumeEntry::~VolumeEntry()
 {
-
-    std::vector<FileEntry *>::iterator iter;
-    for(iter = _files.begin(); iter != _files.end(); ++iter)
-    {
-        if (*iter) delete *iter;
-    }
-
 }
 
+
+void VolumeEntry::setParents()
+{
+    // parent is this....
+    
+    VolumeEntryWeakPointer parent(thisPointer());
+    std::vector<FileEntryPointer>::iterator iter;
+    
+    for (iter = _files.begin(); iter != _files.end(); ++iter)
+    {
+        FileEntryPointer e = *iter;
+        
+        e->_parent = parent;
+    }
+}
 
 void VolumeEntry::init(void *vp)
 {
@@ -278,20 +289,20 @@ void VolumeEntry::init(void *vp)
 }
 
 
-FileEntry *VolumeEntry::fileAtIndex(unsigned i) const
+FileEntryPointer VolumeEntry::fileAtIndex(unsigned i) const
 {
-    return i < _files.size() ? _files[i] : NULL;
+    return i < _files.size() ? _files[i] : FileEntryPointer();
 }
 
-FileEntry *VolumeEntry::fileByName(const char *name) const
+FileEntryPointer VolumeEntry::fileByName(const char *name) const
 {
-    std::vector<FileEntry *>::const_iterator iter;
+    std::vector<FileEntryPointer>::const_iterator iter;
     for(iter = _files.begin(); iter != _files.end(); ++iter)
     {
-        FileEntry *e = *iter;
+        FileEntryPointer e = *iter;
         if (::strcasecmp(name, e->name()) == 0) return e;
     }
-    return NULL;
+    return FileEntryPointer();
 }
 
 /*
@@ -303,7 +314,7 @@ int VolumeEntry::unlink(const char *name)
 {
     unsigned index;
 
-    std::vector<FileEntry *>::iterator iter;
+    std::vector<FileEntryPointer>::iterator iter;
         
     if (_device->readOnly())
     {
@@ -315,7 +326,7 @@ int VolumeEntry::unlink(const char *name)
     
     for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
-        FileEntry *e = *iter;
+        FileEntryPointer e = *iter;
         if (::strcasecmp(name, e->name()) == 0)
         {
             
@@ -323,12 +334,11 @@ int VolumeEntry::unlink(const char *name)
             // _maxFileSize.
             if (iter != _files.begin())
             {
-                FileEntry *prev = iter[-1];
+                FileEntryPointer prev = iter[-1];
                 prev->_maxFileSize += e->_maxFileSize;
             }
             
-            delete e;
-            *iter = NULL;
+            iter->reset();
             break;
         }
     }
@@ -347,7 +357,7 @@ int VolumeEntry::unlink(const char *name)
     // reset addresses.
     for ( ; iter != _files.end(); ++iter)
     {
-        FileEntry *e = *iter;
+        FileEntryPointer e = *iter;
         e->_address -= 0x1a;
     }
 
@@ -380,7 +390,7 @@ int VolumeEntry::unlink(const char *name)
  */
 int VolumeEntry::rename(const char *oldName, const char *newName)
 {
-    FileEntry *e;
+    FileEntryPointer e;
 
     
     // check if read only.
@@ -417,7 +427,7 @@ int VolumeEntry::rename(const char *oldName, const char *newName)
     
     // and commit to disk.
     
-    writeEntry(e);
+    writeEntry(e.get());
     _cache->sync();
     
     return 0;
@@ -431,8 +441,8 @@ int VolumeEntry::rename(const char *oldName, const char *newName)
  */
 int VolumeEntry::copy(const char *oldName, const char *newName)
 {
-    FileEntry *oldEntry;
-    FileEntry *newEntry;
+    FileEntryPointer oldEntry;
+    FileEntryPointer newEntry;
     // check if read only.
     if (_device->readOnly())
     {
@@ -482,14 +492,14 @@ int VolumeEntry::copy(const char *oldName, const char *newName)
                 return -1;                
             }
             
-            newEntry = NULL;
+            newEntry.reset();
             
             if (unlink(newName) != 0) return -1;
         }        
     }
         
     
-    if (newEntry == NULL)
+    if (!newEntry)
     {
         // newName does not exist (or was just deleted), so create a new file (if possible) and write to it.
         if (maxContiguousBlocks() < blocks)
@@ -534,7 +544,7 @@ int VolumeEntry::copy(const char *oldName, const char *newName)
  *
  *
  */
-FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
+FileEntryPointer VolumeEntry::create(const char *name, unsigned blocks)
 {
     // 0. check read only access.
     // 1. verify < 77 file names.
@@ -547,46 +557,45 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
     unsigned lastBlock = _lastBlock;
 
     
-    std::auto_ptr<FileEntry>entry;
-    FileEntry *prev = NULL;
-    FileEntry *curr = NULL;
-    std::vector<FileEntry *>::iterator iter;
+    FileEntryPointer entry;
+    FileEntryPointer prev;
+    FileEntryPointer curr;
+    std::vector<FileEntryPointer>::iterator iter;
     
     
     if (readOnly())
     {
         errno = EROFS;
-        return NULL;
+        return FileEntryPointer();
     }
     
     if (_fileCount == kMaxFiles)
     {
         errno = ENOSPC;
-        return NULL;
+        return FileEntryPointer();
     }
     
     
     if (!FileEntry::ValidName(name))
     {
         errno = EINVAL;
-        return NULL;
+        return FileEntryPointer();
     }
     
     if (fileByName(name))
     {
         errno = EEXIST;
-        return NULL;
+        return FileEntryPointer();
     }
     
     
-    entry.reset(new FileEntry(name, kUntypedFile));
+    entry = FileEntry::Create(name, kUntypedFile);
     
-    
-    std::auto_ptr<uint8_t> buffer(readDirectoryHeader());
+    ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
         
     for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
-        FileEntry *e = *iter;
+        FileEntryPointer e = *iter;
         
         unsigned freeSpace = e->_firstBlock - _lastBlock;
         // this could do something stupid like selecting a slot with only 1 free block but too bad.
@@ -611,12 +620,13 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
         // keep track of the index *before* the insert.
         unsigned index = distance(_files.begin(), iter); // current index.
         
-        iter = _files.insert(iter, entry.get());
+        iter = _files.insert(iter, entry);
         ++_fileCount;
         
-        curr = entry.release();
+        curr = entry;
         
-        curr->_parent = this;
+        //curr->_parent = this;
+        curr->_parent = VolumeEntryWeakPointer(thisPointer());
         curr->_firstBlock = lastBlock;
         curr->_lastBlock = lastBlock + 1;
         curr->_lastByte = 0;
@@ -638,15 +648,16 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
         if (freeSpace < blocks)
         {
             errno = ENOSPC;
-            return NULL;        
+            return FileEntryPointer();        
         }
                 
-        _files.push_back(entry.get());
+        _files.push_back(entry);
         _fileCount++;
         
-        curr = entry.release();
+        curr = entry;
         
-        curr->_parent = this;
+        //curr->_parent = this;
+        curr->_parent = VolumeEntryWeakPointer(thisPointer());
         curr->_firstBlock = lastBlock;
         curr->_lastBlock = lastBlock + 1;
         curr->_lastByte = 0;
@@ -658,7 +669,7 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
             prev->_maxFileSize = prev->blocks() * 512;
         }
         
-        writeEntry(curr);
+        writeEntry(curr.get());
         writeEntry(); // header.        
         
     }
@@ -670,7 +681,7 @@ FileEntry *VolumeEntry::create(const char *name, unsigned blocks)
         unsigned address = 2 * 512 + 0x1a;
         for (iter = _files.begin(); iter != _files.end(); ++iter, address += 0x1a)
         {
-            FileEntry *e = *iter;
+            FileEntryPointer e = *iter;
             e->_address = address;
         }
              
@@ -706,7 +717,7 @@ int VolumeEntry::krunch()
 {
     unsigned prevBlock;
     
-    std::vector<FileEntry *>::const_iterator iter;
+    std::vector<FileEntryPointer>::const_iterator iter;
     
     bool gap = false;
     
@@ -716,7 +727,7 @@ int VolumeEntry::krunch()
     
     for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
-        FileEntry *e = *iter;
+        FileEntryPointer e = *iter;
         
         unsigned first = e->firstBlock();
         unsigned last = e->lastBlock();
@@ -751,7 +762,7 @@ int VolumeEntry::krunch()
     unsigned offset = 0;
     for (iter = _files.begin(); iter != _files.end(); ++iter, ++offset)
     {
-        FileEntry *e = *iter;
+        FileEntryPointer e = *iter;
         
         b.setOffset(0x1a + 0x1a * offset);
         
@@ -812,13 +823,13 @@ unsigned VolumeEntry::freeBlocks(bool krunched) const
     
     if (krunched)
     {
-        std::vector<FileEntry *>::const_iterator iter;
+        std::vector<FileEntryPointer>::const_iterator iter;
         
         lastBlock = _lastBlock;
         
         for (iter = _files.begin(); iter != _files.end(); ++iter)
         {
-            const FileEntry *e = *iter;
+            const FileEntryPointer e = *iter;
             freeBlocks += e->_firstBlock - lastBlock;
             lastBlock = e->_lastBlock;
         }
@@ -842,13 +853,13 @@ unsigned VolumeEntry::freeBlocks(bool krunched) const
 bool VolumeEntry::canKrunch() const
 {
     
-    std::vector<FileEntry *>::const_iterator iter;
+    std::vector<FileEntryPointer>::const_iterator iter;
     
     unsigned lastBlock = _lastBlock;
 
     for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
-        const FileEntry *e = *iter;
+        const FileEntryPointer e = *iter;
         if (e->_lastBlock != lastBlock) return true;
         lastBlock = e->_lastBlock;
     }
@@ -864,13 +875,13 @@ unsigned VolumeEntry::maxContiguousBlocks() const
 {
     unsigned max = 0;
     
-    std::vector<FileEntry *>::const_iterator iter;
+    std::vector<FileEntryPointer>::const_iterator iter;
     
     unsigned lastBlock = _lastBlock;
     
     for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
-        const FileEntry *e = *iter;
+        const FileEntryPointer e = *iter;
         unsigned free = e->_firstBlock - lastBlock;
         max = std::max(max, free);
         
@@ -999,11 +1010,11 @@ void VolumeEntry::writeEntry(FileEntry *e)
 // set _maxFileSize for all entries.
 void VolumeEntry::calcMaxFileSize()
 {
-    std::vector<FileEntry *>::reverse_iterator riter;
+    std::vector<FileEntryPointer>::reverse_iterator riter;
     unsigned block = _lastVolumeBlock;
     for (riter = _files.rbegin(); riter != _files.rend(); ++riter)
     {
-        FileEntry *e = *riter;
+        FileEntryPointer e = *riter;
         e->_maxFileSize = (block - e->_firstBlock) * 512;
         block = e->_firstBlock;
     }

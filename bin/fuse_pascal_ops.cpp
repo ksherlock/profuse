@@ -56,18 +56,23 @@
 using namespace Pascal;
 
 
-static FileEntry *findChild(VolumeEntry *volume, unsigned inode)
+// fd_table is files which have been open.
+// fd_table_available is a list of indexes in fd_table which are not currently used.
+static std::vector<FileEntryPointer> fd_table;
+static std::vector<unsigned> fd_table_available;
+
+static FileEntryPointer findChild(VolumeEntry *volume, unsigned inode)
 {
 
     for (unsigned i = 0, l = volume->fileCount(); i < l; ++i)
     {
-        FileEntry *child = volume->fileAtIndex(i);
+        FileEntryPointer child = volume->fileAtIndex(i);
         if (!child) continue;
         
         if (inode == child->inode()) return child;
     }
 
-    return NULL;
+    return FileEntryPointer();
 }
 
 static void pascal_init(void *userdata, struct fuse_conn_info *conn)
@@ -82,7 +87,7 @@ static void pascal_init(void *userdata, struct fuse_conn_info *conn)
     
     for (unsigned i = 0, l = volume->fileCount(); i < l; ++i)
     {
-        FileEntry *child = volume->fileAtIndex(i);
+        FileEntryPointer child = volume->fileAtIndex(i);
         child->fileSize();
     }
 
@@ -105,7 +110,7 @@ static void pascal_listxattr(fuse_req_t req, fuse_ino_t ino, size_t size)
     DEBUGNAME()
 
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    FileEntry *file;
+    FileEntryPointer file;
     std::string attr;
     unsigned attrSize;
     
@@ -149,7 +154,7 @@ static void pascal_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, si
 
 
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    FileEntry *file;
+    FileEntryPointer file;
     std::string attr(name);
     
     ERROR(ino == 1, ENOATTR)
@@ -269,7 +274,7 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
         {
             unsigned tmp;
             
-            FileEntry *file = volume->fileAtIndex(i);
+            FileEntryPointer file = volume->fileAtIndex(i);
             if (file == NULL) break; //?
         
             // only these fields are used.
@@ -352,7 +357,7 @@ static void pascal_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
     
     for (unsigned i = 0, l = volume->fileCount(); i < l; ++i)
     {
-        FileEntry *file = volume->fileAtIndex(i);
+        FileEntryPointer file = volume->fileAtIndex(i);
         if (file == NULL) break;
     
         if (::strcasecmp(file->name(), name)) continue;
@@ -363,7 +368,7 @@ static void pascal_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
         entry.entry_timeout = 0.0;
         entry.ino = file->inode();
         
-        stat(file, &entry.attr);
+        stat(file.get(), &entry.attr);
         fuse_reply_entry(req, &entry); 
         return;
     }
@@ -378,7 +383,7 @@ static void pascal_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 
     struct stat st;
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    FileEntry *file;
+    FileEntryPointer file;
     
     if (ino == 1)
     {
@@ -392,7 +397,7 @@ static void pascal_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
     ERROR(file == NULL, ENOENT)
     //printf("\t%s\n", file->name());
     
-    stat(file, &st);
+    stat(file.get(), &st);
     fuse_reply_attr(req, &st, 0.0);    
 }
 
@@ -402,10 +407,11 @@ static void pascal_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 
 static void pascal_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
+    unsigned index;
     DEBUGNAME()
 
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    FileEntry *file;
+    FileEntryPointer file;
     
     ERROR(ino == 1, EISDIR)
     
@@ -415,7 +421,20 @@ static void pascal_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *f
     
     ERROR((fi->flags & O_ACCMODE) != O_RDONLY, EACCES)
     
-    fi->fh = (uint64_t)file;
+    // insert the FileEntryPointer into fd_table.
+    if (fd_table_available.size())
+    {
+        index = fd_table_available.back();
+        fd_table_available.pop_back();
+        fd_table[index] = file;
+    }
+    else
+    {
+        index = fd_table.size();
+        fd_table.push_back(file);
+    }
+    
+    fi->fh = index;
     
     fuse_reply_open(req, fi);
 }
@@ -423,7 +442,11 @@ static void pascal_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *f
 
 static void pascal_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
+    unsigned index = fi->fh;
     DEBUGNAME()
+
+    fd_table[index].reset();
+    fd_table_available.push_back(index);
 
     fuse_reply_err(req, 0);
 }
@@ -431,11 +454,13 @@ static void pascal_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 
 static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi)
 {
+    unsigned index = fi->fh;
+    
     DEBUGNAME()
 
 
     //VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    FileEntry *file = (FileEntry *)fi->fh;
+    FileEntryPointer file = fd_table[index];
     
 
     

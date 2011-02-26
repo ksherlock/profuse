@@ -263,7 +263,7 @@ void printUnusedEntry(unsigned block, unsigned size)
     std::printf("< UNUSED >      %4u            %4u\n", size, block);
 }
 
-void printFileEntry(Pascal::FileEntry *e, bool extended)
+void printFileEntry(Pascal::FileEntryPointer e, bool extended)
 {
     Pascal::Date dt = e->modification();
 
@@ -329,7 +329,7 @@ int action_ls(int argc, char **argv, Pascal::VolumeEntry *volume)
     
     for (unsigned i = 0; i < fileCount; ++i)
     {
-        Pascal::FileEntry *e = volume->fileAtIndex(i);
+        Pascal::FileEntryPointer e = volume->fileAtIndex(i);
         if (!e) continue;
         
         
@@ -409,7 +409,7 @@ int action_cat(unsigned argc, char **argv, Pascal::VolumeEntry *volume)
         unsigned fileSize;
         unsigned offset;
         uint8_t buffer[512];
-        Pascal::FileEntry *e = NULL;
+        Pascal::FileEntryPointer e;
         // find it...
 
         e = volume->fileByName(argv[i]);
@@ -588,7 +588,7 @@ int action_rm(int argc, char **argv, Pascal::VolumeEntry *volume)
     // TODO -- catch errors ?
     for (int i = 0; i < argc; ++i)
     {
-        Pascal::FileEntry *e = volume->fileByName(argv[i]);
+        Pascal::FileEntryPointer e = volume->fileByName(argv[i]);
         
         if (!e)
         {
@@ -691,7 +691,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     argc -= optind;
     argv += optind;
     
-    Pascal::FileEntry *entry;
+    Pascal::FileEntryPointer entry;
     
     switch(argc)
     {
@@ -910,7 +910,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
         
         blocks = text.blocks();
         
-        Pascal::FileEntry *entry = volume->create(outfile, blocks);
+        Pascal::FileEntryPointer entry = volume->create(outfile, blocks);
         if (!entry)
         {
             perror(NULL);
@@ -923,7 +923,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
     }
     else
     {
-        Pascal::FileEntry *entry = volume->create(outfile, blocks);
+        Pascal::FileEntryPointer entry = volume->create(outfile, blocks);
         if (!entry)
         {
             perror(NULL);
@@ -962,7 +962,7 @@ int action_put(int argc, char **argv, Pascal::VolumeEntry *volume)
 
 int main(int argc, char **argv)
 {
-    std::auto_ptr<Pascal::VolumeEntry> volume;
+    Pascal::VolumeEntryPointer volume;
     Device::BlockDevicePointer device;
   
     unsigned fmt = 0;
@@ -1027,7 +1027,7 @@ int main(int argc, char **argv)
         
         device = Device::BlockDevice::Open(file, commandFlags(actionCode), fmt);
     
-        volume.reset( new Pascal::VolumeEntry(device));
+        volume = Pascal::VolumeEntry::Open(device);
         device.reset();
 
         switch (actionCode)

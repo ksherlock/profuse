@@ -169,7 +169,7 @@ int main(int argc, char **argv)
     int multithread = false;
     
     
-    std::auto_ptr<Pascal::VolumeEntry> volume;
+    Pascal::VolumeEntryPointer volume;
     
 	
     init_ops(&pascal_ops);
@@ -210,8 +210,7 @@ int main(int argc, char **argv)
             exit(1);
         }
         
-        volume.reset( new Pascal::VolumeEntry(device) );
-        device.reset();
+        volume = Pascal::VolumeEntry::Open(device);
     }
     catch (ProFUSE::POSIXException &e)
     {

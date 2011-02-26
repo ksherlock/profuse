@@ -64,7 +64,6 @@ Entry::Entry()
     _lastBlock = 0;
     _fileKind = 0;
     _inode = 0;
-    _parent = NULL;
     _address = NULL;
 }
 
