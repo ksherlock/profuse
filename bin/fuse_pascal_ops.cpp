@@ -13,8 +13,11 @@
 #include <cstdio>
 #include <cstring>
 
-#include <sys/stat.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/statvfs.h>
+
+
 
 
 #include <fuse/fuse_opt.h>
@@ -75,6 +78,11 @@ static FileEntryPointer findChild(VolumeEntry *volume, unsigned inode)
     return FileEntryPointer();
 }
 
+
+#pragma mark -
+#pragma mark fs
+
+
 static void pascal_init(void *userdata, struct fuse_conn_info *conn)
 {
     DEBUGNAME()
@@ -100,6 +108,34 @@ static void pascal_destroy(void *userdata)
     // nop
 }
 
+
+static void pascal_statfs(fuse_req_t req, fuse_ino_t ino)
+{
+    DEBUGNAME()
+
+    struct statvfs vst;
+    VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
+
+    ERROR(!volume, EIO)
+    
+    // returns statvfs for the mount path or any file in the fs
+    // therefore, ignore ino.
+    std::memset(&vst, 0, sizeof(vst));
+    
+    vst.f_bsize = 512;  // fs block size
+    vst.f_frsize = 512; // fundamental fs block size
+    vst.f_blocks = volume->volumeBlocks();
+    vst.f_bfree = volume->freeBlocks(true); // free blocks
+    vst.f_bavail = volume->freeBlocks(false); // free blocks (non-root)
+    vst.f_files = volume->fileCount();
+    vst.f_ffree = -1;  // free inodes.
+    vst.f_favail = -1; // free inodes (non-root)
+    vst.f_fsid = 0; // file system id?
+    vst.f_flag = volume->readOnly() ?  ST_RDONLY | ST_NOSUID : ST_NOSUID;
+    vst.f_namemax = 15;
+    
+    fuse_reply_statfs(req, &vst);    
+}
 
 
 #pragma mark -
@@ -485,7 +521,6 @@ static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, 
     
 }
 
-
 void init_ops(fuse_lowlevel_ops *ops)
 {
     DEBUGNAME()
@@ -494,6 +529,7 @@ void init_ops(fuse_lowlevel_ops *ops)
 
     ops->init = pascal_init;
     ops->destroy = pascal_destroy;
+    ops->statfs = pascal_statfs;
     
     // returns pascal.filekind, text encoding.
     ops->listxattr = pascal_listxattr;
