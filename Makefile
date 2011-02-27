@@ -1,7 +1,17 @@
 CC = g++
 CPPFLAGS += -Wall -W -Wno-multichar -I. -O2 -g 
 LDFLAGS += -lpthread
-fuse_pascal_LDFLAGS += -lfuse
+UNAME = $(shell uname)
+
+ifeq ($(UNAME),Darwin)
+    fuse_pascal_LDFLAGS += -lfuse_ino64
+else
+    fuse_pascal_LDFLAGS += -lfuse
+endif
+
+
+
+
 
 OBJECTS += ${wildcard *.o}
 OBJECTS += ${wildcard bin/*.o}
@@ -78,7 +88,7 @@ fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
   ${FILE_OBJECTS} \
   ${PROFUSE_OBJECTS} \
   ${PASCAL_OBJECTS}
-	$(CC) -lfuse $(LDFLAGS) $^ -o $@
+	$(CC) $(fuse_pascal_LDFLAGS) $(LDFLAGS) $^ -o $@
 
 
 clean:

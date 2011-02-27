@@ -61,6 +61,7 @@ using ProFUSE::POSIXException;
 BlockCachePointer ConcreteBlockCache::Create(BlockDevicePointer device, unsigned size)
 {
     //return BlockCachePointer(new ConcreteBlockCache(device, size));
+    // constructor must be accessible to std::make_shared...
     
     return MAKE_SHARED(ConcreteBlockCache, device, size);
 }

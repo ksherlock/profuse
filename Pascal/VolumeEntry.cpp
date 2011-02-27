@@ -68,6 +68,10 @@ VolumeEntryPointer VolumeEntry::Open(Device::BlockDevicePointer device)
     
     //ptr = new VolumeEntry(device));
     ptr = MAKE_SHARED(VolumeEntry, device);
+
+    // set up the weak references from the file entry to this.
+    if (ptr) ptr->setParents();
+    
     return ptr;
 }
 
@@ -77,9 +81,6 @@ VolumeEntryPointer VolumeEntry::Create(Device::BlockDevicePointer device, const 
     
     //ptr = new VolumeEntry(device, name);
     ptr = MAKE_SHARED(VolumeEntry, device, name);
-    
-    // set up the weak references from the file entry to this.
-    if (ptr) ptr->setParents();
     
     return ptr;
 }
