@@ -32,8 +32,8 @@ DiskCopy42Image::DiskCopy42Image(MappedFile *f) :
     DiskImage(f),
     _changed(false)
 {
-    setAdaptor(new POAdaptor(oUserData + (uint8_t *)f->address()));
-    setBlocks(Read32(f->address(), oDataSize) / 512);
+    setAdaptor(new POAdaptor(oUserData + (uint8_t *)address()));
+    setBlocks(Read32(address(), oDataSize) / 512);
 }
 
 
@@ -183,7 +183,7 @@ void DiskCopy42Image::Validate(MappedFile *file)
         // name must be < 64
         if (Read8(data, 0) > 63) break;
         
-        if (Read32(data, oPrivate) != 0x100)
+        if (Read16(data, oPrivate) != 0x100)
             break;
         
         // bytes, not blocks.

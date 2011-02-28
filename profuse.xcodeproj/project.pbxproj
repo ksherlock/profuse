@@ -7,16 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B60E914F0EFB3628000E4348 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E914E0EFB3628000E4348 /* File.cpp */; };
 		B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60E91540EFB51FE000E4348 /* Disk.cpp */; };
-		B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */; };
+		B650C2C5131090D200046FAD /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650C2C3131090D200046FAD /* File.cpp */; };
 		B679E4A80F02E79300FB3F0C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B679E4A70F02E79300FB3F0C /* main.cpp */; };
-		B67F097910575F8300A13214 /* DateTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B67F097810575F8300A13214 /* DateTime.cpp */; };
-		B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */; };
 		B6C786B50F2A59FF00053681 /* profuse_xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786B40F2A59FE00053681 /* profuse_xattr.cpp */; };
 		B6C786BC0F2A5C0800053681 /* profuse_dirent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */; };
 		B6C786C00F2A5CC000053681 /* profuse_stat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786BF0F2A5CC000053681 /* profuse_stat.cpp */; };
 		B6C786C40F2A5DCE00053681 /* profuse_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6C786C30F2A5DCE00053681 /* profuse_file.cpp */; };
+		B6DA702D131047CA00E42AA6 /* BlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7027131047CA00E42AA6 /* BlockCache.cpp */; };
+		B6DA702E131047CA00E42AA6 /* ConcreteBlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7029131047CA00E42AA6 /* ConcreteBlockCache.cpp */; };
+		B6DA702F131047CA00E42AA6 /* MappedBlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA702B131047CA00E42AA6 /* MappedBlockCache.cpp */; };
+		B6DA7040131047D100E42AA6 /* Adaptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7031131047D100E42AA6 /* Adaptor.cpp */; };
+		B6DA7041131047D100E42AA6 /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7033131047D100E42AA6 /* BlockDevice.cpp */; };
+		B6DA7042131047D100E42AA6 /* DavexDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7035131047D100E42AA6 /* DavexDiskImage.cpp */; };
+		B6DA7043131047D100E42AA6 /* DiskCopy42Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7037131047D100E42AA6 /* DiskCopy42Image.cpp */; };
+		B6DA7044131047D100E42AA6 /* DiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7039131047D100E42AA6 /* DiskImage.cpp */; };
+		B6DA7045131047D100E42AA6 /* RawDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA703B131047D100E42AA6 /* RawDevice.cpp */; };
+		B6DA7046131047D100E42AA6 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA703E131047D100E42AA6 /* UniversalDiskImage.cpp */; };
+		B6DA704C131047F400E42AA6 /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7048131047F400E42AA6 /* Endian.cpp */; };
+		B6DA7052131047FA00E42AA6 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA704E131047FA00E42AA6 /* File.cpp */; };
+		B6DA7053131047FA00E42AA6 /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA7050131047FA00E42AA6 /* MappedFile.cpp */; };
+		B6DA705A1310551500E42AA6 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA70561310551500E42AA6 /* Exception.cpp */; };
+		B6DA705B1310551500E42AA6 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA70581310551500E42AA6 /* Lock.cpp */; };
+		B6DA706E1310571B00E42AA6 /* DateTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6DA706B1310571B00E42AA6 /* DateTime.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,23 +46,54 @@
 
 /* Begin PBXFileReference section */
 		8DD76F6C0486A84900D96B5E /* profuse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = profuse; sourceTree = BUILT_PRODUCTS_DIR; };
-		B60E914D0EFB3627000E4348 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
-		B60E914E0EFB3628000E4348 /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
 		B60E91530EFB51FE000E4348 /* Disk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Disk.h; sourceTree = "<group>"; };
 		B60E91540EFB51FE000E4348 /* Disk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disk.cpp; sourceTree = "<group>"; };
 		B60E91580EFD77E3000E4348 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
-		B642F1290F132FA3001F7696 /* UniversalDiskImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniversalDiskImage.h; sourceTree = "<group>"; };
-		B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UniversalDiskImage.cpp; sourceTree = "<group>"; };
+		B650C2C3131090D200046FAD /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
+		B650C2C4131090D200046FAD /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
+		B650C2C6131095C200046FAD /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
 		B679E4A70F02E79300FB3F0C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		B67F097810575F8300A13214 /* DateTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DateTime.cpp; sourceTree = "<group>"; };
-		B67F097A10575FD900A13214 /* DateTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateTime.h; sourceTree = "<group>"; };
-		B6B17FA00F1138830060F7AA /* DiskCopy42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskCopy42.h; sourceTree = "<group>"; };
-		B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DiskCopy42.cpp; sourceTree = "<group>"; };
 		B6C786B30F2A59AF00053681 /* profuse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = profuse.h; sourceTree = "<group>"; };
 		B6C786B40F2A59FE00053681 /* profuse_xattr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_xattr.cpp; sourceTree = "<group>"; };
 		B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_dirent.cpp; sourceTree = "<group>"; };
 		B6C786BF0F2A5CC000053681 /* profuse_stat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_stat.cpp; sourceTree = "<group>"; };
 		B6C786C30F2A5DCE00053681 /* profuse_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_file.cpp; sourceTree = "<group>"; };
+		B6DA7027131047CA00E42AA6 /* BlockCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockCache.cpp; sourceTree = "<group>"; };
+		B6DA7028131047CA00E42AA6 /* BlockCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockCache.h; sourceTree = "<group>"; };
+		B6DA7029131047CA00E42AA6 /* ConcreteBlockCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConcreteBlockCache.cpp; sourceTree = "<group>"; };
+		B6DA702A131047CA00E42AA6 /* ConcreteBlockCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConcreteBlockCache.h; sourceTree = "<group>"; };
+		B6DA702B131047CA00E42AA6 /* MappedBlockCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MappedBlockCache.cpp; sourceTree = "<group>"; };
+		B6DA702C131047CA00E42AA6 /* MappedBlockCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MappedBlockCache.h; sourceTree = "<group>"; };
+		B6DA7031131047D100E42AA6 /* Adaptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Adaptor.cpp; sourceTree = "<group>"; };
+		B6DA7032131047D100E42AA6 /* Adaptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Adaptor.h; sourceTree = "<group>"; };
+		B6DA7033131047D100E42AA6 /* BlockDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockDevice.cpp; sourceTree = "<group>"; };
+		B6DA7034131047D100E42AA6 /* BlockDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockDevice.h; sourceTree = "<group>"; };
+		B6DA7035131047D100E42AA6 /* DavexDiskImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DavexDiskImage.cpp; sourceTree = "<group>"; };
+		B6DA7036131047D100E42AA6 /* DavexDiskImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DavexDiskImage.h; sourceTree = "<group>"; };
+		B6DA7037131047D100E42AA6 /* DiskCopy42Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DiskCopy42Image.cpp; sourceTree = "<group>"; };
+		B6DA7038131047D100E42AA6 /* DiskCopy42Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskCopy42Image.h; sourceTree = "<group>"; };
+		B6DA7039131047D100E42AA6 /* DiskImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DiskImage.cpp; sourceTree = "<group>"; };
+		B6DA703A131047D100E42AA6 /* DiskImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskImage.h; sourceTree = "<group>"; };
+		B6DA703B131047D100E42AA6 /* RawDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RawDevice.cpp; sourceTree = "<group>"; };
+		B6DA703C131047D100E42AA6 /* RawDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawDevice.h; sourceTree = "<group>"; };
+		B6DA703D131047D100E42AA6 /* TrackSector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackSector.h; sourceTree = "<group>"; };
+		B6DA703E131047D100E42AA6 /* UniversalDiskImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UniversalDiskImage.cpp; sourceTree = "<group>"; };
+		B6DA703F131047D100E42AA6 /* UniversalDiskImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniversalDiskImage.h; sourceTree = "<group>"; };
+		B6DA7048131047F400E42AA6 /* Endian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endian.cpp; sourceTree = "<group>"; };
+		B6DA7049131047F400E42AA6 /* Endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endian.h; sourceTree = "<group>"; };
+		B6DA704A131047F400E42AA6 /* IOBuffer.cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.cpp.h; sourceTree = "<group>"; };
+		B6DA704B131047F400E42AA6 /* IOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.h; sourceTree = "<group>"; };
+		B6DA704E131047FA00E42AA6 /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
+		B6DA704F131047FA00E42AA6 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
+		B6DA7050131047FA00E42AA6 /* MappedFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MappedFile.cpp; sourceTree = "<group>"; };
+		B6DA7051131047FA00E42AA6 /* MappedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MappedFile.h; sourceTree = "<group>"; };
+		B6DA70551310551500E42AA6 /* auto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = auto.h; sourceTree = "<group>"; };
+		B6DA70561310551500E42AA6 /* Exception.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cpp; sourceTree = "<group>"; };
+		B6DA70571310551500E42AA6 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
+		B6DA70581310551500E42AA6 /* Lock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lock.cpp; sourceTree = "<group>"; };
+		B6DA70591310551500E42AA6 /* Lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lock.h; sourceTree = "<group>"; };
+		B6DA706B1310571B00E42AA6 /* DateTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DateTime.cpp; sourceTree = "<group>"; };
+		B6DA706C1310571B00E42AA6 /* DateTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateTime.h; sourceTree = "<group>"; };
 		B6DBB4E70F0C6BBD00F385F2 /* profuse.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = profuse.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -78,18 +122,16 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				B67F097810575F8300A13214 /* DateTime.cpp */,
-				B67F097A10575FD900A13214 /* DateTime.h */,
-				B642F1290F132FA3001F7696 /* UniversalDiskImage.h */,
-				B642F12A0F132FA3001F7696 /* UniversalDiskImage.cpp */,
+				B6DA70681310571B00E42AA6 /* ProDOS */,
+				B6DA70541310551500E42AA6 /* ProFUSE */,
+				B6DA704D131047FA00E42AA6 /* File */,
+				B6DA7047131047F400E42AA6 /* Endian */,
+				B6DA7030131047D100E42AA6 /* Device */,
+				B6DA7026131047CA00E42AA6 /* Cache */,
 				B60E91580EFD77E3000E4348 /* common.h */,
 				B60E91530EFB51FE000E4348 /* Disk.h */,
 				B60E91540EFB51FE000E4348 /* Disk.cpp */,
-				B60E914D0EFB3627000E4348 /* File.h */,
-				B60E914E0EFB3628000E4348 /* File.cpp */,
 				B679E4A70F02E79300FB3F0C /* main.cpp */,
-				B6B17FA00F1138830060F7AA /* DiskCopy42.h */,
-				B6B17FA10F1138830060F7AA /* DiskCopy42.cpp */,
 				B6C786B30F2A59AF00053681 /* profuse.h */,
 				B6C786BB0F2A5C0800053681 /* profuse_dirent.cpp */,
 				B6C786C30F2A5DCE00053681 /* profuse_file.cpp */,
@@ -112,6 +154,87 @@
 			children = (
 			);
 			name = Libraries;
+			sourceTree = "<group>";
+		};
+		B6DA7026131047CA00E42AA6 /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				B6DA7027131047CA00E42AA6 /* BlockCache.cpp */,
+				B6DA7028131047CA00E42AA6 /* BlockCache.h */,
+				B6DA7029131047CA00E42AA6 /* ConcreteBlockCache.cpp */,
+				B6DA702A131047CA00E42AA6 /* ConcreteBlockCache.h */,
+				B6DA702B131047CA00E42AA6 /* MappedBlockCache.cpp */,
+				B6DA702C131047CA00E42AA6 /* MappedBlockCache.h */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
+		B6DA7030131047D100E42AA6 /* Device */ = {
+			isa = PBXGroup;
+			children = (
+				B6DA7031131047D100E42AA6 /* Adaptor.cpp */,
+				B6DA7032131047D100E42AA6 /* Adaptor.h */,
+				B6DA7033131047D100E42AA6 /* BlockDevice.cpp */,
+				B6DA7034131047D100E42AA6 /* BlockDevice.h */,
+				B6DA7035131047D100E42AA6 /* DavexDiskImage.cpp */,
+				B6DA7036131047D100E42AA6 /* DavexDiskImage.h */,
+				B6DA7037131047D100E42AA6 /* DiskCopy42Image.cpp */,
+				B6DA7038131047D100E42AA6 /* DiskCopy42Image.h */,
+				B6DA7039131047D100E42AA6 /* DiskImage.cpp */,
+				B6DA703A131047D100E42AA6 /* DiskImage.h */,
+				B6DA703B131047D100E42AA6 /* RawDevice.cpp */,
+				B6DA703C131047D100E42AA6 /* RawDevice.h */,
+				B6DA703D131047D100E42AA6 /* TrackSector.h */,
+				B6DA703E131047D100E42AA6 /* UniversalDiskImage.cpp */,
+				B6DA703F131047D100E42AA6 /* UniversalDiskImage.h */,
+				B650C2C6131095C200046FAD /* Device.h */,
+			);
+			path = Device;
+			sourceTree = "<group>";
+		};
+		B6DA7047131047F400E42AA6 /* Endian */ = {
+			isa = PBXGroup;
+			children = (
+				B6DA7048131047F400E42AA6 /* Endian.cpp */,
+				B6DA7049131047F400E42AA6 /* Endian.h */,
+				B6DA704A131047F400E42AA6 /* IOBuffer.cpp.h */,
+				B6DA704B131047F400E42AA6 /* IOBuffer.h */,
+			);
+			path = Endian;
+			sourceTree = "<group>";
+		};
+		B6DA704D131047FA00E42AA6 /* File */ = {
+			isa = PBXGroup;
+			children = (
+				B6DA704E131047FA00E42AA6 /* File.cpp */,
+				B6DA704F131047FA00E42AA6 /* File.h */,
+				B6DA7050131047FA00E42AA6 /* MappedFile.cpp */,
+				B6DA7051131047FA00E42AA6 /* MappedFile.h */,
+			);
+			path = File;
+			sourceTree = "<group>";
+		};
+		B6DA70541310551500E42AA6 /* ProFUSE */ = {
+			isa = PBXGroup;
+			children = (
+				B6DA70551310551500E42AA6 /* auto.h */,
+				B6DA70561310551500E42AA6 /* Exception.cpp */,
+				B6DA70571310551500E42AA6 /* Exception.h */,
+				B6DA70581310551500E42AA6 /* Lock.cpp */,
+				B6DA70591310551500E42AA6 /* Lock.h */,
+			);
+			path = ProFUSE;
+			sourceTree = "<group>";
+		};
+		B6DA70681310571B00E42AA6 /* ProDOS */ = {
+			isa = PBXGroup;
+			children = (
+				B650C2C3131090D200046FAD /* File.cpp */,
+				B650C2C4131090D200046FAD /* File.h */,
+				B6DA706B1310571B00E42AA6 /* DateTime.cpp */,
+				B6DA706C1310571B00E42AA6 /* DateTime.h */,
+			);
+			path = ProDOS;
 			sourceTree = "<group>";
 		};
 		C6859E8C029090F304C91782 /* Documentation */ = {
@@ -150,7 +273,11 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "profuse" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ProDOS-Fuse */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -165,16 +292,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B60E914F0EFB3628000E4348 /* File.cpp in Sources */,
 				B60E91550EFB51FE000E4348 /* Disk.cpp in Sources */,
 				B679E4A80F02E79300FB3F0C /* main.cpp in Sources */,
-				B6B17FA20F1138830060F7AA /* DiskCopy42.cpp in Sources */,
-				B642F12B0F132FA3001F7696 /* UniversalDiskImage.cpp in Sources */,
 				B6C786B50F2A59FF00053681 /* profuse_xattr.cpp in Sources */,
 				B6C786BC0F2A5C0800053681 /* profuse_dirent.cpp in Sources */,
 				B6C786C00F2A5CC000053681 /* profuse_stat.cpp in Sources */,
 				B6C786C40F2A5DCE00053681 /* profuse_file.cpp in Sources */,
-				B67F097910575F8300A13214 /* DateTime.cpp in Sources */,
+				B6DA702D131047CA00E42AA6 /* BlockCache.cpp in Sources */,
+				B6DA702E131047CA00E42AA6 /* ConcreteBlockCache.cpp in Sources */,
+				B6DA702F131047CA00E42AA6 /* MappedBlockCache.cpp in Sources */,
+				B6DA7040131047D100E42AA6 /* Adaptor.cpp in Sources */,
+				B6DA7041131047D100E42AA6 /* BlockDevice.cpp in Sources */,
+				B6DA7042131047D100E42AA6 /* DavexDiskImage.cpp in Sources */,
+				B6DA7043131047D100E42AA6 /* DiskCopy42Image.cpp in Sources */,
+				B6DA7044131047D100E42AA6 /* DiskImage.cpp in Sources */,
+				B6DA7045131047D100E42AA6 /* RawDevice.cpp in Sources */,
+				B6DA7046131047D100E42AA6 /* UniversalDiskImage.cpp in Sources */,
+				B6DA704C131047F400E42AA6 /* Endian.cpp in Sources */,
+				B6DA7052131047FA00E42AA6 /* File.cpp in Sources */,
+				B6DA7053131047FA00E42AA6 /* MappedFile.cpp in Sources */,
+				B6DA705A1310551500E42AA6 /* Exception.cpp in Sources */,
+				B6DA705B1310551500E42AA6 /* Lock.cpp in Sources */,
+				B6DA706E1310571B00E42AA6 /* DateTime.cpp in Sources */,
+				B650C2C5131090D200046FAD /* File.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,10 +330,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = profuse;
 			};
@@ -205,6 +343,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = "ProDOS-Fuse";
 			};
@@ -217,9 +356,13 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/local/include/fuse;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/fuse,
+					.,
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D__FreeBSD__=10",
@@ -232,7 +375,7 @@
 					"-lfuse_ino64",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -241,10 +384,11 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -255,9 +399,13 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/local/include/fuse;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/fuse,
+					.,
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D__FreeBSD__=10",
@@ -270,7 +418,7 @@
 					"-lfuse_ino64",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = "Debug Universal";
 		};
@@ -283,10 +431,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = profuse;
 			};
@@ -299,9 +445,13 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/local/include/fuse;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/fuse,
+					.,
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D__FreeBSD__=10",
@@ -314,7 +464,7 @@
 					"-lfuse_ino64",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 			};
 			name = "Debug 10.6";
@@ -328,10 +478,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = profuse;
 			};
@@ -344,9 +492,14 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/local/include/fuse;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/fuse,
+					.,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D__FreeBSD__=10",
@@ -357,7 +510,7 @@
 					"-lfuse",
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx;
 			};
 			name = "Debug Universal 10.4";
 		};
@@ -370,10 +523,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = profuse;
 			};

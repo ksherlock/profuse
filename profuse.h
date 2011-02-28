@@ -40,6 +40,9 @@ void prodos_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, stru
 void prodos_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 void prodos_lookup(fuse_req_t req, fuse_ino_t parent, const char *name);
 
+void prodos_statfs(fuse_req_t req, fuse_ino_t ino);
+
+
 // file io.
 void prodos_open(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 void prodos_release(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);

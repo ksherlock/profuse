@@ -16,6 +16,8 @@
 
 #include <vector>
 
+#include <sys/stat.h>
+#include <sys/statvfs.h>
 
 using std::vector;
 
@@ -215,5 +217,36 @@ void prodos_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
     fprintf(stderr, "file found!\n");
     
     fuse_reply_entry(req, &entry);
+}
+
+
+
+
+void prodos_statfs(fuse_req_t req, fuse_ino_t ino)
+{    
+    struct statvfs vst;
+    
+    VolumeEntry volume;
+    
+    
+    disk->ReadVolume(&volume, NULL);
+
+    // returns statvfs for the mount path or any file in the fs
+    // therefore, ignore ino.
+    std::memset(&vst, 0, sizeof(vst));
+    
+    vst.f_bsize = 512;  // fs block size
+    vst.f_frsize = 512; // fundamental fs block size
+    vst.f_blocks = volume.total_blocks;
+    vst.f_bfree = 0; // free blocks
+    vst.f_bavail = 0; // free blocks (non-root)
+    vst.f_files = 0; // ?
+    vst.f_ffree = -1;  // free inodes.
+    vst.f_favail = -1; // free inodes (non-root)
+    vst.f_fsid = 0; // file system id?
+    vst.f_flag = ST_RDONLY | ST_NOSUID;
+    vst.f_namemax = 15;
+    
+    fuse_reply_statfs(req, &vst);    
 }
 

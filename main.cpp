@@ -238,6 +238,8 @@ int main(int argc, char *argv[])
     prodos_oper.release = prodos_release;
     prodos_oper.read = prodos_read;
     
+    prodos_oper.statfs = prodos_statfs;
+    
 
     // scan the argument list, looking for the name of the disk image.
     if (fuse_opt_parse(&args, &options , prodos_opts, prodos_opt_proc) == -1)
