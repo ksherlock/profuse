@@ -262,9 +262,9 @@ int main(int argc, char *argv[])
     try {
         Device::BlockDevicePointer device;
         
-        device.reset ( Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format) );
+        device = Device::BlockDevice::Open(fDiskImage.c_str(), File::ReadOnly, format);
         
-        if (!device.get())
+        if (!device)
         {
             std::fprintf(stderr, "Error: Unknown or unsupported device type.\n");
             exit(1);
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
         
         disk = Disk::OpenFile(device);
         
-        if (!disk.get())
+        if (!disk)
         {
             fprintf(stderr, "Unable to mount disk %s\n", fDiskImage.c_str());
             exit(1);
