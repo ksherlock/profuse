@@ -75,10 +75,12 @@ uint32_t DiskCopy42Image::Checksum(void *data, size_t size)
     return rv;
 }
 
-DiskCopy42Image *DiskCopy42Image::Open(MappedFile *f)
+BlockDevicePointer DiskCopy42Image::Open(MappedFile *f)
 {
     Validate(f);
-    return new DiskCopy42Image(f);
+    //return BlockDevicePointer(new DiskCopy42Image(f));
+    
+    return MAKE_SHARED(DiskCopy42Image, f);
 }
 
 static uint8_t DiskFormat(size_t blocks)
@@ -101,12 +103,12 @@ static uint8_t FormatByte(size_t blocks)
     default: return 0x22;
     }
 }
-DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks)
+BlockDevicePointer DiskCopy42Image::Create(const char *name, size_t blocks)
 {
     return Create(name, blocks, "Untitled");
 }
 
-DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const char *vname)
+BlockDevicePointer DiskCopy42Image::Create(const char *name, size_t blocks, const char *vname)
 {
     MappedFile *file = MappedFile::Create(name, blocks * 512 + oUserData);
 
@@ -163,7 +165,9 @@ DiskCopy42Image *DiskCopy42Image::Create(const char *name, size_t blocks, const 
     std::memcpy(file->address(), header.buffer(), oUserData);
     file->sync();
     
-    return new DiskCopy42Image(file);
+    //return BlockDevicePointer(new DiskCopy42Image(file));
+    
+    return MAKE_SHARED(DiskCopy42Image, file);
 }
 
 void DiskCopy42Image::Validate(MappedFile *file)

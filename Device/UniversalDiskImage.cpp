@@ -41,7 +41,7 @@ UniversalDiskImage::UniversalDiskImage(MappedFile *file) :
     setAdaptor(new POAdaptor(_dataOffset + data));
 }
 
-UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
+BlockDevicePointer UniversalDiskImage::Create(const char *name, size_t blocks)
 {
     // 64-byte header.
     MappedFile *file = MappedFile::Create(name, blocks * 512 + 64);
@@ -81,13 +81,17 @@ UniversalDiskImage *UniversalDiskImage::Create(const char *name, size_t blocks)
     std::memcpy(file->address(), header.buffer(), 64);
     
 
-    return new UniversalDiskImage(file);
+    //return BlockDevicePointer(new UniversalDiskImage(file));
+    
+    return MAKE_SHARED(UniversalDiskImage, file);
 }
 
-UniversalDiskImage *UniversalDiskImage::Open(MappedFile *file)
+BlockDevicePointer UniversalDiskImage::Open(MappedFile *file)
 {
     Validate(file);
-    return new UniversalDiskImage(file);
+
+    //return BlockDevicePointer(new UniversalDiskImage(file));
+    return MAKE_SHARED(UniversalDiskImage, file);
 }
 
 

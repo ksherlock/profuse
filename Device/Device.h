@@ -9,17 +9,15 @@
 #ifndef __DEVICE_DEVICE_H__
 #define __DEVICE_DEVICE_H__
 
-#include <tr1/memory>
+#include <ProFUSE/smart_pointers.h>
 
 namespace Device {
     
     class BlockDevice;
     class BlockCache;
     
-    typedef std::tr1::shared_ptr<BlockDevice> BlockDevicePointer;
-    typedef std::tr1::shared_ptr<BlockCache> BlockCachePointer;
-
-    
+    typedef SHARED_PTR(BlockDevice) BlockDevicePointer;
+    typedef SHARED_PTR(BlockCache) BlockCachePointer;    
 }
 
 

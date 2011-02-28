@@ -16,9 +16,9 @@ public:
     
     virtual ~DavexDiskImage();
     
-    static DavexDiskImage *Create(const char *name, size_t blocks);
-    static DavexDiskImage *Create(const char *name, size_t blocks, const char *vname);
-    static DavexDiskImage *Open(MappedFile *);
+    static BlockDevicePointer Create(const char *name, size_t blocks);
+    static BlockDevicePointer Create(const char *name, size_t blocks, const char *vname);
+    static BlockDevicePointer Open(MappedFile *);
 
     virtual BlockCachePointer createBlockCache();
 

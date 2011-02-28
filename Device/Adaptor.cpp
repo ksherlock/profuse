@@ -2,6 +2,7 @@
 
 
 #include <cstring>
+#include <cstdio>
 #include <Device/Adaptor.h>
 
 #include <ProFUSE/Exception.h>

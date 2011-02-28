@@ -85,20 +85,22 @@ void DavexDiskImage::Validate(MappedFile *f)
         throw Exception(__METHOD__ ": Invalid file format.");
 }
 
-DavexDiskImage *DavexDiskImage::Open(MappedFile *file)
+BlockDevicePointer DavexDiskImage::Open(MappedFile *file)
 {
 #undef __METHOD__
 #define __METHOD__ "DavexDiskImage::Open"
     Validate(file);
     
-    return new DavexDiskImage(file);
+    //return BlockDevicePointer(new DavexDiskImage(file));
+    
+    return MAKE_SHARED(DavexDiskImage, file);
 }
 
-DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks)
+BlockDevicePointer DavexDiskImage::Create(const char *name, size_t blocks)
 {
     return Create(name, blocks, "Untitled");
 }
-DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const char *vname)
+BlockDevicePointer DavexDiskImage::Create(const char *name, size_t blocks, const char *vname)
 {
 #undef __METHOD__
 #define __METHOD__ "DavexDiskImage::Create"
@@ -154,7 +156,9 @@ DavexDiskImage *DavexDiskImage::Create(const char *name, size_t blocks, const ch
     std::memcpy(file->address(), header.buffer(), 512);
     file->sync();
     
-    return new DavexDiskImage(file);
+    //return BlockDevicePointer(new DavexDiskImage(file));
+    
+    return MAKE_SHARED(DavexDiskImage, file);
 }
 
 

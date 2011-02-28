@@ -78,7 +78,7 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     return defv;
 }
 
-BlockDevice *BlockDevice::Open(const char *name, File::FileFlags flags, unsigned imageType)
+BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, unsigned imageType)
 {
 #undef __METHOD__
 #define __METHOD__ "BlockDevice::Open"
@@ -128,7 +128,7 @@ BlockDevice *BlockDevice::Open(const char *name, File::FileFlags flags, unsigned
     }
     
     // throw an error?
-    return NULL;
+    return BlockDevicePointer();
     
 }
 
@@ -158,7 +158,7 @@ static std::string filename(const std::string& src)
 }
 
 
-BlockDevice *BlockDevice::Create(const char *fname, const char *vname, unsigned blocks, unsigned imageType)
+BlockDevicePointer BlockDevice::Create(const char *fname, const char *vname, unsigned blocks, unsigned imageType)
 {
     std::string xname;
     
@@ -191,7 +191,7 @@ BlockDevice *BlockDevice::Create(const char *fname, const char *vname, unsigned 
             return DavexDiskImage::Create(fname, blocks, vname);
     }
     
-    return NULL;
+    return BlockDevicePointer();
     
 }
 

@@ -112,16 +112,18 @@ ProDOSOrderDiskImage::ProDOSOrderDiskImage(MappedFile *file) :
     setAdaptor(new POAdaptor(address()));
 }
 
-ProDOSOrderDiskImage *ProDOSOrderDiskImage::Create(const char *name, size_t blocks)
+BlockDevicePointer ProDOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = MappedFile::Create(name, blocks * 512);
-    return new ProDOSOrderDiskImage(file);
+    //return BlockDevicePointer(new ProDOSOrderDiskImage(file));
+    return MAKE_SHARED(ProDOSOrderDiskImage, file);
 }
 
-ProDOSOrderDiskImage *ProDOSOrderDiskImage::Open(MappedFile *file)
+BlockDevicePointer ProDOSOrderDiskImage::Open(MappedFile *file)
 {
     Validate(file);
-    return new ProDOSOrderDiskImage(file);
+    //return BlockDevicePointer(new ProDOSOrderDiskImage(file));
+    return MAKE_SHARED(ProDOSOrderDiskImage, file);
 }
 
 void ProDOSOrderDiskImage::Validate(MappedFile *f)
@@ -165,16 +167,19 @@ DOSOrderDiskImage::DOSOrderDiskImage(MappedFile *file) :
 }
 
 
-DOSOrderDiskImage *DOSOrderDiskImage::Create(const char *name, size_t blocks)
+BlockDevicePointer DOSOrderDiskImage::Create(const char *name, size_t blocks)
 {
     MappedFile *file = MappedFile::Create(name, blocks * 512);
-    return new DOSOrderDiskImage(file);
+    //return BlockDevicePointer(new DOSOrderDiskImage(file));
+    return MAKE_SHARED(DOSOrderDiskImage, file);
 }
 
-DOSOrderDiskImage *DOSOrderDiskImage::Open(MappedFile *file)
+BlockDevicePointer DOSOrderDiskImage::Open(MappedFile *file)
 {
     Validate(file);
-    return new DOSOrderDiskImage(file);
+    //return BlockDevicePointer(new DOSOrderDiskImage(file));
+    return MAKE_SHARED(DOSOrderDiskImage, file);
+    
 }
 
 void DOSOrderDiskImage::Validate(MappedFile *f)
