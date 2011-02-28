@@ -49,6 +49,7 @@
 		B60E91530EFB51FE000E4348 /* Disk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Disk.h; sourceTree = "<group>"; };
 		B60E91540EFB51FE000E4348 /* Disk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disk.cpp; sourceTree = "<group>"; };
 		B60E91580EFD77E3000E4348 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		B61BCF8F131B6633002DE159 /* smart_pointers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = smart_pointers.h; sourceTree = "<group>"; };
 		B650C2C3131090D200046FAD /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
 		B650C2C4131090D200046FAD /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
 		B650C2C6131095C200046FAD /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
@@ -218,6 +219,7 @@
 			isa = PBXGroup;
 			children = (
 				B6DA70551310551500E42AA6 /* auto.h */,
+				B61BCF8F131B6633002DE159 /* smart_pointers.h */,
 				B6DA70561310551500E42AA6 /* Exception.cpp */,
 				B6DA70571310551500E42AA6 /* Exception.h */,
 				B6DA70581310551500E42AA6 /* Lock.cpp */,
