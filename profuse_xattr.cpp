@@ -18,6 +18,13 @@
 
 using std::string;
 
+
+#ifdef __APPLE__ 
+#define NO_ATTRIBUTE ENOATTR
+#else
+#define NO_ATTRIBUTE EOPNOTSUPP 
+#endif
+
 static bool isTextFile(unsigned ftype, unsigned auxtype)
 {
     if (ftype == 0x04) return true; // ascii text
@@ -186,7 +193,7 @@ static void xattr_charset(FileEntry& e, fuse_req_t req, size_t size, off_t off)
   const char attr[] = "macintosh";
   unsigned attr_size = sizeof(attr) - 1;
 
-  ERROR(!isTextFile(e.file_type, e.aux_type), ENOENT)
+  ERROR(!isTextFile(e.file_type, e.aux_type), NO_ATTRIBUTE)
 
   if (size == 0)
   {
@@ -205,7 +212,7 @@ static void xattr_textencoding(FileEntry& e, fuse_req_t req, size_t size, off_t 
   const char attr[] = "MACINTOSH;0";
   unsigned attr_size = sizeof(attr) - 1;
 
-  ERROR(!isTextFile(e.file_type, e.aux_type), ENOENT)
+  ERROR(!isTextFile(e.file_type, e.aux_type), NO_ATTRIBUTE)
 
   if (size == 0)
   {
@@ -223,7 +230,7 @@ static void xattr_rfork(FileEntry& e, fuse_req_t req, size_t size, off_t off)
     int ok;
     unsigned level;
     
-    ERROR (e.storage_type != EXTENDED_FILE, ENOENT)
+    ERROR (e.storage_type != EXTENDED_FILE, NO_ATTRIBUTE)
     
     ok = disk->Normalize(e, 1);
     ERROR(ok < 0, EIO)
@@ -306,7 +313,7 @@ static void xattr_finfo(FileEntry& e, fuse_req_t req, size_t size, off_t off)
             break;
 
         default:
-            ERROR(true, ENOENT);
+            ERROR(true, NO_ATTRIBUTE);
     }
     
     
@@ -347,7 +354,7 @@ static void xattr_mimetype(FileEntry& e, fuse_req_t req, size_t size, off_t off)
 {
   unsigned attr_size;
   const char *mime = mimeType(e.file_type, e.aux_type);
-  ERROR(!mime, ENOENT);
+  ERROR(!mime, NO_ATTRIBUTE);
 
   attr_size = strlen(mime);
 
@@ -478,11 +485,7 @@ return; \
  */
 void prodos_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t size, uint32_t off)
 {
-#ifdef __APPLE__ 
-#define NO_ATTRIBUTE ENOENT
-#else
-#define NO_ATTRIBUTE EOPNOTSUPP 
-#endif
+
     
     fprintf(stderr, "getxattr: %u %s %u %u \n", (unsigned)ino, name, (unsigned)size, (unsigned)off);
     
