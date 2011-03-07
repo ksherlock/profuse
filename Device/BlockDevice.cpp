@@ -19,6 +19,7 @@
 #include <Device/DiskCopy42Image.h>
 #include <Device/DavexDiskImage.h>
 #include <Device/RawDevice.h>
+#include <Device/SDKImage.h>
 
 using namespace Device;
 
@@ -51,7 +52,9 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
         return '2IMG';
     if (::strcasecmp(type, "2img") == 0)
         return '2IMG';
-    
+
+    if (::strcasecmp(type, "dc") == 0)
+        return 'DC42';
     if (::strcasecmp(type, "dc42") == 0)
         return 'DC42';
     
@@ -74,6 +77,8 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     // not supported yet.        
     if (::strcasecmp(type, "sdk") == 0)
         return 'SDK_';
+    if (::strcasecmp(type, "shk") == 0)
+        return 'SDK_';    
     
     return defv;
 }
@@ -102,7 +107,11 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
         imageType = ImageType(name, 'PO__');
     }
     
-    
+    if (imageType == 'SDK_')
+    {
+        // opened by path name.
+        return SDKImage::Open(name);
+    }
     // TODO -- if no image type, guess based on file size?
     
     MappedFile file(name, flags);
@@ -124,7 +133,7 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
             
         case 'DVX_':
             return DavexDiskImage::Open(&file);
-            
+                    
     }
     
     // throw an error?

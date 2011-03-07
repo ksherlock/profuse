@@ -278,15 +278,11 @@ int main(int argc, char *argv[])
             exit(1);
         }    
     }
-    catch (ProFUSE::POSIXException &e)
-    {
-        std::fprintf(stderr, "%s\n", e.what());
-        std::fprintf(stderr, "%s\n", e.errorString());
-        return -1;
-    }    
+
     catch (ProFUSE::Exception &e)
     {
         std::fprintf(stderr, "%s\n", e.what());
+        std::fprintf(stderr, "%s\n", e.errorString());
         return -1;
     }  
     
