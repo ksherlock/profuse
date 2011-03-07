@@ -18,6 +18,9 @@ namespace Device {
         static BlockDevicePointer Open(const char *name);
         
         
+        static bool Validate(MappedFile *, const std::nothrow_t &);
+        static bool Validate(MappedFile *);        
+        
     private:
         SDKImage();
         SDKImage(const SDKImage &);

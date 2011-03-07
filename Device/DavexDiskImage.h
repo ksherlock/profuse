@@ -2,6 +2,7 @@
 #define __DAVEXDISKIMAGE_H__
 
 #include <string>
+#include <new>
 
 #include <Device/BlockDevice.h>
 #include <Device/DiskImage.h>
@@ -22,12 +23,15 @@ public:
 
     virtual BlockCachePointer createBlockCache();
 
+    static bool Validate(MappedFile *, const std::nothrow_t &);
+    static bool Validate(MappedFile *);
+    
 private:
 
     DavexDiskImage();
     
     DavexDiskImage(MappedFile *);
-    static void Validate(MappedFile *);
+    
 
     bool _changed;
     std::string _volumeName;    

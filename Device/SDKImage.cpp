@@ -62,48 +62,6 @@ struct record_thread
     NuThreadIdx thread_index;
 };
 
-/*
- * callback function to scan contents. 
- * (not used).
- *
- */
-static NuResult ContentFunction(NuArchive *archive, void *vp)
-{
-    const NuRecord *record = (const NuRecord *)vp;
-    
-    /*
-     * The application must not attempt to retain a copy of "pRecord" 
-     * after the callback returns, as the structure may be freed.  
-     * Anything of interest should be copied out.
-     */
-    
-    
-    for (unsigned i = 0; i < NuRecordGetNumThreads(record); ++i)
-    {
-        const NuThread *thread = NuGetThread(record, i);
-        
-        
-        printf("%ld, %ld\n", (long)record->recordIdx, (long)thread->threadIdx);
-        
-        if (NuGetThreadID(thread) == kNuThreadIDDiskImage)
-        {
-            record_thread *rt;
-            
-            NuGetExtraData(archive, (void **)&rt);
-            if (rt)
-            {
-                rt->record_index = record->recordIdx;
-                rt->thread_index = thread->threadIdx;
-            }
-            
-            return kNuAbort;
-        }
-        
-    }
-    
-    
-    return kNuOK;
-}
 
 static record_thread FindDiskImageThread(NuArchive *archive)
 {
@@ -245,3 +203,34 @@ BlockDevicePointer SDKImage::Open(const char *name)
     return ProDOSOrderDiskImage::Open(&file);
 
 }
+
+
+
+bool SDKImage::Validate(MappedFile * f, const std::nothrow_t &)
+{
+    // NuFile, alternating ASCII.
+    static const char IdentityCheck[6] = { 0x4E, 0xF5, 0x46, 0xE9, 0x6C, 0xE5 };
+    
+    if (f->length() < sizeof(IdentityCheck)) 
+        return false;
+    
+    if (std::memcmp(f->address(), IdentityCheck, sizeof(IdentityCheck)))
+        return false;
+    
+    return true;
+    
+}
+
+bool SDKImage::Validate(MappedFile * f)
+{
+#undef __METHOD__
+#define __METHOD__ "SDKImage::Validate"
+    
+    if (!Validate(f))
+        throw Exception(__METHOD__ ": Invalid file format.");
+
+    return true;
+}
+
+
+

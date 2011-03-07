@@ -47,42 +47,48 @@ DavexDiskImage::~DavexDiskImage()
     // scan and update usedBlocks?
 }
 
-void DavexDiskImage::Validate(MappedFile *f)
+bool DavexDiskImage::Validate(MappedFile *f, const std::nothrow_t &)
+{
+#undef __METHOD__
+#define __METHOD__ "DavexDiskImage::Validate"
+    
+    size_t size = f->length();
+    const void * data = f->address();
+    unsigned blocks = (size / 512) - 1;
+    
+
+    if (size < 512) return false;
+    if (size % 512) return false;
+        
+    // identity.
+    if (std::memcmp(data, IdentityCheck, 16))
+        return false;
+    
+    // file format.
+    if (Read8(data, 0x10) != 0)
+        return false;
+    
+    // total blocks
+    if (Read32(data, 33) != blocks)
+        return false;
+    
+    // file number -- must be 1
+    if (Read8(data, 64) != 1)
+        return false;
+    
+    return true;
+}
+
+bool DavexDiskImage::Validate(MappedFile *f)
 {
 #undef __METHOD__
 #define __METHOD__ "DavexDiskImage::Validate"
 
-    size_t size = f->length();
-    const void * data = f->address();
-    bool ok = false;
-    unsigned blocks = (size / 512) - 1;
-    
-    do  {
-        if (size < 512) break;
-        if (size % 512) break;
-    
-        // identity.
-        if (std::memcmp(data, IdentityCheck, 16))
-            break;
-        
-        // file format.
-        if (Read8(data, 0x10) != 0)
-            break;
-        
-        // total blocks
-        if (Read32(data, 33) != blocks)
-            break;
-        
-        // file number -- must be 1
-        if (Read8(data, 64) != 1)
-            break;
-                    
-        ok = true;
-    } while (false);
-    
-    
-    if (!ok)
+
+    if (!Validate(f, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
+    
+    return true;
 }
 
 BlockDevicePointer DavexDiskImage::Open(MappedFile *file)

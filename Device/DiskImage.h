@@ -62,13 +62,14 @@ public:
 
     
     virtual BlockCachePointer createBlockCache();
-    
+
+    static bool Validate(MappedFile *, const std::nothrow_t &);
+    static bool Validate(MappedFile *);
+
 private:
     ProDOSOrderDiskImage();
-
     
     ProDOSOrderDiskImage(MappedFile *);
-    static void Validate(MappedFile *);
 };
 
 class DOSOrderDiskImage : public DiskImage {
@@ -78,11 +79,13 @@ public:
     static BlockDevicePointer Create(const char *name, size_t blocks);
     static BlockDevicePointer Open(MappedFile *);
 
+    static bool Validate(MappedFile *, const std::nothrow_t &);
+    static bool Validate(MappedFile *);
+    
 private:
     DOSOrderDiskImage();
 
     DOSOrderDiskImage(MappedFile *);
-    static void Validate(MappedFile *);
 };
 
 

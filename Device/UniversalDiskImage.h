@@ -21,13 +21,16 @@ public:
 
     virtual BlockCachePointer createBlockCache();
 
+
+    static bool Validate(MappedFile *, const std::nothrow_t &);
+    static bool Validate(MappedFile *);
+
     
 private:
 
     UniversalDiskImage();
 
     UniversalDiskImage(MappedFile *);
-    static void Validate(MappedFile *);
     
     uint32_t _format;
     uint32_t _flags;
