@@ -63,8 +63,8 @@ struct record_thread
 };
 
 /*
- * callback function to 
- *
+ * callback function to scan contents. 
+ * (not used).
  *
  */
 static NuResult ContentFunction(NuArchive *archive, void *vp)
@@ -105,21 +105,55 @@ static NuResult ContentFunction(NuArchive *archive, void *vp)
     return kNuOK;
 }
 
-static NuThreadIdx FindDiskThread(const NuRecord *record)
+static record_thread FindDiskImageThread(NuArchive *archive)
 {
 #undef __METHOD__
-#define __METHOD__ "SDKImage::FindDiskThread"
+#define __METHOD__ "SDKImage::FindThread"
     
-    for (unsigned i = 0; i < NuRecordGetNumThreads(record); ++i)
+    record_thread rt;
+    NuError e;
+    NuAttr recordCount;
+    
+    e = NuGetAttr(archive, kNuAttrNumRecords, &recordCount);
+    if (e)
     {
-        const NuThread *thread = NuGetThread(record, i);
+        throw NuFXException(__METHOD__ ": NuGetAttr", e);
+    }
+    
+    for (unsigned position = 0; position < recordCount; ++position)
+    {
+        NuRecordIdx rIndex;
+        const NuRecord *record;
         
-        if (NuGetThreadID(thread) == kNuThreadIDDiskImage)
-            return thread->threadIdx;
-    }    
-
+        e = NuGetRecordIdxByPosition(archive, position, &rIndex);
+        if (e)
+        {
+            throw NuFXException(__METHOD__ ": NuGetRecordIdxByPosition", e);
+        }
+        
+        e = NuGetRecord(archive, rIndex, &record);
+        if (e)
+        {
+            throw NuFXException(__METHOD__ ": NuGetRecord", e);
+        }
+    
+        for (unsigned i = 0; i < NuRecordGetNumThreads(record); ++i)
+        {
+            const NuThread *thread = NuGetThread(record, i);
+            
+            if (NuGetThreadID(thread) == kNuThreadIDDiskImage)
+            {
+                rt.thread_index = thread->threadIdx;
+                rt.record_index = record->recordIdx;
+                return rt;
+            }
+        }   
+    }
+    
     throw Exception(__METHOD__ ": not a disk image");
 }
+
+
 
 /*
  * helper function to extract SDK image to /tmp and return a 
@@ -138,10 +172,10 @@ BlockDevicePointer SDKImage::Open(const char *name)
     FILE *fp = NULL;
     NuArchive *archive = NULL;
     //const NuThread *thread = NULL;
-    const NuRecord *record = NULL;
+    //const NuRecord *record = NULL;
     NuDataSink *sink = NULL;
-    NuRecordIdx rIndex;
-    NuThreadIdx tIndex;
+    //NuRecordIdx rIndex;
+    //NuThreadIdx tIndex;
     
     NuError e;
 
@@ -156,50 +190,8 @@ BlockDevicePointer SDKImage::Open(const char *name)
         {
             throw NuFXException(__METHOD__ ": NuOpenRO", e);
         }
-        NuSetExtraData(archive, (void *)&rt);
-        
-        // NuContents screws everything up???
-        /*
-        e = NuContents(archive, ContentFunction);
-        if (e == kNuErrAborted)
-        {
-            // ok!
-        }
-        else if (e == kNuErrNone)
-        {
-            throw Exception(__METHOD__ ": NuContents: not a disk image");
-        }
-        else
-        {
-            throw NuFXException(__METHOD__ ": NuContents", e);
-        }
 
-        
-        printf("%ld, %ld\n", (long)rt.record_index, (long)rt.thread_index);
-        */
-        
-        e = NuGetRecordIdxByPosition(archive, 0, &rIndex);
-        if (e)
-        {
-            throw NuFXException(__METHOD__ ": NuGetRecordIdxByPosition", e);
-        }
-        printf("%ld\n", rIndex);
-        
-        /* load up the record.
-         * I assume this is necessary since thread ids are only unique
-         * within a record, not across the entire archive
-         */
-        
-        e = NuGetRecord(archive, rIndex, &record);
-        if (e)
-        {
-            
-            throw NuFXException(__METHOD__ ": NuGetRecord", e);
-        }
-        
-        tIndex = FindDiskThread(record); // throws on error.
-        printf("%ld\n", tIndex);
-
+        rt = FindDiskImageThread(archive);
         
         fd = mkstemp(tmp);
         if (fd < 0)
@@ -221,12 +213,13 @@ BlockDevicePointer SDKImage::Open(const char *name)
         }
         
 
-        e = NuExtractThread(archive, tIndex, sink);
+        e = NuExtractThread(archive, rt.thread_index, sink);
         if (e)
         {
             throw NuFXException(__METHOD__ ": NuExtractThread", e);
         }
         
+        fprintf(stderr, "Extracted disk image to %s\n", tmp);
 
         fclose(fp);
         NuClose(archive);
