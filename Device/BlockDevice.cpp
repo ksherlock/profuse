@@ -27,6 +27,30 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
+unsigned BlockDevice::ImageType(MappedFile *f, unsigned defv)
+{
+#undef __METHOD__
+#define __METHOD__ "BlockDevice::ImageType"
+    
+    
+    if (UniversalDiskImage::Validate(f, std::nothrow))
+        return '2IMG';
+    
+    if (DiskCopy42Image::Validate(f, std::nothrow))
+        return 'DC42';
+    
+    if (SDKImage::Validate(f, std::nothrow))
+        return 'SDK_';
+    
+    if (ProDOSOrderDiskImage::Validate(f, std::nothrow))
+        return 'PO__';
+    
+    if (DOSOrderDiskImage::Validate(f, std::nothrow))
+        return 'DO__';    
+    
+    return defv;
+    
+}
 
 unsigned BlockDevice::ImageType(const char *type, unsigned defv)
 {
@@ -96,27 +120,20 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
     {
         throw POSIXException(__METHOD__ ": stat error", errno);       
     }
+
+    // /dev/xxx ignore the type.
+    if (S_ISBLK(st.st_mode))
+        return RawDevice::Open(name, flags);
+    
+    MappedFile file(name, flags);
+
     
     if (!imageType)
     {
-        // /dev/xxxx 
-        if (S_ISBLK(st.st_mode))
-            return RawDevice::Open(name, flags);
-        
-        
-        imageType = ImageType(name, 'PO__');
+        imageType = ImageType(&file, 'PO__');
     }
     
-    if (imageType == 'SDK_')
-    {
-        // opened by path name.
-        return SDKImage::Open(name);
-    }
-    // TODO -- if no image type, guess based on file size?
-    
-    MappedFile file(name, flags);
-    
-    
+
     switch (imageType)
     {
         case '2IMG':
@@ -133,6 +150,10 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
             
         case 'DVX_':
             return DavexDiskImage::Open(&file);
+            
+        case 'SDK_':
+            return SDKImage::Open(name);
+                
                     
     }
     
