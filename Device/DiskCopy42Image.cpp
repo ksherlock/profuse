@@ -170,41 +170,38 @@ BlockDevicePointer DiskCopy42Image::Create(const char *name, size_t blocks, cons
     return MAKE_SHARED(DiskCopy42Image, file);
 }
 
-void DiskCopy42Image::Validate(MappedFile *file)
+bool DiskCopy42Image::Validate(MappedFile *file, const std::nothrow_t &)
 {
 #undef __METHOD__
 #define __METHOD__ "DiskCopy42Image::Validate"
-
+    
+    
     size_t bytes = 0;
     size_t size = file->length();
     const void *data = file->address();
-    bool ok = false;
     uint32_t checksum = 0;
     
-    do {
-        if (size < oUserData) break;
-        
-        // name must be < 64
-        if (Read8(data, 0) > 63) break;
-        
-        if (Read16(data, oPrivate) != 0x100)
-            break;
-        
-        // bytes, not blocks.
-        bytes = Read32(data, oDataSize);
-        
-        if (bytes % 512) break;
-        
-        if (size < oUserData + bytes) break;
-        
-        // todo -- checksum.
-        checksum = Read32(data, oDataChecksum);
-        
-        ok = true;
-    } while (false);
+    if (size < oUserData) 
+        return false;
     
-    if (!ok)
-        throw Exception(__METHOD__ ": Invalid file format.");
+    // name must be < 64
+    if (Read8(data, 0) > 63) 
+        return false;
+    
+    if (Read16(data, oPrivate) != 0x100)
+        return false;
+    
+    // bytes, not blocks.
+    bytes = Read32(data, oDataSize);
+    
+    if (bytes % 512) 
+        return false;
+    
+    if (size < oUserData + bytes) 
+        return false;
+    
+    // todo -- checksum.
+    checksum = Read32(data, oDataChecksum);
     
     uint32_t cs = Checksum(oUserData + (uint8_t *)data, bytes);
     
@@ -212,7 +209,21 @@ void DiskCopy42Image::Validate(MappedFile *file)
     {
         fprintf(stderr, __METHOD__ ": Warning: checksum invalid.\n");
     }
+    
+    return true;
+}
 
+
+bool DiskCopy42Image::Validate(MappedFile *file)
+{
+#undef __METHOD__
+#define __METHOD__ "DiskCopy42Image::Validate"
+
+
+    if (!Validate(file, std::nothrow))
+        throw Exception(__METHOD__ ": Invalid file format.");
+    
+    return true;
 }
 
 void DiskCopy42Image::write(unsigned block, const void *bp)

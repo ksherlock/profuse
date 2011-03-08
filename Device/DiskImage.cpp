@@ -149,7 +149,7 @@ bool ProDOSOrderDiskImage::Validate(MappedFile *f)
     
     if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
 
-    if (!Validate(f))
+    if (!Validate(f, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
     
     return true;
@@ -221,7 +221,7 @@ bool DOSOrderDiskImage::Validate(MappedFile *f)
     if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
     
     
-    if (!Validate(f))
+    if (!Validate(f, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
     
     return true;

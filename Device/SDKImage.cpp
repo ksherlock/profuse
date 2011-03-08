@@ -226,7 +226,7 @@ bool SDKImage::Validate(MappedFile * f)
 #undef __METHOD__
 #define __METHOD__ "SDKImage::Validate"
     
-    if (!Validate(f))
+    if (!Validate(f, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
 
     return true;
