@@ -208,16 +208,29 @@ BlockDevicePointer SDKImage::Open(const char *name)
 
 bool SDKImage::Validate(MappedFile * f, const std::nothrow_t &)
 {
+
     // NuFile, alternating ASCII.
     static const char IdentityCheck[6] = { 0x4E, 0xF5, 0x46, 0xE9, 0x6C, 0xE5 };
+    static const char BXYIdentityCheck[3] = { 0x0A, 0x47, 0x4C };
     
-    if (f->length() < sizeof(IdentityCheck)) 
-        return false;
+    uint8_t *address = (uint8_t *)f->address();
+    size_t length = f->length();
     
-    if (std::memcmp(f->address(), IdentityCheck, sizeof(IdentityCheck)))
-        return false;
+    // check for a BXY header
+    if (length >= 128 
+        && std::memcmp(address, BXYIdentityCheck, sizeof(BXYIdentityCheck)) == 0)
+    {
+        length -= 128;
+        address += 128;
+    }
     
-    return true;
+    
+    if (length > sizeof(IdentityCheck)
+        && std::memcmp(address, IdentityCheck, sizeof(IdentityCheck)) == 0)
+        return true;
+    
+    
+    return false;
     
 }
 
