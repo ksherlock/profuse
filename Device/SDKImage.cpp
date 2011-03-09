@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cerrno>
+#include <cstring>
 
 #include <NufxLib.h>
 

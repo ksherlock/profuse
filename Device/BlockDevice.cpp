@@ -19,7 +19,10 @@
 #include <Device/DiskCopy42Image.h>
 #include <Device/DavexDiskImage.h>
 #include <Device/RawDevice.h>
+
+#ifdef HAVE_NUFX
 #include <Device/SDKImage.h>
+#endif
 
 using namespace Device;
 
@@ -38,9 +41,11 @@ unsigned BlockDevice::ImageType(MappedFile *f, unsigned defv)
     
     if (DiskCopy42Image::Validate(f, std::nothrow))
         return 'DC42';
-    
+   
+#ifdef HAVE_NUFX 
     if (SDKImage::Validate(f, std::nothrow))
         return 'SDK_';
+#endif
     
     if (ProDOSOrderDiskImage::Validate(f, std::nothrow))
         return 'PO__';
@@ -97,13 +102,14 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     if (::strcasecmp(type, "davex") == 0)
         return 'DVX_';
     
-    
-    // not supported yet.        
+   
+#ifdef HAVE_NUFX 
     if (::strcasecmp(type, "sdk") == 0)
         return 'SDK_';
     if (::strcasecmp(type, "shk") == 0)
         return 'SDK_';    
-    
+#endif 
+
     return defv;
 }
 
@@ -150,9 +156,11 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
             
         case 'DVX_':
             return DavexDiskImage::Open(&file);
-            
+           
+#if HAVE_NUFX 
         case 'SDK_':
             return SDKImage::Open(name);
+#endif
                 
                     
     }

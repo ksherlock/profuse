@@ -44,6 +44,9 @@ void usage()
         "                    dc42  DiskCopy 4.2 Image\n"
         "                    davex Davex Disk Image\n"
         "                    2img  Universal Disk Image\n"
+#ifdef HAVE_NUFX
+        "                    sdk   ShrinkIt Disk Image\n"
+#endif
         "                    do    DOS Order Disk Image\n"
         "                    po    ProDOS Order Disk Image (default)\n"
         "  -o opt1,opt2...   other mount parameters.\n"

@@ -1,16 +1,20 @@
 CC = g++
 CPPFLAGS += -Wall -W -Wno-multichar -I. -O2 -g 
-LDFLAGS += -lpthread
+LIBS += -lpthread
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
-    fuse_pascal_LDFLAGS += -lfuse_ino64
+    fuse_pascal_LIBS += -lfuse_ino64
 else
-    fuse_pascal_LDFLAGS += -lfuse
+    fuse_pascal_LIBS += -lfuse
 endif
 
-
-
+ifdef HAVE_NUFX
+  DEVICE_OBJECTS += Device/SDKImage.o
+  LDFLAGS += -L/usr/local/lib/
+  LIBS += -lnufx -lz
+  CPPFLAGS += -DHAVE_NUFX=1
+endif
 
 
 OBJECTS += ${wildcard *.o}
@@ -43,6 +47,7 @@ DEVICE_OBJECTS += Device/DiskImage.o
 DEVICE_OBJECTS += Device/RawDevice.o
 DEVICE_OBJECTS += Device/UniversalDiskImage.o
 
+
 ENDIAN_OBJECTS += Endian/Endian.o
 
 FILE_OBJECTS += File/File.o
@@ -60,7 +65,7 @@ PROFUSE_OBJECTS += ProFUSE/Lock.o
 
 
 xattr: bin/xattr.o
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 newfs_pascal: bin/newfs_pascal.o \
   ${CACHE_OBJECTS} \
@@ -69,7 +74,7 @@ newfs_pascal: bin/newfs_pascal.o \
   ${FILE_OBJECTS} \
   ${PROFUSE_OBJECTS} \
   ${PASCAL_OBJECTS}
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 apfm: bin/apfm.o \
   ${CACHE_OBJECTS} \
@@ -78,7 +83,7 @@ apfm: bin/apfm.o \
   ${FILE_OBJECTS} \
   ${PROFUSE_OBJECTS} \
   ${PASCAL_OBJECTS}
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 
 fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
@@ -87,8 +92,8 @@ fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
   ${ENDIAN_OBJECTS} \
   ${FILE_OBJECTS} \
   ${PROFUSE_OBJECTS} \
-  ${PASCAL_OBJECTS}
-	$(CC) $(fuse_pascal_LDFLAGS) $(LDFLAGS) $^ -o $@
+  ${PASCAL_OBJECTS} 
+	$(CC) $(LDFLAGS) $^ $(LIBS) $(fuse_pascal_LIBS) -o $@
 
 
 clean:
