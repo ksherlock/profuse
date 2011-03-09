@@ -1,7 +1,7 @@
 CC = g++
 CPPFLAGS += -Wall -W -Wno-multichar -I. -O2 -g 
 LDFLAGS += -lpthread
-UNAME = $(shell uname)
+UNAME = $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
     fuse_pascal_LDFLAGS += -lfuse_ino64
