@@ -12,6 +12,8 @@
 
 #include <File/File.h>
 
+class MappedFile;
+
 namespace Device {
 
     class BlockDevice : public ENABLE_SHARED_FROM_THIS(BlockDevice) {
@@ -20,7 +22,9 @@ public:
 
     // static methods.
     static unsigned ImageType(const char *type, unsigned defv = 0);
-    
+    static unsigned ImageType(MappedFile *, unsigned defv = 0);
+        
+        
     static BlockDevicePointer Open(const char *name, File::FileFlags flags, unsigned imageType = 0);
     static BlockDevicePointer Create(const char *fname, const char *vname, unsigned blocks, unsigned imageType = 0);
     

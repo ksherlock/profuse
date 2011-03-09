@@ -100,42 +100,47 @@ BlockDevicePointer UniversalDiskImage::Open(MappedFile *file)
  * TODO -- honor read-only flag.
  *
  */
-void UniversalDiskImage::Validate(MappedFile *file)
+
+bool UniversalDiskImage::Validate(MappedFile *file, const std::nothrow_t &)
 {
 #undef __METHOD__
 #define __METHOD__ "UniversalDiskImage::Validate"
-
+    
     const void *data = file->address();
     size_t size = file->length();
-    bool ok = false;
+
     unsigned blocks = 0;
     unsigned offset = 0;
     
-    do {
-        
-        if (size < 64) break;
-        
-        if (std::memcmp(data, "2IMG", 4)) break;
-        
-        // only prodos supported, for now...
-        // TODO -- Dos Order, Nibble support.
-        if (Read32(data, 0x0c) != 1) break;
-        
-        blocks = Read32(data, 0x14);
-        offset = Read32(data, 0x18);
-        
-        // file size == blocks * 512
-        if (Read32(data, 0x1c) != blocks * 512) break;
-        
-        if (offset + blocks * 512 > size) break;
-        
-        ok = true;
-    } while (false);
+
+    if (size < 64) return false;
     
-    if (!ok)
+    if (std::memcmp(data, "2IMG", 4)) return false;
+    
+    // only prodos supported, for now...
+    // TODO -- Dos Order, Nibble support.
+    if (Read32(data, 0x0c) != 1) return false;
+    
+    blocks = Read32(data, 0x14);
+    offset = Read32(data, 0x18);
+    
+    // file size == blocks * 512
+    if (Read32(data, 0x1c) != blocks * 512) return false;
+    
+    if (offset + blocks * 512 > size) return false;
+    
+    return true;
+}
+
+bool UniversalDiskImage::Validate(MappedFile *file)
+{
+#undef __METHOD__
+#define __METHOD__ "UniversalDiskImage::Validate"
+    
+    if (!Validate(file, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
     
-
+    return true;
 }
 
 

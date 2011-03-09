@@ -126,18 +126,33 @@ BlockDevicePointer ProDOSOrderDiskImage::Open(MappedFile *file)
     return MAKE_SHARED(ProDOSOrderDiskImage, file);
 }
 
-void ProDOSOrderDiskImage::Validate(MappedFile *f)
+
+bool ProDOSOrderDiskImage::Validate(MappedFile *f, const std::nothrow_t &)
+{
+#undef __METHOD__
+#define __METHOD__ "ProDOSOrderDiskImage::Validate"
+    
+    
+    size_t size = f->length();
+    
+    if (size % 512)
+        return false;
+    
+    return true;
+    
+}
+
+bool ProDOSOrderDiskImage::Validate(MappedFile *f)
 {
     #undef __METHOD__
     #define __METHOD__ "ProDOSOrderDiskImage::Validate"
     
     if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
-    
-    size_t size = f->length();
-    
-    if (size % 512)
+
+    if (!Validate(f, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
     
+    return true;
 }
 
 BlockCachePointer ProDOSOrderDiskImage::createBlockCache()
@@ -156,6 +171,8 @@ DOSOrderDiskImage::DOSOrderDiskImage(const char *name, bool readOnly) :
     Validate(file());
 }
 */
+
+
 
 DOSOrderDiskImage::DOSOrderDiskImage(MappedFile *file) :
     DiskImage(file)
@@ -182,16 +199,30 @@ BlockDevicePointer DOSOrderDiskImage::Open(MappedFile *file)
     
 }
 
-void DOSOrderDiskImage::Validate(MappedFile *f)
+bool DOSOrderDiskImage::Validate(MappedFile *f, const std::nothrow_t &)
+{
+#undef __METHOD__
+#define __METHOD__ "DOSOrderDiskImage::Validate"
+        
+    size_t size = f->length();
+    
+    if (size % 512)
+        return false;
+    
+    return true;
+    
+}
+
+bool DOSOrderDiskImage::Validate(MappedFile *f)
 {
     #undef __METHOD__
     #define __METHOD__ "DOSOrderDiskImage::Validate"
 
     if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
     
-    size_t size = f->length();
     
-    if (size % 512)
+    if (!Validate(f, std::nothrow))
         throw Exception(__METHOD__ ": Invalid file format.");
     
+    return true;
 }

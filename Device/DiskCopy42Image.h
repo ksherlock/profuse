@@ -19,6 +19,11 @@ public:
 
     static uint32_t Checksum(void *data, size_t size);
 
+    static bool Validate(MappedFile *, const std::nothrow_t &);
+    static bool Validate(MappedFile *);
+    
+    
+    
     virtual void write(unsigned block, const void *bp);
     
 
@@ -29,7 +34,6 @@ private:
     DiskCopy42Image();
 
     DiskCopy42Image(MappedFile *);
-    static void Validate(MappedFile *);
     bool _changed;
 };
 

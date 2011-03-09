@@ -19,6 +19,7 @@
 #include <Device/DiskCopy42Image.h>
 #include <Device/DavexDiskImage.h>
 #include <Device/RawDevice.h>
+#include <Device/SDKImage.h>
 
 using namespace Device;
 
@@ -26,6 +27,30 @@ using ProFUSE::Exception;
 using ProFUSE::POSIXException;
 
 
+unsigned BlockDevice::ImageType(MappedFile *f, unsigned defv)
+{
+#undef __METHOD__
+#define __METHOD__ "BlockDevice::ImageType"
+    
+    
+    if (UniversalDiskImage::Validate(f, std::nothrow))
+        return '2IMG';
+    
+    if (DiskCopy42Image::Validate(f, std::nothrow))
+        return 'DC42';
+    
+    if (SDKImage::Validate(f, std::nothrow))
+        return 'SDK_';
+    
+    if (ProDOSOrderDiskImage::Validate(f, std::nothrow))
+        return 'PO__';
+    
+    if (DOSOrderDiskImage::Validate(f, std::nothrow))
+        return 'DO__';    
+    
+    return defv;
+    
+}
 
 unsigned BlockDevice::ImageType(const char *type, unsigned defv)
 {
@@ -51,7 +76,9 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
         return '2IMG';
     if (::strcasecmp(type, "2img") == 0)
         return '2IMG';
-    
+
+    if (::strcasecmp(type, "dc") == 0)
+        return 'DC42';
     if (::strcasecmp(type, "dc42") == 0)
         return 'DC42';
     
@@ -74,6 +101,8 @@ unsigned BlockDevice::ImageType(const char *type, unsigned defv)
     // not supported yet.        
     if (::strcasecmp(type, "sdk") == 0)
         return 'SDK_';
+    if (::strcasecmp(type, "shk") == 0)
+        return 'SDK_';    
     
     return defv;
 }
@@ -91,23 +120,20 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
     {
         throw POSIXException(__METHOD__ ": stat error", errno);       
     }
+
+    // /dev/xxx ignore the type.
+    if (S_ISBLK(st.st_mode))
+        return RawDevice::Open(name, flags);
+    
+    MappedFile file(name, flags);
+
     
     if (!imageType)
     {
-        // /dev/xxxx 
-        if (S_ISBLK(st.st_mode))
-            return RawDevice::Open(name, flags);
-        
-        
-        imageType = ImageType(name, 'PO__');
+        imageType = ImageType(&file, 'PO__');
     }
     
-    
-    // TODO -- if no image type, guess based on file size?
-    
-    MappedFile file(name, flags);
-    
-    
+
     switch (imageType)
     {
         case '2IMG':
@@ -125,6 +151,10 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
         case 'DVX_':
             return DavexDiskImage::Open(&file);
             
+        case 'SDK_':
+            return SDKImage::Open(name);
+                
+                    
     }
     
     // throw an error?
