@@ -44,25 +44,31 @@ enum commands {
 void usage()
 {
     std::fputs(
-               "Pascal File Manager v 0.0\n\n"
-               "Usage: apfm [-h] [-f format] diskimage action ...\n"
-               "Options:\n"
-               "  -h            Show usage information.\n"
-               "  -f format     Specify disk format.  Valid values are:\n"
-               "                  po: ProDOS order disk image\n"
-               "                  do: DOS Order disk image\n"
-               "\n"
-               "Actions:\n"
-               "  cat\n"
-               "  krunch\n"
-               "  ls\n"
-               "  cp\n"
-               "  mv\n"
-               "  rm\n"
-               "  get\n"
-               "  put\n",
-               stdout
-               );
+        "Pascal File Manager v 0.0\n\n"
+        "Usage: apfm [-h] [-f format] diskimage action ...\n"
+        "Options:\n"
+        "  -h            Show usage information.\n"
+        "  -f format     Specify disk format.  Valid values are:\n"
+        "                    dc42  DiskCopy 4.2 Image\n"
+        "                    davex Davex Disk Image\n"
+        "                    2img  Universal Disk Image\n"
+#ifdef HAVE_NUFX
+        "                    sdk   ShrinkIt Disk Image\n"
+#endif
+        "                    do    DOS Order Disk Image\n"
+        "                    po    ProDOS Order Disk Image (default)\n"  
+        "\n"
+        "Actions:\n"
+        "  cat\n"
+        "  krunch\n"
+        "  ls\n"
+        "  cp\n"
+        "  mv\n"
+        "  rm\n"
+        "  get\n"
+        "  put\n",
+        stdout
+        );
     
 }
 
