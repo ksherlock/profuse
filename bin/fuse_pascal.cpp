@@ -9,8 +9,12 @@
 
 #include <unistd.h>
 
+
+#ifdef __APPLE__
 #define __FreeBSD__ 10 
 #define __DARWIN_64_BIT_INO_T 1 
+#endif
+
 #define _FILE_OFFSET_BITS 64 
 #define FUSE_USE_VERSION 27
 
