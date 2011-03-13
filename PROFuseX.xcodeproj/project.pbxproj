@@ -92,6 +92,14 @@
 		B656AF1911AA106C00AB578A /* Entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEA11A244EE00C90DCE /* Entry.cpp */; };
 		B656AF1A11AA106C00AB578A /* FileEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */; };
 		B656AF1B11AA106C00AB578A /* VolumeEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */; };
+		B6A590EF132995D4007B0EE2 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EC132995D4007B0EE2 /* Carbon.framework */; };
+		B6A590F0132995D4007B0EE2 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EC132995D4007B0EE2 /* Carbon.framework */; };
+		B6A590F3132995D5007B0EE2 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EE132995D4007B0EE2 /* libz.dylib */; };
+		B6A590F4132995D5007B0EE2 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EE132995D4007B0EE2 /* libz.dylib */; };
+		B6A590F813299626007B0EE2 /* libNuFX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590F713299626007B0EE2 /* libNuFX.a */; };
+		B6A590F913299626007B0EE2 /* libNuFX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590F713299626007B0EE2 /* libNuFX.a */; };
+		B6A591281329C417007B0EE2 /* SDKImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6A591261329C417007B0EE2 /* SDKImage.cpp */; };
+		B6A591291329C417007B0EE2 /* SDKImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6A591261329C417007B0EE2 /* SDKImage.cpp */; };
 		B6F3676511B323680045E114 /* TextWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3676411B323680045E114 /* TextWriter.cpp */; };
 		B6F3676611B323680045E114 /* TextWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3676411B323680045E114 /* TextWriter.cpp */; };
 		B6F3676711B323680045E114 /* TextWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F3676411B323680045E114 /* TextWriter.cpp */; };
@@ -163,7 +171,7 @@
 		B63EFBEC11A244EE00C90DCE /* FileEntry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileEntry.cpp; sourceTree = "<group>"; };
 		B63EFBF111A244EE00C90DCE /* VolumeEntry.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = VolumeEntry.cpp; sourceTree = "<group>"; };
 		B63EFC4311A31B7200C90DCE /* IOBuffer.cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBuffer.cpp.h; sourceTree = "<group>"; };
-		B63EFCCE11A36C7300C90DCE /* apfpm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = apfpm; sourceTree = BUILT_PRODUCTS_DIR; };
+		B63EFCCE11A36C7300C90DCE /* apfm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = apfm; sourceTree = BUILT_PRODUCTS_DIR; };
 		B63EFE8111A4886C00C90DCE /* newfs_pascal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = newfs_pascal; sourceTree = BUILT_PRODUCTS_DIR; };
 		B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfuse_ino64.dylib; path = /usr/local/lib/libfuse_ino64.dylib; sourceTree = "<absolute>"; };
 		B656AE0311A84F5800AB578A /* fuse_pascal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_pascal; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -171,6 +179,11 @@
 		B656AF0311AA105500AB578A /* NibbleTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NibbleTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B659C142131368BA0058DC9C /* Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
 		B6A53B851319DA3D00C9070F /* smart_pointers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = smart_pointers.h; sourceTree = "<group>"; };
+		B6A590EC132995D4007B0EE2 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = ../../../../System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
+		B6A590EE132995D4007B0EE2 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = ../../../../usr/lib/libz.dylib; sourceTree = "<group>"; };
+		B6A590F713299626007B0EE2 /* libNuFX.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libNuFX.a; sourceTree = "<group>"; };
+		B6A591261329C417007B0EE2 /* SDKImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDKImage.cpp; sourceTree = "<group>"; };
+		B6A591271329C417007B0EE2 /* SDKImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDKImage.h; sourceTree = "<group>"; };
 		B6F3648011AB36260045E114 /* xattr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xattr; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6F3651A11ADD0280045E114 /* VolumeEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VolumeEntry.h; sourceTree = "<group>"; };
 		B6F3651B11ADD0280045E114 /* FileEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileEntry.h; sourceTree = "<group>"; };
@@ -186,6 +199,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6A590EF132995D4007B0EE2 /* Carbon.framework in Frameworks */,
+				B6A590F3132995D5007B0EE2 /* libz.dylib in Frameworks */,
+				B6A590F813299626007B0EE2 /* libNuFX.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,6 +217,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B656AE0811A84F6C00AB578A /* libfuse_ino64.dylib in Frameworks */,
+				B6A590F0132995D4007B0EE2 /* Carbon.framework in Frameworks */,
+				B6A590F4132995D5007B0EE2 /* libz.dylib in Frameworks */,
+				B6A590F913299626007B0EE2 /* libNuFX.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,7 +268,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B63EFCCE11A36C7300C90DCE /* apfpm */,
+				B63EFCCE11A36C7300C90DCE /* apfm */,
 				B63EFE8111A4886C00C90DCE /* newfs_pascal */,
 				B656AE0311A84F5800AB578A /* fuse_pascal */,
 				B656AF0311AA105500AB578A /* NibbleTest */,
@@ -313,6 +332,8 @@
 				B63EFAA511A094E000C90DCE /* UniversalDiskImage.h */,
 				B63EFB0611A0AC4800C90DCE /* Adaptor.h */,
 				B63EFB0711A0AC4800C90DCE /* Adaptor.cpp */,
+				B6A591261329C417007B0EE2 /* SDKImage.cpp */,
+				B6A591271329C417007B0EE2 /* SDKImage.h */,
 			);
 			path = Device;
 			sourceTree = "<group>";
@@ -375,6 +396,9 @@
 		B656ADED11A84D3200AB578A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				B6A590F713299626007B0EE2 /* libNuFX.a */,
+				B6A590EC132995D4007B0EE2 /* Carbon.framework */,
+				B6A590EE132995D4007B0EE2 /* libz.dylib */,
 				B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */,
 			);
 			name = Libraries;
@@ -396,7 +420,7 @@
 			);
 			name = apfm;
 			productName = apfpm;
-			productReference = B63EFCCE11A36C7300C90DCE /* apfpm */;
+			productReference = B63EFCCE11A36C7300C90DCE /* apfm */;
 			productType = "com.apple.product-type.tool";
 		};
 		B63EFE8011A4886C00C90DCE /* newfs_pascal */ = {
@@ -531,6 +555,7 @@
 				B63EFCE511A36C8B00C90DCE /* VolumeEntry.cpp in Sources */,
 				B6F3676711B323680045E114 /* TextWriter.cpp in Sources */,
 				B6272A9311D5AC440073C73A /* apfm.cpp in Sources */,
+				B6A591281329C417007B0EE2 /* SDKImage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -588,6 +613,7 @@
 				B6F3676511B323680045E114 /* TextWriter.cpp in Sources */,
 				B6272A9411D5AC4C0073C73A /* fuse_pascal.cpp in Sources */,
 				B6272A9511D5AC530073C73A /* fuse_pascal_ops.cpp in Sources */,
+				B6A591291329C417007B0EE2 /* SDKImage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -667,7 +693,7 @@
 					/usr/local/include/,
 					.,
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = macosx;
 			};
@@ -681,6 +707,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = macosx;
 			};
@@ -696,6 +723,12 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
 				PRODUCT_NAME = apfpm;
 			};
@@ -710,6 +743,12 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
 				PRODUCT_NAME = apfpm;
 				ZERO_LINK = NO;
@@ -761,7 +800,7 @@
 					/usr/local/include/,
 					.,
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = macosx;
 			};
@@ -777,6 +816,12 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
 				PRODUCT_NAME = apfpm;
 			};
@@ -808,6 +853,12 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
 				PRODUCT_NAME = fuse_pascal;
 			};
@@ -820,6 +871,12 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
 				PRODUCT_NAME = fuse_pascal;
 			};
@@ -834,6 +891,12 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
 				PRODUCT_NAME = fuse_pascal;
 				ZERO_LINK = NO;
@@ -881,6 +944,128 @@
 				ZERO_LINK = NO;
 			};
 			name = Release;
+		};
+		B6A53C1E131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/,
+					.,
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				PREBINDING = NO;
+				SDKROOT = macosx;
+			};
+			name = "Debug Universal";
+		};
+		B6A53C1F131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
+				PREBINDING = NO;
+				PRODUCT_NAME = apfm;
+			};
+			name = "Debug Universal";
+		};
+		B6A53C20131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = newfs_pascal;
+			};
+			name = "Debug Universal";
+		};
+		B6A53C21131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../profuse_interim\"",
+					"\"$(SRCROOT)\"",
+				);
+				OTHER_CFLAGS = "-DHAVE_NUFX";
+				PREBINDING = NO;
+				PRODUCT_NAME = fuse_pascal;
+			};
+			name = "Debug Universal";
+		};
+		B6A53C22131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = NibbleTest;
+			};
+			name = "Debug Universal";
+		};
+		B6A53C23131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = xattr;
+			};
+			name = "Debug Universal";
+		};
+		B6A53C24131B47DC00C9070F /* Debug Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = newfs_prodos;
+			};
+			name = "Debug Universal";
 		};
 		B6F3648211AB36260045E114 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -973,6 +1158,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
+				B6A53C1E131B47DC00C9070F /* Debug Universal */,
 				B656AD7A11A84B5D00AB578A /* Debug fuse */,
 				1DEB923708733DC60010E9CD /* Release */,
 			);
@@ -983,6 +1169,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B63EFCD011A36C7300C90DCE /* Debug */,
+				B6A53C1F131B47DC00C9070F /* Debug Universal */,
 				B656AD7C11A84B5D00AB578A /* Debug fuse */,
 				B63EFCD111A36C7300C90DCE /* Release */,
 			);
@@ -993,6 +1180,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B63EFE8311A4886C00C90DCE /* Debug */,
+				B6A53C20131B47DC00C9070F /* Debug Universal */,
 				B656AD7D11A84B5D00AB578A /* Debug fuse */,
 				B63EFE8411A4886C00C90DCE /* Release */,
 			);
@@ -1003,6 +1191,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B656AE0511A84F5900AB578A /* Debug */,
+				B6A53C21131B47DC00C9070F /* Debug Universal */,
 				B656AE0611A84F5900AB578A /* Debug fuse */,
 				B656AE0711A84F5900AB578A /* Release */,
 			);
@@ -1013,6 +1202,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B656AF0511AA105600AB578A /* Debug */,
+				B6A53C22131B47DC00C9070F /* Debug Universal */,
 				B656AF0611AA105600AB578A /* Debug fuse */,
 				B656AF0711AA105600AB578A /* Release */,
 			);
@@ -1023,6 +1213,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B6F3648211AB36260045E114 /* Debug */,
+				B6A53C23131B47DC00C9070F /* Debug Universal */,
 				B6F3648311AB36260045E114 /* Debug fuse */,
 				B6F3648411AB36260045E114 /* Release */,
 			);
@@ -1033,6 +1224,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B6F3682711B431AC0045E114 /* Debug */,
+				B6A53C24131B47DC00C9070F /* Debug Universal */,
 				B6F3682811B431AC0045E114 /* Debug fuse */,
 				B6F3682911B431AC0045E114 /* Release */,
 			);
