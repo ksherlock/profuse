@@ -4,9 +4,9 @@ LIBS += -lpthread
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
-    fuse_pascal_LIBS += -lfuse_ino64
+    FUSE_LIBS += -lfuse_ino64
 else
-    fuse_pascal_LIBS += -lfuse
+    FUSE_LIBS += -lfuse
 endif
 
 ifdef HAVE_NUFX
@@ -25,8 +25,9 @@ OBJECTS += ${wildcard Endian/*.o}
 OBJECTS += ${wildcard File/*.o}
 OBJECTS += ${wildcard Pascal/*.o}
 OBJECTS += ${wildcard ProFUSE/*.o}
+OBJECTS += ${wildcard ProDOS/*.o}
 
-TARGETS = apfm newfs_pascal profuse_pascal xattr
+TARGETS = o/apfm o/newfs_pascal o/fuse_pascal o/profuse o/xattr
 
 BIN_OBJECTS += bin/apfm.o
 BIN_OBJECTS += bin/fuse_pascal_ops.o
@@ -34,6 +35,13 @@ BIN_OBJECTS += bin/newfs_prodos.o
 BIN_OBJECTS += bin/fuse_pascal.o
 BIN_OBJECTS += bin/newfs_pascal.o
 BIN_OBJECTS += bin/xattr.o
+BIN_OBJECTS += bin/profuse.o
+BIN_OBJECTS += bin/profuse_dirent.o
+BIN_OBJECTS += bin/profuse_file.o
+BIN_OBJECTS += bin/profuse_stat.o
+BIN_OBJECTS += bin/profuse_xattr.o
+
+
 
 CACHE_OBJECTS += Cache/BlockCache.o
 CACHE_OBJECTS += Cache/ConcreteBlockCache.o
@@ -62,12 +70,25 @@ PASCAL_OBJECTS += Pascal/VolumeEntry.o
 PROFUSE_OBJECTS += ProFUSE/Exception.o
 PROFUSE_OBJECTS += ProFUSE/Lock.o
 
+PRODOS_OBJECTS += ProDOS/DateTime.o
+PRODOS_OBJECTS += ProDOS/Disk.o
+PRODOS_OBJECTS += ProDOS/File.o
+
+all: $(TARGETS) 
 
 
-xattr: bin/xattr.o
+#apfm: o/apfm
+#fuse_pascal: o/fuse_pascal
+#newfs_pascal: o/newfs_pascal
+#profuse: o/profuse
+#xattr: o/xattr
+
+
+
+o/xattr: bin/xattr.o
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
-newfs_pascal: bin/newfs_pascal.o \
+o/newfs_pascal: bin/newfs_pascal.o \
   ${CACHE_OBJECTS} \
   ${DEVICE_OBJECTS} \
   ${ENDIAN_OBJECTS} \
@@ -76,7 +97,7 @@ newfs_pascal: bin/newfs_pascal.o \
   ${PASCAL_OBJECTS}
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
-apfm: bin/apfm.o \
+o/apfm: bin/apfm.o \
   ${CACHE_OBJECTS} \
   ${DEVICE_OBJECTS} \
   ${ENDIAN_OBJECTS} \
@@ -86,14 +107,25 @@ apfm: bin/apfm.o \
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 
-fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
+o/fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
   ${CACHE_OBJECTS} \
   ${DEVICE_OBJECTS} \
   ${ENDIAN_OBJECTS} \
   ${FILE_OBJECTS} \
   ${PROFUSE_OBJECTS} \
   ${PASCAL_OBJECTS} 
-	$(CC) $(LDFLAGS) $^ $(LIBS) $(fuse_pascal_LIBS) -o $@
+	$(CC) $(LDFLAGS) $^ $(LIBS) $(FUSE_LIBS) -o $@
+
+
+o/profuse: bin/profuse.o bin/profuse_dirent.o bin/profuse_file.o \
+  bin/profuse_stat.o bin/profuse_xattr.o \
+  ${CACHE_OBJECTS} \
+  ${DEVICE_OBJECTS} \
+  ${ENDIAN_OBJECTS} \
+  ${FILE_OBJECTS} \
+  ${PROFUSE_OBJECTS} \
+  ${PRODOS_OBJECTS} 
+	$(CC) $(LDFLAGS) $^ $(LIBS) $(FUSE_LIBS) -o $@
 
 
 clean:
@@ -201,3 +233,13 @@ Pascal/VolumeEntry.o: Pascal/VolumeEntry.cpp Pascal/Pascal.h Pascal/Date.h \
 
 Pascal/TextWriter.o: Pascal/TextWriter.cpp Pascal/TextWriter.h \
   Pascal/FileEntry.h Pascal/Entry.h Pascal/Date.h ProFUSE/Exception.h
+
+
+
+ProDOS/DateTime.o: ProDOS/DateTime.cpp ProDOS/DateTime.h
+
+ProDOS/Disk.o: ProDOS/Disk.cpp ProDOS/Disk.h
+
+ProDOS/File.o: ProDOS/File.cpp ProDOS/File.h
+
+

@@ -2,20 +2,25 @@
 #define __BITMAP_H__
 
 #include <stdint.h>
+#include <vector>
 
+
+namespace Device
+{
+    class BlockDevice; 
+    class BlockCache;
+}
 
 
 namespace ProDOS {
-
-class BlockDevice;
 
 
 class Bitmap {
 public:
 
     Bitmap(unsigned blocks);
-    Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks);
-    //todo -- constructor by loading from, block device...
+    Bitmap(Device::BlockCache *cache, unsigned keyPointer, unsigned blocks);
+
     ~Bitmap();
     
     int allocBlock();
@@ -28,7 +33,7 @@ public:
     unsigned blocks() const { return _blocks; }
     unsigned bitmapBlocks() const { return _bitmapBlocks; }
     unsigned bitmapSize() const { return _bitmapBlocks * 512; }
-    const void *bitmap() const { return _bitmap; }
+    const void *bitmap() const { return &_bitmap[0]; }
 
 private:
 
@@ -38,7 +43,7 @@ private:
     unsigned _blocks;
     unsigned _bitmapBlocks;
     
-    uint8_t *_bitmap;
+    std::vector<uint8_t> _bitmap;
 };
 
 

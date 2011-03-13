@@ -1,9 +1,8 @@
 #include <cstring>
 
 #include <ProDOS/Bitmap.h>
-#include <ProDOS/BlockDevice.h>
-#include "auto.h"
-
+#include <Device/BlockDevice.h>
+#include <Cache/BlockCache.h>
 
 using namespace ProDOS;
 
@@ -34,26 +33,25 @@ Bitmap::Bitmap(unsigned blocks)
     _freeIndex = 0;
     
     unsigned bitmapSize = _bitmapBlocks * 512;
-    unsigned blockSize = blocks / 8;
     
-    auto_array<uint8_t> bitmap(new uint8_t[bitmapSize]);
-
-    // mark overflow in use, everything else free.
-
-    std::memset(bitmap, 0xff, blocks / 8);
-    std::memset(bitmap + blockSize, 0x00, bitmapSize - blockSize);
+    _bitmap.reserve(bitmapSize);
     
-    // edge case
-    unsigned tmp = blocks & 0x07;
+    // mark blocks as free.. 
+    _bitmap.resize(blocks / 8, 0xff);
     
-    bitmap[blocks / 8] = ~(0xff >> tmp);
+    // edge case...
     
-    _bitmap = bitmap.release();
+    if (blocks & 0x0f)
+    {
+        _bitmap.push_back( ~(0xff >> (blocks & 0x0f)) );
+    }
     
+    // mark any trailing blocks as in use.
     
+    _bitmap.resize(bitmapSize, 0x00);  
 }
 
-Bitmap::Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks)
+Bitmap::Bitmap(Device::BlockCache *cache, unsigned keyPointer, unsigned blocks)
 {
     _blocks = blocks;
     _freeBlocks = 0;
@@ -64,47 +62,68 @@ Bitmap::Bitmap(BlockDevice *device, unsigned keyPointer, unsigned blocks)
     unsigned bitmapSize = _bitmapBlocks * 512;
     unsigned blockSize = blocks / 8;
     
-    auto_array<uint8_t> bitmap(new uint8_t[bitmapSize]);
+    _bitmap.reserve(bitmapSize);
+    
 
+    // load the full block(s).
     for (unsigned i = 0; i < blockSize; ++i)
     {
-        device->read(keyPointer + i, bitmap + 512 * i);
+        uint8_t *buffer = (uint8_t *)cache->acquire(keyPointer);
+        
+        _bitmap.insert(_bitmap.end(), buffer, buffer + 512);
+        
+        cache->release(keyPointer);
+        
+        keyPointer++;
     }
     
-    // make sure all trailing bits are marked in use.
-
-    // edge case
-    unsigned tmp = blocks & 0x07;
+    // and any remaining partial block.
     
-    bitmap[blocks / 8] &= ~(0xff >> tmp);
-
-    std::memset(bitmap + blockSize, 0x00, bitmapSize - blockSize);
-
-    // set _freeBlocks and _freeIndex;
-    for (unsigned i = 0; i < (blocks + 7) / 8; ++i)
+    if (blocks & 4095)
     {
-        _freeBlocks += popCount(bitmap[i]);
-    } 
-    
-    if (_freeBlocks)
-    {
-        for (unsigned i = 0; i < (blocks + 7) / 8; ++i)
+
+        uint8_t *buffer = (uint8_t *)cache->acquire(keyPointer);
+
+        unsigned bits = blocks & 4095;
+        unsigned bytes = bits / 8;
+                
+        //for (unsigned i = 0; i < bits / 8; ++i) _bitmap.push_back(buffer[i]);
+        
+        _bitmap.insert(_bitmap.end(), buffer, buffer + bytes);
+        // partial...
+        
+        if (blocks & 0x0f)
         {
-            if (bitmap[i])
-            {
-                _freeIndex = i;
-                break;
-            }
+            uint8_t tmp = buffer[bytes];
+            tmp &= ~(0xff >> (blocks & 0x0f));
+            
+            _bitmap.push_back(tmp);
         }
-    }
+        
+        // remainder set to in use.
+        _bitmap.resize(bitmapSize, 0x00);
 
+        cache->release(keyPointer);
+        
+        keyPointer++;        
+        
+    }
     
-    _bitmap = bitmap.release();
+    
+    // now set _freeBlocks and _freeIndex;
+    std::vector<uint8_t>::iterator iter;
+    
+    _freeIndex = -1;
+    for (iter = _bitmap.begin(); iter != _bitmap.end(); ++iter)
+    {
+        _freeBlocks += popCount(*iter);
+        if (_freeIndex == -1 && *iter) 
+            _freeIndex = std::distance(_bitmap.begin(), iter); 
+    }
 }
 
 Bitmap::~Bitmap()
 {
-    if (_bitmap) delete []_bitmap;
 }
 
 
