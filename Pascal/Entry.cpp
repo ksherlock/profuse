@@ -1,6 +1,6 @@
 #include <Pascal/Entry.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>

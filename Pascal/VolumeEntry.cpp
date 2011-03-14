@@ -5,8 +5,9 @@
 
 #include <Pascal/Pascal.h>
 
-#include <ProFUSE/auto.h>
-#include <ProFUSE/Exception.h>
+#include <Common/auto.h>
+#include <Common/Exception.h>
+#include <ProDOS/Exception.h>
 
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
@@ -21,9 +22,6 @@ using namespace Pascal;
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::ProDOSException;
-using ProFUSE::POSIXException;
 
 enum {
     kMaxFiles = 77
@@ -111,13 +109,13 @@ VolumeEntry::VolumeEntry(Device::BlockDevicePointer device, const char *name) :
     
     deviceBlocks = std::min(0xffffu, deviceBlocks);
     if (deviceBlocks < 6)
-        throw Exception(__METHOD__ ": device too small.");
+        throw ::Exception(__METHOD__ ": device too small.");
     
     
     length = ValidName(name);
     
     if (!length)
-        throw ProDOSException(__METHOD__ ": Invalid volume name.", ProFUSE::badPathSyntax);
+        throw ProDOS::Exception(__METHOD__ ": Invalid volume name.", ProDOS::badPathSyntax);
     
     _firstBlock = 0;
     _lastBlock = 6;
@@ -164,7 +162,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevicePointer device)
 {
     unsigned blockCount;
     //unsigned deviceBlocks = device->blocks();
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512]);
+    ::auto_array<uint8_t> buffer(new uint8_t[512]);
     
     
     // read the header block, then load up all the header 
@@ -234,7 +232,7 @@ VolumeEntry::VolumeEntry(Device::BlockDevicePointer device)
             error = true;
         
         if (error)
-            throw ProDOSException(__METHOD__ ": Invalid file entry.", ProFUSE::dirError);
+            throw ProDOS::Exception(__METHOD__ ": Invalid file entry.", ProDOS::dirError);
         
         block = e->_lastBlock;
         
@@ -274,7 +272,7 @@ void VolumeEntry::init(void *vp)
     
     // verify filenamelength <= 7
     if (_fileNameLength > 7)
-        throw ProDOSException(__METHOD__ ": invalid name length", ProFUSE::badPathSyntax);
+        throw ProDOS::Exception(__METHOD__ ": invalid name length", ProDOS::badPathSyntax);
     
     // verify fileKind == 0
     // verify _fileCount reasonable
@@ -367,7 +365,7 @@ int VolumeEntry::unlink(const char *name)
     }
 
     // need to update the header blocks.
-    ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
+    ::auto_array<uint8_t> buffer(readDirectoryHeader());
 
 
     // update the filecount.
@@ -596,7 +594,7 @@ FileEntryPointer VolumeEntry::create(const char *name, unsigned blocks)
     
     entry = FileEntry::Create(name, kUntypedFile);
     
-    ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
+    ::auto_array<uint8_t> buffer(readDirectoryHeader());
         
     for (iter = _files.begin(); iter != _files.end(); ++iter)
     {
@@ -740,13 +738,13 @@ int VolumeEntry::krunch()
         if (first != prevBlock) gap = true;
         
         if (first < prevBlock) 
-            return ProFUSE::damagedBitMap;
+            return ProDOS::damagedBitMap;
         
         if (last < first) 
-            return ProFUSE::damagedBitMap;
+            return ProDOS::damagedBitMap;
         
         if (first < volumeBlocks()) 
-            return ProFUSE::damagedBitMap;
+            return ProDOS::damagedBitMap;
         
         
         prevBlock = last;
@@ -758,7 +756,7 @@ int VolumeEntry::krunch()
     
     
     // need to update the header blocks.
-    ProFUSE::auto_array<uint8_t> buffer(readDirectoryHeader());
+    ::auto_array<uint8_t> buffer(readDirectoryHeader());
     IOBuffer b(buffer.get(), 512 * blocks());
     
 
@@ -956,7 +954,7 @@ void VolumeEntry::writeDirectoryHeader(void *buffer)
 
 uint8_t *VolumeEntry::readBlocks(unsigned startingBlock, unsigned count)
 {
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[512 * count]);
+    ::auto_array<uint8_t> buffer(new uint8_t[512 * count]);
         
     for (unsigned i = 0; i < count; ++i)
         _cache->read(startingBlock + i, buffer.get() + 512 * i);
@@ -1001,7 +999,7 @@ void VolumeEntry::writeEntry(FileEntry *e)
     else
     {
         // crosses page boundaries.
-        ProFUSE::auto_array<uint8_t> buffer(readBlocks(startBlock, 2));
+        ::auto_array<uint8_t> buffer(readBlocks(startBlock, 2));
         
         IOBuffer b(buffer.get() + offset, 0x1a);
         

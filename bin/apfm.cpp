@@ -1067,7 +1067,7 @@ int main(int argc, char **argv)
         usage();
         return 3;
     }
-    catch (ProFUSE::Exception& e)
+    catch (Exception& e)
     {
         std::fprintf(stderr, "%s\n", e.what());
         std::fprintf(stderr, "%s\n", e.errorString());

@@ -9,7 +9,7 @@
 #ifndef __DEVICE_DEVICE_H__
 #define __DEVICE_DEVICE_H__
 
-#include <ProFUSE/smart_pointers.h>
+#include <Common/smart_pointers.h>
 
 namespace Device {
     

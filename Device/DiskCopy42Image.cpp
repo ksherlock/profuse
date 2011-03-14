@@ -16,9 +16,6 @@ using namespace Device;
 using namespace BigEndian;
 
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
-
 
 
 enum {
@@ -221,7 +218,7 @@ bool DiskCopy42Image::Validate(MappedFile *file)
 
 
     if (!Validate(file, std::nothrow))
-        throw Exception(__METHOD__ ": Invalid file format.");
+        throw ::Exception(__METHOD__ ": Invalid file format.");
     
     return true;
 }

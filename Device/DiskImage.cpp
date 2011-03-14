@@ -14,13 +14,11 @@
 
 #include <Cache/MappedBlockCache.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 
 /*
@@ -74,7 +72,7 @@ void DiskImage::read(unsigned block, void *bp)
 #define __METHOD__ "DiskImage::read"
 
     if (block >= _blocks)
-        throw Exception(__METHOD__ ": Invalid block.");
+        throw ::Exception(__METHOD__ ": Invalid block.");
     
     _adaptor->readBlock(block, bp);    
 }
@@ -85,7 +83,7 @@ void DiskImage::write(unsigned block, const void *bp)
 #define __METHOD__ "DiskImage::write"
     
     if (block >= _blocks)
-        throw Exception(__METHOD__ ": Invalid block.");
+        throw ::Exception(__METHOD__ ": Invalid block.");
     
     _adaptor->writeBlock(block, bp);
 }
@@ -97,7 +95,7 @@ void DiskImage::sync()
     
     if (_file.isValid()) return _file.sync();
     
-    throw Exception(__METHOD__ ": File not set."); 
+    throw ::Exception(__METHOD__ ": File not set."); 
 }
 
 
@@ -147,10 +145,10 @@ bool ProDOSOrderDiskImage::Validate(MappedFile *f)
     #undef __METHOD__
     #define __METHOD__ "ProDOSOrderDiskImage::Validate"
     
-    if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
+    if (!f || !f->isValid()) throw ::Exception(__METHOD__ ": File not set.");
 
     if (!Validate(f, std::nothrow))
-        throw Exception(__METHOD__ ": Invalid file format.");
+        throw ::Exception(__METHOD__ ": Invalid file format.");
     
     return true;
 }
@@ -218,11 +216,11 @@ bool DOSOrderDiskImage::Validate(MappedFile *f)
     #undef __METHOD__
     #define __METHOD__ "DOSOrderDiskImage::Validate"
 
-    if (!f || !f->isValid()) throw Exception(__METHOD__ ": File not set.");
+    if (!f || !f->isValid()) throw ::Exception(__METHOD__ ": File not set.");
     
     
     if (!Validate(f, std::nothrow))
-        throw Exception(__METHOD__ ": Invalid file format.");
+        throw ::Exception(__METHOD__ ": Invalid file format.");
     
     return true;
 }

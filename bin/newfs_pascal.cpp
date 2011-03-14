@@ -14,7 +14,7 @@
 #include <Device/RawDevice.h>
 
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 #include <Pascal/Pascal.h>
 
@@ -302,17 +302,13 @@ int main(int argc, char **argv)
 
         
     }
-    catch (ProFUSE::POSIXException& e)
+    catch (::Exception& e)
     {
         std::fprintf(stderr, "%s\n", e.what());
         std::fprintf(stderr, "%s\n", ::strerror(e.error()));
         return -2;
     }
-    catch (ProFUSE::Exception& e)
-    {
-        std::fprintf(stderr, "%s\n", e.what());
-        return -2;
-    }
+
     
     return 0;
 }

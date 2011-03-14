@@ -2,12 +2,8 @@
 #include <cerrno>
 
 #include <File/File.h>
-#include <ProFUSE/Exception.h>
-
-
-
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
+#include <Common/Exception.h>
+#include <POSIX/Exception.h>
 
 
 File::File()
@@ -49,7 +45,7 @@ File::File(const char *name, int flags)
 
     _fd = ::open(name, flags);
     if (_fd < 0)
-        throw POSIXException( __METHOD__ ": open", errno);
+        throw POSIX::Exception( __METHOD__ ": open", errno);
 }
 
 File::File(const char *name, int flags, mode_t mode)
@@ -59,7 +55,7 @@ File::File(const char *name, int flags, mode_t mode)
     
     _fd = ::open(name, flags, mode);
     if (_fd < 0)
-        throw POSIXException( __METHOD__ ": open", errno);
+        throw POSIX::Exception( __METHOD__ ": open", errno);
 }
 
 
@@ -70,7 +66,7 @@ File::File(const char *name, FileFlags flags)
     
     _fd = ::open(name, flags == ReadOnly ? O_RDONLY : O_RDWR);
     if (_fd < 0)
-        throw POSIXException( __METHOD__ ": open", errno);    
+        throw POSIX::Exception( __METHOD__ ": open", errno);    
 }
 
 
@@ -99,7 +95,7 @@ void File::close()
         // destructor shouldn't throw.
         /*
         if (::close(fd) != 0) 
-            throw POSIXException(__METHOD__ ": close", errno);
+            throw POSIX::Exception(__METHOD__ ": close", errno);
          */
     }
 }

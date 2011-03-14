@@ -2,7 +2,7 @@
 #include <Pascal/TextWriter.h>
 #include <Pascal/FileEntry.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 #include <string>
 #include <cstring>
@@ -89,7 +89,7 @@ void TextWriter::writeLine(const char *line, unsigned length)
     
     if (length > 1024)
     {
-        throw ProFUSE::Exception(__METHOD__ ": String is too long.");
+        throw ::Exception(__METHOD__ ": String is too long.");
     }
     if (_offset + length > 1024)
     {

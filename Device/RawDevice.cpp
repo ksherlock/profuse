@@ -31,12 +31,11 @@
 
 #include <Device/RawDevice.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
+#include <POSIX/Exception.h>
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 #ifdef __SUN__
 void RawDevice::devSize(int fd)
@@ -47,7 +46,7 @@ void RawDevice::devSize(int fd)
     struct dk_minfo minfo;
 
     if (::ioctl(fd, DKIOCGMEDIAINFO, &minfo) < 0)
-        throw POSIXException(__METHOD__ ": Unable to determine device size.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine device size.", errno);
     
     _size = minfo.dki_lbsize * minfo.dki_capacity;
     _blockSize = 512; // not really, but whatever.
@@ -66,11 +65,11 @@ void RawDevice::devSize(int fd)
     uint64_t blockCount; // 64 bit
     
     if (::ioctl(fd, DKIOCGETBLOCKSIZE, &blockSize) < 0)
-        throw POSIXException(__METHOD__ ": Unable to determine block size.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine block size.", errno);
     
     
     if (::ioctl(fd, DKIOCGETBLOCKCOUNT, &blockCount) < 0)
-        throw POSIXException(__METHOD__ ": Unable to determine block count.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine block count.", errno);
         
     _blockSize = blockSize;
     _size = _blockSize * blockCount;
@@ -90,7 +89,7 @@ void RawDevice::devSize(int fd)
     int blocks;
 
     if (::ioctl(fd, BLKGETSIZE, &blocks) < 0)
-        throw POSIXException(__METHOD__ ": Unable to determine device size.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine device size.", errno);
     
     _size = 512 * blocks;
     _blockSize = 512; // 
@@ -113,10 +112,10 @@ void RawDevice::devSize(int fd)
     off_t mediaSize;
 
     if (::ioctl(fd, DIOCGSECTORSIZE, &blockSize)
-        throw POSIXException(__METHOD__ ": Unable to determine block size.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine block size.", errno);
 
     if (::ioctl(fd, DIOCGMEDIASIZE, &mediaSize)
-        throw POSIXException(__METHOD__ ": Unable to determine media size.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine media size.", errno);
 
     _blockSize = blockSize;
     _size = mediaSize;
@@ -138,7 +137,7 @@ void RawDevice::devSize(int fd)
     
     
     if (::ioctl(fd, DIOCGETP, &entry) < 0)
-        throw POSIXException(__METHOD__ ": Unable to determine device size.", errno);
+        throw POSIX::Exception(__METHOD__ ": Unable to determine device size.", errno);
     
     _size = entry.size
     _blockSize = 512; // not really but whatever.
@@ -157,7 +156,7 @@ RawDevice::RawDevice(const char *name, File::FileFlags flags) :
 
     if (!_file.isValid())
     {
-        throw Exception(__METHOD__ ": Invalid file handle.");
+        throw ::Exception(__METHOD__ ": Invalid file handle.");
     }
     
     _readOnly = flags == File::ReadOnly;
@@ -178,7 +177,7 @@ RawDevice::RawDevice(File& file, File::FileFlags flags) :
     
     if (!_file.isValid())
     {
-        throw Exception(__METHOD__ ": Invalid file handle.");
+        throw ::Exception(__METHOD__ ": Invalid file handle.");
     }
     
     _readOnly = flags == File::ReadOnly;
@@ -208,8 +207,8 @@ void RawDevice::read(unsigned block, void *bp)
 #undef __METHOD__
 #define __METHOD__ "RawDevice::read"
 
-    if (block >= _blocks) throw Exception(__METHOD__ ": Invalid block number.");
-    if (bp == 0) throw Exception(__METHOD__ ": Invalid address."); 
+    if (block >= _blocks) throw ::Exception(__METHOD__ ": Invalid block number.");
+    if (bp == 0) throw ::Exception(__METHOD__ ": Invalid address."); 
 
     // sun -- use pread
     // apple - read full native block(s) ?
@@ -220,8 +219,8 @@ void RawDevice::read(unsigned block, void *bp)
     // TODO -- EINTR?
     if (ok != 512)
         throw ok < 0
-            ? POSIXException(__METHOD__ ": Error reading block.", errno)
-            : Exception(__METHOD__ ": Error reading block.");
+            ? POSIX::Exception(__METHOD__ ": Error reading block.", errno)
+            : ::Exception(__METHOD__ ": Error reading block.");
 }
 
 
@@ -231,8 +230,8 @@ void RawDevice::read(TrackSector ts, void *bp)
 #define __METHOD__ "RawDevice::read"
 
     unsigned block = ts.track * 8 + ts.sector / 2;
-    if (block >= _blocks) throw Exception(__METHOD__ ": Invalid block number.");
-    if (bp == 0) throw Exception(__METHOD__ ": Invalid address."); 
+    if (block >= _blocks) throw ::Exception(__METHOD__ ": Invalid block number.");
+    if (bp == 0) throw ::Exception(__METHOD__ ": Invalid address."); 
 
     // sun -- use pread
     // apple - read full native block(s) ?
@@ -243,8 +242,8 @@ void RawDevice::read(TrackSector ts, void *bp)
     // TODO -- EINTR?
     if (ok != 256)
         throw ok < 0
-            ? POSIXException(__METHOD__ ": Error reading block.", errno)
-            : Exception(__METHOD__ ": Error reading block.");
+            ? POSIX::Exception(__METHOD__ ": Error reading block.", errno)
+            : ::Exception(__METHOD__ ": Error reading block.");
 }
 
 
@@ -253,10 +252,10 @@ void RawDevice::write(unsigned block, const void *bp)
 #undef __METHOD__
 #define __METHOD__ "RawDevice::write"
 
-    if (block > _blocks) throw Exception(__METHOD__ ": Invalid block number.");
+    if (block > _blocks) throw ::Exception(__METHOD__ ": Invalid block number.");
 
     if (_readOnly)
-        throw Exception(__METHOD__ ": File is readonly.");
+        throw ::Exception(__METHOD__ ": File is readonly.");
 
 
     off_t offset = block * 512;    
@@ -264,8 +263,8 @@ void RawDevice::write(unsigned block, const void *bp)
     
     if (ok != 512)
         throw ok < 0 
-            ? POSIXException(__METHOD__ ": Error writing block.", errno)
-            : Exception(__METHOD__ ": Error writing block.");
+            ? POSIX::Exception(__METHOD__ ": Error writing block.", errno)
+            : ::Exception(__METHOD__ ": Error writing block.");
 }
 
 
@@ -275,10 +274,10 @@ void RawDevice::write(TrackSector ts, const void *bp)
 #define __METHOD__ "RawDevice::write"
 
     unsigned block = ts.track * 8 + ts.sector / 2;
-    if (block > _blocks) throw Exception(__METHOD__ ": Invalid block number.");
+    if (block > _blocks) throw ::Exception(__METHOD__ ": Invalid block number.");
 
     if (_readOnly)
-        throw Exception(__METHOD__ ": File is readonly.");
+        throw ::Exception(__METHOD__ ": File is readonly.");
 
 
     off_t offset = (ts.track * 16 + ts.sector) * 256;    
@@ -286,8 +285,8 @@ void RawDevice::write(TrackSector ts, const void *bp)
     
     if (ok != 256)
         throw ok < 0 
-            ? POSIXException(__METHOD__ ": Error writing block.", errno)
-            : Exception(__METHOD__ ": Error writing block.");
+            ? POSIX::Exception(__METHOD__ ": Error writing block.", errno)
+            : ::Exception(__METHOD__ ": Error writing block.");
 }
 
 
@@ -316,6 +315,6 @@ void RawDevice::sync()
     if (_readOnly) return;
     
     if (::fsync(_file.fd()) < 0)
-        throw POSIXException(__METHOD__ ": fsync error.", errno);
+        throw POSIX::Exception(__METHOD__ ": fsync error.", errno);
 }
 

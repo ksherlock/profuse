@@ -3,17 +3,13 @@
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 #include <Cache/MappedBlockCache.h>
 #include <Cache/ConcreteBlockCache.h>
 
 using namespace Device;
 using namespace LittleEndian;
-
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
-
 
 
 
@@ -138,7 +134,7 @@ bool UniversalDiskImage::Validate(MappedFile *file)
 #define __METHOD__ "UniversalDiskImage::Validate"
     
     if (!Validate(file, std::nothrow))
-        throw Exception(__METHOD__ ": Invalid file format.");
+        throw ::Exception(__METHOD__ ": Invalid file format.");
     
     return true;
 }

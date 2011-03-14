@@ -8,8 +8,9 @@
 #include <Pascal/Pascal.h>
 #include <Pascal/TextWriter.h>
 
-#include <ProFUSE/auto.h>
-#include <ProFUSE/Exception.h>
+#include <Common/auto.h>
+#include <Common/Exception.h>
+#include <ProDOS/Exception.h>
 
 #include <Endian/Endian.h>
 #include <Endian/IOBuffer.h>
@@ -77,7 +78,7 @@ FileEntry::FileEntry(const char *name, unsigned fileKind)
     unsigned length = ValidName(name);
     
     if (!length)
-        throw ProFUSE::Exception(__METHOD__ ": Invalid file name.");
+        throw ::Exception(__METHOD__ ": Invalid file name.");
         
     _fileKind = fileKind;
     _status = 0;
@@ -126,7 +127,7 @@ void FileEntry::setName(const char *name)
     unsigned length = ValidName(name);
     
     if (!length)
-        throw ProFUSE::ProDOSException(__METHOD__ ": Invalid file name.", ProFUSE::badPathSyntax);
+        throw ProDOS::Exception(__METHOD__ ": Invalid file name.", ProDOS::badPathSyntax);
     
     _fileNameLength = length;
     for (unsigned i = 0; i < length; ++i)
@@ -523,7 +524,7 @@ int FileEntry::textRead(uint8_t *buffer, unsigned size, unsigned offset)
     unsigned l;
     unsigned count = 0;
     
-    ProFUSE::auto_array<uint8_t> tmp;
+    ::auto_array<uint8_t> tmp;
     unsigned tmpSize = 0;
     
     if (!_pageSize) textInit();

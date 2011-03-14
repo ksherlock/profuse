@@ -26,8 +26,9 @@
 
 
 #include <Pascal/Pascal.h>
-#include <ProFUSE/auto.h>
-#include <ProFUSE/Exception.h>
+#include <Common/auto.h>
+#include <Common/Exception.h>
+#include <POSIX/Exception.h>
 
 #define NO_ATTR() \
 { \
@@ -264,7 +265,7 @@ static void pascal_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
     DEBUGNAME()
 
     VolumeEntry *volume = (VolumeEntry *)fuse_req_userdata(req);
-    ProFUSE::auto_array<uint8_t> buffer(new uint8_t[size]);
+    ::auto_array<uint8_t> buffer(new uint8_t[size]);
     unsigned count = volume->fileCount();
 
 
@@ -502,13 +503,14 @@ static void pascal_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, 
     
     try
     {
-        ProFUSE::auto_array<uint8_t> buffer(new uint8_t[size]);
+        ::auto_array<uint8_t> buffer(new uint8_t[size]);
         unsigned rsize = file->read(buffer.get(), size, off);
         
         fuse_reply_buf(req, (char *)(buffer.get()), rsize);
         return;
     }
-    catch (ProFUSE::POSIXException &e)
+    
+    catch (POSIX::Exception &e)
     {
         printf("posix error...\n");
         ERROR(true, e.error());

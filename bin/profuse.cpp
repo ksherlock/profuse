@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
         }    
     }
 
-    catch (ProFUSE::Exception &e)
+    catch (::Exception &e)
     {
         std::fprintf(stderr, "%s\n", e.what());
         std::fprintf(stderr, "%s\n", e.errorString());

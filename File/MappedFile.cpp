@@ -4,10 +4,8 @@
 #include <sys/stat.h>
 
 #include <File/MappedFile.h>
-#include <ProFUSE/Exception.h>
-
-
-using ProFUSE::POSIXException;
+#include <Common/Exception.h>
+#include <POSIX/Exception.h>
 
 MappedFile::MappedFile()
 {
@@ -81,16 +79,16 @@ void MappedFile::init(const File &f, bool readOnly, size_t size)
     
     // close enough
     if (f.fd() < 0)
-        throw POSIXException( __METHOD__, EBADF);
+        throw POSIX::Exception( __METHOD__, EBADF);
     
     
     if (!size)
     {
         if (::fstat(f.fd(), &st) != 0)
-            throw POSIXException(__METHOD__ ": fstat", errno);
+            throw POSIX::Exception(__METHOD__ ": fstat", errno);
         
         if (!S_ISREG(st.st_mode))
-            throw POSIXException(__METHOD__, ENODEV);
+            throw POSIX::Exception(__METHOD__, ENODEV);
         
         size = st.st_size;
     }
@@ -99,7 +97,7 @@ void MappedFile::init(const File &f, bool readOnly, size_t size)
     _address = ::mmap(0, _length, prot, flags, f.fd(), 0); 
     
     if (_address == MAP_FAILED)
-        throw POSIXException(__METHOD__ ": mmap", errno);
+        throw POSIX::Exception(__METHOD__ ": mmap", errno);
     
     _readOnly = readOnly;
 }
@@ -127,7 +125,7 @@ void MappedFile::close()
         // destructor shouldn't throw.
         /*
         if (::munmap(address, length) != 0)
-            throw POSIXException(__METHOD__ ": munmap", errno);
+            throw POSIX::Exception(__METHOD__ ": munmap", errno);
          */
     }
 }
@@ -140,7 +138,7 @@ void MappedFile::sync()
     if (_address != MAP_FAILED)
     {
         if (::msync(_address, _length, MS_SYNC) != 0)
-            throw POSIXException(__METHOD__ ": msync", errno);
+            throw POSIX::Exception(__METHOD__ ": msync", errno);
     }
 }
 
@@ -173,14 +171,14 @@ MappedFile *MappedFile::Create(const char *name, size_t size)
 
     if (!fd.isValid())
     {
-        throw POSIXException(__METHOD__ ": Unable to create file.", errno);        
+        throw POSIX::Exception(__METHOD__ ": Unable to create file.", errno);        
     }
 
     // TODO -- is ftruncate portable?
     if (::ftruncate(fd.fd(), size) < 0)
     {
         // TODO -- unlink?
-        throw POSIXException(__METHOD__ ": Unable to truncate file.", errno);    
+        throw POSIX::Exception(__METHOD__ ": Unable to truncate file.", errno);    
     }
     
     return new MappedFile(fd, File::ReadWrite, size);

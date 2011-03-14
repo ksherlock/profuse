@@ -19,8 +19,6 @@
 using namespace Device;
 using namespace LittleEndian;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 /*
  http://www.umich.edu/~archive/apple2/technotes/ftn/FTN.E0.8004
@@ -86,7 +84,7 @@ bool DavexDiskImage::Validate(MappedFile *f)
 
 
     if (!Validate(f, std::nothrow))
-        throw Exception(__METHOD__ ": Invalid file format.");
+        throw ::Exception(__METHOD__ ": Invalid file format.");
     
     return true;
 }

@@ -1,7 +1,7 @@
 #ifndef __PASCAL_ENTRY_H__
 #define __PASCAL_ENTRY_H__
 
-#include <ProFUSE/smart_pointers.h>
+#include <Common/smart_pointers.h>
 
 
 namespace Device {

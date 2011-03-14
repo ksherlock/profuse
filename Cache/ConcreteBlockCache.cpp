@@ -10,8 +10,8 @@
 #include <Device/BlockDevice.h>
 #include <Cache/ConcreteBlockCache.h>
 
-#include <ProFUSE/Exception.h>
-#include <ProFUSE/auto.h>
+#include <Common/Exception.h>
+#include <Common/auto.h>
 
 
 /*
@@ -51,8 +51,6 @@
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 
 //typedef std::vector<ConcreteBlockCache::Entry *>::iterator EntryIter;

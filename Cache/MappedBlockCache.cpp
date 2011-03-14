@@ -10,14 +10,12 @@
 #include <Cache/MappedBlockCache.h>
 #include <Device/BlockDevice.h>
 
-#include <ProFUSE/Exception.h>
-
+#include <Common/Exception.h>
+#include <POSIX/Exception.h>
 
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 BlockCachePointer MappedBlockCache::Create(BlockDevicePointer device, void *data)
 {
@@ -124,12 +122,12 @@ void MappedBlockCache::sync(unsigned block)
     end = (void *)((ptrdiff_t)end / pagesize * pagesize);
 
     if (::msync(start, pagesize, MS_SYNC) != 0)
-        throw POSIXException(__METHOD__ ": msync", errno);
+        throw POSIX::Exception(__METHOD__ ": msync", errno);
     
     if (start != end)
     {
         if (::msync(end, pagesize, MS_SYNC) != 0)
-            throw POSIXException(__METHOD__ ": msync", errno);    
+            throw POSIX::Exception(__METHOD__ ": msync", errno);    
     }
 }
 

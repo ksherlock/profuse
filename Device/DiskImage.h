@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <ProFUSE/Exception.h>
-
 #include <Device/BlockDevice.h>
 
 #include <Device/Adaptor.h>

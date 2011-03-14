@@ -20,39 +20,8 @@
 #include <File/File.h>
 #include <File/MappedFile.h>
 
-#include <ProFUSE/Exception.h>
-
-    
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
-
-
-class NuFXException : public Exception
-{
-public:
-    
-    NuFXException(const char *cp, NuError error);
-    NuFXException(const std::string& string, NuError error);
-    
-    virtual const char *errorString();
-
-};
-
-
-inline NuFXException::NuFXException(const char *cp, NuError error) :
-Exception(cp, error)
-{
-}
-
-inline NuFXException::NuFXException(const std::string& string, NuError error) :
-Exception(string, error)
-{
-}
-
-const char *NuFXException::errorString()
-{
-    return ::NuStrError((NuError)error());
-}
+#include <Common/Exception.h>
+#include <NuFX/Exception.h>
 
 
 using namespace Device;

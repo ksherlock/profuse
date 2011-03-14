@@ -7,8 +7,8 @@
 #include <Device/Device.h>
 #include <Device/TrackSector.h>
 
-#include <ProFUSE/Exception.h>
-#include <ProFUSE/smart_pointers.h>
+#include <Common/Exception.h>
+#include <Common/smart_pointers.h>
 
 #include <File/File.h>
 

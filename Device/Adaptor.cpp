@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <Device/Adaptor.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 using namespace Device;
 
@@ -142,7 +142,7 @@ uint8_t NibbleAdaptor::encode62(uint8_t val)
     };
     
     if (val > 0x3f)
-        throw ProFUSE::Exception(__METHOD__ ": Invalid 6-2 value.");
+        throw ::Exception(__METHOD__ ": Invalid 6-2 value.");
         
     return table[val];
 }
@@ -165,7 +165,7 @@ uint8_t NibbleAdaptor::decode62(uint8_t val)
     };
     
     if ((val < 0x90) || (table[val - 0x90] == 0xff))
-        throw ProFUSE::Exception(__METHOD__ ": Invalid 6-2 encoding.");
+        throw ::Exception(__METHOD__ ": Invalid 6-2 encoding.");
         
     return table[val - 0x90];
 }  
@@ -238,10 +238,10 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
             checksum = decode44(buffer[offset + 9], buffer[offset + 10]);
             
             if (volume ^ track ^ sector ^ checksum)
-                throw ProFUSE::Exception(__METHOD__ ": Invalid address checksum.");
+                throw ::Exception(__METHOD__ ": Invalid address checksum.");
             
             if (track > 35 || sector > 16)
-                throw ProFUSE::Exception(__METHOD__ ": Invalid track/sector.");
+                throw ::Exception(__METHOD__ ": Invalid track/sector.");
             
             offset += 3 + 8 + 3;
             
@@ -294,7 +294,7 @@ NibbleAdaptor::NibbleAdaptor(void *address, unsigned length)
         {
             int offset = distance(_index.begin(), iter);
             std::fprintf(stderr, "Error: track %u sector %u missing.\n", offset / 16, offset % 16);
-            //throw ProFUSE::Exception(__METHOD__ ": Sector missing.");
+            //throw ::Exception(__METHOD__ ": Sector missing.");
         }
     }
     
@@ -361,7 +361,7 @@ void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
 #define __METHOD__ "NibbleAdaptor::readTrackSector"
     
     if (ts.track > 35 || ts.sector > 16)
-        throw ProFUSE::Exception(__METHOD__ ": Invalid track/sector.");
+        throw ::Exception(__METHOD__ ": Invalid track/sector.");
 
     
     CircleBuffer buffer(_address, _length);
@@ -374,7 +374,7 @@ void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
     
     if (offset == -1)
     {
-        throw ProFUSE::Exception(__METHOD__ ": Missing track/sector.");
+        throw ::Exception(__METHOD__ ": Missing track/sector.");
     }
     
     // first 86 bytes are in the auxbuffer, backwards.
@@ -418,7 +418,7 @@ void NibbleAdaptor::readTrackSector(TrackSector ts, void *bp)
     
     if (checksum != decode62(buffer[index++]))
         std::fprintf(stderr, "Invalid checksum on track %u, sector %u\n", ts.track, ts.sector);
-        //throw ProFUSE::Exception(__METHOD__ ": Invalid field checksum.");
+        //throw ::Exception(__METHOD__ ": Invalid field checksum.");
    
 }
 
@@ -428,7 +428,7 @@ void NibbleAdaptor::writeTrackSector(TrackSector ts, const void *bp)
 #define __METHOD__ "NibbleAdaptor::writeTrackSector"
     
     if (ts.track > 35 || ts.sector > 16)
-        throw ProFUSE::Exception(__METHOD__ ": Invalid track/sector.");
+        throw ::Exception(__METHOD__ ": Invalid track/sector.");
     
     uint8_t auxBuffer[86];
     uint8_t checksum = 0;

@@ -12,7 +12,8 @@
 #include <Device/BlockDevice.h>
 #include <Cache/ConcreteBlockCache.h>
 
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
+#include <POSIX/Exception.h>
 
 #include <Device/DiskImage.h>
 #include <Device/UniversalDiskImage.h>
@@ -26,8 +27,6 @@
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 
 unsigned BlockDevice::ImageType(MappedFile *f, unsigned defv)
@@ -124,7 +123,7 @@ BlockDevicePointer BlockDevice::Open(const char *name, File::FileFlags flags, un
     
     if (::stat(name, &st) != 0)
     {
-        throw POSIXException(__METHOD__ ": stat error", errno);       
+        throw POSIX::Exception(__METHOD__ ": stat error", errno);       
     }
 
     // /dev/xxx ignore the type.

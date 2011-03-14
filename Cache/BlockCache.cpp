@@ -11,16 +11,14 @@
 #include <Cache/BlockCache.h>
 #include <Device/BlockDevice.h>
 
-#include <ProFUSE/Exception.h>
-#include <ProFUSE/auto.h>
+#include <Common/Exception.h>
+#include <Common/auto.h>
 
 
 
 
 using namespace Device;
 
-using ProFUSE::Exception;
-using ProFUSE::POSIXException;
 
 
 BlockCache::BlockCache(BlockDevicePointer device) :

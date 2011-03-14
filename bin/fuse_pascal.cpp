@@ -22,7 +22,7 @@
 #include <fuse/fuse_lowlevel.h>
 
 #include <Pascal/Pascal.h>
-#include <ProFUSE/Exception.h>
+#include <Common/Exception.h>
 
 #include <File/File.h>
 
@@ -216,17 +216,13 @@ int main(int argc, char **argv)
         
         volume = Pascal::VolumeEntry::Open(device);
     }
-    catch (ProFUSE::POSIXException &e)
+    catch (::Exception &e)
     {
         std::fprintf(stderr, "%s\n", e.what());
         std::fprintf(stderr, "%s\n", std::strerror(e.error()));
         return -1;
     }    
-    catch (ProFUSE::Exception &e)
-    {
-        std::fprintf(stderr, "%s\n", e.what());
-        return -1;
-    }
+
     
     
     
