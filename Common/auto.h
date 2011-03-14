@@ -3,7 +3,6 @@
 
 #include <cstddef>
 
-namespace ProFUSE {
 
 template <class T>
 class auto_array
@@ -98,7 +97,6 @@ private:
 };
 #endif
 
-}
 
 #endif
 

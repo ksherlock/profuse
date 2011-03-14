@@ -1,6 +1,5 @@
-#include <ProFUSE/Lock.h>
+#include "Lock.h"
 
-using namespace ProFUSE;
 
 Lock::Lock()
 {

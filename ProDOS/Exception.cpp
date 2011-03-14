@@ -1,33 +1,14 @@
 
-#include <ProFUSE/Exception.h>
+#include "Exception.h"
 #include <cstdio>
 #include <cstring>
 
-using namespace ProFUSE;
+namespace ProDOS {
 
-Exception::~Exception() throw()
-{
-}
 
-const char *Exception::what()
-{
-    return _string.c_str();
-}
 
 const char *Exception::errorString()
 {
-    return "";
-}
-
-
-const char *POSIXException::errorString()
-{
-    return strerror(error());
-}
-
-const char *ProDOSException::errorString()
-{
-
     
     switch (error())
     {
@@ -146,4 +127,6 @@ const char *ProDOSException::errorString()
             return "";
     }
     return "";
+}
+
 }

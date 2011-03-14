@@ -1,6 +1,6 @@
 
-#ifndef __PROFUSE_SMART_POINTERS_H__
-#define __PROFUSE_SMART_POINTERS_H__
+#ifndef __COMMON_SMART_POINTERS_H__
+#define __COMMON_SMART_POINTERS_H__
 
 #ifdef CPP0X
 //C++0x
