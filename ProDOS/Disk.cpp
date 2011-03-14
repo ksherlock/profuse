@@ -16,8 +16,8 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include <algorithm>
 #include <set>

@@ -8,8 +8,10 @@
 
 #include "profuse.h"
 
-#include <errno.h>
 #include <strings.h>
+
+#include <cstdio>
+#include <cerrno>
 
 #include <algorithm>
 #include <string>

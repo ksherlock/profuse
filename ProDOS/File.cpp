@@ -11,10 +11,11 @@
 #include <Endian/Endian.h>
 
 #include "common.h"
-#include <string.h>
+#include <cstring>
+#include <cctype>
+#include <cstdio>
+
 #include <stdint.h>
-#include <ctype.h>
-#include <stdio.h>
 
 using namespace LittleEndian;
 

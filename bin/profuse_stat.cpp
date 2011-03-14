@@ -10,9 +10,10 @@
 #pragma mark Stat Functions
 
 #include "profuse.h"
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
+
+#include <cerrno>
+#include <cstring>
+#include <cstdio>
 
 #include <vector>
 
