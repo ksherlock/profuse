@@ -13,7 +13,12 @@ ifdef HAVE_NUFX
   DEVICE_OBJECTS += Device/SDKImage.o
   EXCEPTION_OBJECTS += NuFX/Exception.o
   LDFLAGS += -L/usr/local/lib/
-  LIBS += -lnufx -lz -framework carbon
+  LIBS += -lnufx -lz 
+  
+  ifeq ($(UNAME),Darwin)
+    LIBS += -framework carbon
+  endif
+  
   CPPFLAGS += -DHAVE_NUFX=1
 endif
 
