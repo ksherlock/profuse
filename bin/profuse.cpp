@@ -128,7 +128,9 @@ static void usage()
             "  --format=format   specify the disk image format. Valid values are:\n"
             "                    dc42  DiskCopy 4.2 Image\n"
             "                    davex Davex Disk Image\n"
+#ifdef HAVE_NUFX
             "                    sdk   ShrinkIt Disk Image\n"
+#endif
             "                    2img  Universal Disk Image\n"
             "                    do    DOS Order Disk Image\n"
             "                    po    ProDOS Order Disk Image (default)\n"

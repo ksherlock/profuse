@@ -22,6 +22,7 @@
 
 #include <Common/Exception.h>
 #include <NuFX/Exception.h>
+#include <POSIX/Exception.h>
 
 
 using namespace Device;
@@ -45,7 +46,7 @@ static record_thread FindDiskImageThread(NuArchive *archive)
     e = NuGetAttr(archive, kNuAttrNumRecords, &recordCount);
     if (e)
     {
-        throw NuFXException(__METHOD__ ": NuGetAttr", e);
+        throw NuFX::Exception(__METHOD__ ": NuGetAttr", e);
     }
     
     for (unsigned position = 0; position < recordCount; ++position)
@@ -56,13 +57,13 @@ static record_thread FindDiskImageThread(NuArchive *archive)
         e = NuGetRecordIdxByPosition(archive, position, &rIndex);
         if (e)
         {
-            throw NuFXException(__METHOD__ ": NuGetRecordIdxByPosition", e);
+            throw NuFX::Exception(__METHOD__ ": NuGetRecordIdxByPosition", e);
         }
         
         e = NuGetRecord(archive, rIndex, &record);
         if (e)
         {
-            throw NuFXException(__METHOD__ ": NuGetRecord", e);
+            throw NuFX::Exception(__METHOD__ ": NuGetRecord", e);
         }
     
         for (unsigned i = 0; i < NuRecordGetNumThreads(record); ++i)
@@ -78,7 +79,7 @@ static record_thread FindDiskImageThread(NuArchive *archive)
         }   
     }
     
-    throw Exception(__METHOD__ ": not a disk image");
+    throw ::Exception(__METHOD__ ": not a disk image");
 }
 
 
@@ -116,7 +117,7 @@ BlockDevicePointer SDKImage::Open(const char *name)
         e = NuOpenRO(name, &archive);
         if (e)
         {
-            throw NuFXException(__METHOD__ ": NuOpenRO", e);
+            throw NuFX::Exception(__METHOD__ ": NuOpenRO", e);
         }
 
         rt = FindDiskImageThread(archive);
@@ -124,27 +125,27 @@ BlockDevicePointer SDKImage::Open(const char *name)
         fd = mkstemp(tmp);
         if (fd < 0)
         {
-            throw POSIXException(__METHOD__ ": mkstemp", errno);
+            throw POSIX::Exception(__METHOD__ ": mkstemp", errno);
         }
         
         fp = fdopen(fd, "w");
         if (!fp)
         {
             ::close(fd);
-            throw POSIXException(__METHOD__ ": fdopen", errno);            
+            throw POSIX::Exception(__METHOD__ ": fdopen", errno);            
         }
         
         e = NuCreateDataSinkForFP(true, kNuConvertOff, fp, &sink);
         if (e)
         {
-            throw NuFXException(__METHOD__ ": NuCreateDataSinkForFP", e);
+            throw NuFX::Exception(__METHOD__ ": NuCreateDataSinkForFP", e);
         }
         
 
         e = NuExtractThread(archive, rt.thread_index, sink);
         if (e)
         {
-            throw NuFXException(__METHOD__ ": NuExtractThread", e);
+            throw NuFX::Exception(__METHOD__ ": NuExtractThread", e);
         }
         
         fprintf(stderr, "Extracted disk image to %s\n", tmp);
@@ -210,7 +211,7 @@ bool SDKImage::Validate(MappedFile * f)
 #define __METHOD__ "SDKImage::Validate"
     
     if (!Validate(f, std::nothrow))
-        throw Exception(__METHOD__ ": Invalid file format.");
+        throw ::Exception(__METHOD__ ": Invalid file format.");
 
     return true;
 }
