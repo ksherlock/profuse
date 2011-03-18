@@ -67,37 +67,37 @@
 		B65090481332FEBE00FBA318 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650903A1332FEBE00FBA318 /* Lock.cpp */; };
 		B65090491332FEBE00FBA318 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650903A1332FEBE00FBA318 /* Lock.cpp */; };
 		B650904A1332FEBE00FBA318 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650903A1332FEBE00FBA318 /* Lock.cpp */; };
-		B65090511333006900FBA318 /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
-		B65090521333006900FBA318 /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
-		B65090531333006900FBA318 /* DavexDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9711A094E000C90DCE /* DavexDiskImage.cpp */; };
-		B65090541333006900FBA318 /* DiskCopy42Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9B11A094E000C90DCE /* DiskCopy42Image.cpp */; };
-		B65090551333006900FBA318 /* DiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9D11A094E000C90DCE /* DiskImage.cpp */; };
-		B65090561333006900FBA318 /* RawDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAA111A094E000C90DCE /* RawDevice.cpp */; };
-		B65090571333006900FBA318 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAA411A094E000C90DCE /* UniversalDiskImage.cpp */; };
-		B65090581333006900FBA318 /* BlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAB611A098C400C90DCE /* BlockCache.cpp */; };
-		B65090591333006900FBA318 /* ConcreteBlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAB811A098C400C90DCE /* ConcreteBlockCache.cpp */; };
-		B650905A1333006900FBA318 /* MappedBlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFABA11A098C400C90DCE /* MappedBlockCache.cpp */; };
-		B650905B1333006900FBA318 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAC911A09DAA00C90DCE /* File.cpp */; };
-		B650905C1333006900FBA318 /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFACB11A09DAA00C90DCE /* MappedFile.cpp */; };
-		B650905D1333006900FBA318 /* Adaptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFB0711A0AC4800C90DCE /* Adaptor.cpp */; };
-		B65090651333006900FBA318 /* SDKImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6A591261329C417007B0EE2 /* SDKImage.cpp */; };
-		B65090661333006900FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65090181332FE5000FBA318 /* Exception.cpp */; };
-		B65090671333006900FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65090241332FE6A00FBA318 /* Exception.cpp */; };
-		B65090681333006900FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650902F1332FE8B00FBA318 /* Exception.cpp */; };
-		B65090691333006900FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65090371332FEBE00FBA318 /* Exception.cpp */; };
-		B650906A1333006900FBA318 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650903A1332FEBE00FBA318 /* Lock.cpp */; };
-		B650906C1333006900FBA318 /* libfuse_ino64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */; };
-		B650906D1333006900FBA318 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EC132995D4007B0EE2 /* Carbon.framework */; };
-		B650906E1333006900FBA318 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EE132995D4007B0EE2 /* libz.dylib */; };
-		B650906F1333006900FBA318 /* libNuFX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590F713299626007B0EE2 /* libNuFX.a */; };
-		B65090771333009400FBA318 /* DateTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272AA711D5AE0C0073C73A /* DateTime.cpp */; };
-		B650907D133300BA00FBA318 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509078133300BA00FBA318 /* File.cpp */; };
-		B650907E133300BA00FBA318 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509079133300BA00FBA318 /* Disk.cpp */; };
-		B6509080133300DD00FBA318 /* profuse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650907F133300DD00FBA318 /* profuse.cpp */; };
-		B6509086133300FB00FBA318 /* profuse_xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509081133300FB00FBA318 /* profuse_xattr.cpp */; };
-		B6509087133300FB00FBA318 /* profuse_stat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509082133300FB00FBA318 /* profuse_stat.cpp */; };
-		B6509088133300FB00FBA318 /* profuse_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509083133300FB00FBA318 /* profuse_file.cpp */; };
-		B6509089133300FB00FBA318 /* profuse_dirent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509084133300FB00FBA318 /* profuse_dirent.cpp */; };
+		B650908C133304C800FBA318 /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
+		B650908D133304C800FBA318 /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
+		B650908E133304C800FBA318 /* DavexDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9711A094E000C90DCE /* DavexDiskImage.cpp */; };
+		B650908F133304C800FBA318 /* DiskCopy42Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9B11A094E000C90DCE /* DiskCopy42Image.cpp */; };
+		B6509090133304C800FBA318 /* DiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9D11A094E000C90DCE /* DiskImage.cpp */; };
+		B6509091133304C800FBA318 /* RawDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAA111A094E000C90DCE /* RawDevice.cpp */; };
+		B6509092133304C800FBA318 /* UniversalDiskImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAA411A094E000C90DCE /* UniversalDiskImage.cpp */; };
+		B6509093133304C800FBA318 /* BlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAB611A098C400C90DCE /* BlockCache.cpp */; };
+		B6509094133304C800FBA318 /* ConcreteBlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAB811A098C400C90DCE /* ConcreteBlockCache.cpp */; };
+		B6509095133304C800FBA318 /* MappedBlockCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFABA11A098C400C90DCE /* MappedBlockCache.cpp */; };
+		B6509096133304C800FBA318 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFAC911A09DAA00C90DCE /* File.cpp */; };
+		B6509097133304C800FBA318 /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFACB11A09DAA00C90DCE /* MappedFile.cpp */; };
+		B6509098133304C800FBA318 /* Adaptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFB0711A0AC4800C90DCE /* Adaptor.cpp */; };
+		B6509099133304C800FBA318 /* SDKImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6A591261329C417007B0EE2 /* SDKImage.cpp */; };
+		B650909A133304C800FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65090181332FE5000FBA318 /* Exception.cpp */; };
+		B650909B133304C800FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65090241332FE6A00FBA318 /* Exception.cpp */; };
+		B650909C133304C800FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650902F1332FE8B00FBA318 /* Exception.cpp */; };
+		B650909D133304C800FBA318 /* Exception.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65090371332FEBE00FBA318 /* Exception.cpp */; };
+		B650909E133304C800FBA318 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650903A1332FEBE00FBA318 /* Lock.cpp */; };
+		B650909F133304C800FBA318 /* DateTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6272AA711D5AE0C0073C73A /* DateTime.cpp */; };
+		B65090A0133304C800FBA318 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509078133300BA00FBA318 /* File.cpp */; };
+		B65090A1133304C800FBA318 /* Disk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509079133300BA00FBA318 /* Disk.cpp */; };
+		B65090A2133304C800FBA318 /* profuse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B650907F133300DD00FBA318 /* profuse.cpp */; };
+		B65090A3133304C800FBA318 /* profuse_xattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509081133300FB00FBA318 /* profuse_xattr.cpp */; };
+		B65090A4133304C800FBA318 /* profuse_stat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509082133300FB00FBA318 /* profuse_stat.cpp */; };
+		B65090A5133304C800FBA318 /* profuse_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509083133300FB00FBA318 /* profuse_file.cpp */; };
+		B65090A6133304C800FBA318 /* profuse_dirent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6509084133300FB00FBA318 /* profuse_dirent.cpp */; };
+		B65090A8133304C800FBA318 /* libfuse_ino64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */; };
+		B65090A9133304C800FBA318 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EC132995D4007B0EE2 /* Carbon.framework */; };
+		B65090AA133304C800FBA318 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590EE132995D4007B0EE2 /* libz.dylib */; };
+		B65090AB133304C800FBA318 /* libNuFX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6A590F713299626007B0EE2 /* libNuFX.a */; };
 		B656AE0811A84F6C00AB578A /* libfuse_ino64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */; };
 		B656AE0911A84F7700AB578A /* Endian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA7511A0948500C90DCE /* Endian.cpp */; };
 		B656AE0A11A84F7700AB578A /* BlockDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63EFA9511A094E000C90DCE /* BlockDevice.cpp */; };
@@ -221,7 +221,6 @@
 		B650903B1332FEBE00FBA318 /* Lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lock.h; sourceTree = "<group>"; };
 		B650903D1332FEBE00FBA318 /* smart_pointers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = smart_pointers.h; sourceTree = "<group>"; };
 		B650903E1332FEBE00FBA318 /* unordered_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unordered_map.h; sourceTree = "<group>"; };
-		B65090751333006900FBA318 /* fuse_pascal copy */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "fuse_pascal copy"; path = "/Users/kelvin/Projects/PROFuseX/build/Release/fuse_pascal copy"; sourceTree = "<absolute>"; };
 		B6509078133300BA00FBA318 /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
 		B6509079133300BA00FBA318 /* Disk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disk.cpp; sourceTree = "<group>"; };
 		B650907A133300BA00FBA318 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -233,6 +232,7 @@
 		B6509083133300FB00FBA318 /* profuse_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_file.cpp; sourceTree = "<group>"; };
 		B6509084133300FB00FBA318 /* profuse_dirent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profuse_dirent.cpp; sourceTree = "<group>"; };
 		B6509085133300FB00FBA318 /* profuse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = profuse.h; sourceTree = "<group>"; };
+		B65090B1133304C800FBA318 /* profuse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = profuse; sourceTree = BUILT_PRODUCTS_DIR; };
 		B656ADEB11A84D2800AB578A /* libfuse_ino64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfuse_ino64.dylib; path = /usr/local/lib/libfuse_ino64.dylib; sourceTree = "<absolute>"; };
 		B656AE0311A84F5800AB578A /* fuse_pascal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_pascal; sourceTree = BUILT_PRODUCTS_DIR; };
 		B656AEFE11AA0F8C00AB578A /* NibbleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NibbleTest.cpp; sourceTree = "<group>"; };
@@ -271,14 +271,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B650906B1333006900FBA318 /* Frameworks */ = {
+		B65090A7133304C800FBA318 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B650906C1333006900FBA318 /* libfuse_ino64.dylib in Frameworks */,
-				B650906D1333006900FBA318 /* Carbon.framework in Frameworks */,
-				B650906E1333006900FBA318 /* libz.dylib in Frameworks */,
-				B650906F1333006900FBA318 /* libNuFX.a in Frameworks */,
+				B65090A8133304C800FBA318 /* libfuse_ino64.dylib in Frameworks */,
+				B65090A9133304C800FBA318 /* Carbon.framework in Frameworks */,
+				B65090AA133304C800FBA318 /* libz.dylib in Frameworks */,
+				B65090AB133304C800FBA318 /* libNuFX.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +346,7 @@
 				B656AF0311AA105500AB578A /* NibbleTest */,
 				B6F3648011AB36260045E114 /* xattr */,
 				B6F3682511B431AC0045E114 /* newfs_prodos */,
+				B65090B1133304C800FBA318 /* profuse */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -523,7 +524,7 @@
 			dependencies = (
 			);
 			name = apfm;
-			productName = apfpm;
+			productName = apfm;
 			productReference = B63EFCCE11A36C7300C90DCE /* apfm */;
 			productType = "com.apple.product-type.tool";
 		};
@@ -543,20 +544,20 @@
 			productReference = B63EFE8111A4886C00C90DCE /* newfs_pascal */;
 			productType = "com.apple.product-type.tool";
 		};
-		B650904F1333006900FBA318 /* profuse */ = {
+		B650908A133304C800FBA318 /* profuse */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B65090701333006900FBA318 /* Build configuration list for PBXNativeTarget "profuse" */;
+			buildConfigurationList = B65090AC133304C800FBA318 /* Build configuration list for PBXNativeTarget "profuse" */;
 			buildPhases = (
-				B65090501333006900FBA318 /* Sources */,
-				B650906B1333006900FBA318 /* Frameworks */,
+				B650908B133304C800FBA318 /* Sources */,
+				B65090A7133304C800FBA318 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = profuse;
-			productName = fuse_pascal;
-			productReference = B65090751333006900FBA318 /* fuse_pascal copy */;
+			productName = profuse;
+			productReference = B65090B1133304C800FBA318 /* profuse */;
 			productType = "com.apple.product-type.tool";
 		};
 		B656AE0211A84F5800AB578A /* fuse_pascal */ = {
@@ -645,7 +646,7 @@
 				B656AF0211AA105500AB578A /* NibbleTest */,
 				B6F3647F11AB36260045E114 /* xattr */,
 				B6F3682411B431AC0045E114 /* newfs_prodos */,
-				B650904F1333006900FBA318 /* profuse */,
+				B650908A133304C800FBA318 /* profuse */,
 			);
 		};
 /* End PBXProject section */
@@ -713,37 +714,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B65090501333006900FBA318 /* Sources */ = {
+		B650908B133304C800FBA318 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B65090511333006900FBA318 /* Endian.cpp in Sources */,
-				B65090521333006900FBA318 /* BlockDevice.cpp in Sources */,
-				B65090531333006900FBA318 /* DavexDiskImage.cpp in Sources */,
-				B65090541333006900FBA318 /* DiskCopy42Image.cpp in Sources */,
-				B65090551333006900FBA318 /* DiskImage.cpp in Sources */,
-				B65090561333006900FBA318 /* RawDevice.cpp in Sources */,
-				B65090571333006900FBA318 /* UniversalDiskImage.cpp in Sources */,
-				B65090581333006900FBA318 /* BlockCache.cpp in Sources */,
-				B65090591333006900FBA318 /* ConcreteBlockCache.cpp in Sources */,
-				B650905A1333006900FBA318 /* MappedBlockCache.cpp in Sources */,
-				B650905B1333006900FBA318 /* File.cpp in Sources */,
-				B650905C1333006900FBA318 /* MappedFile.cpp in Sources */,
-				B650905D1333006900FBA318 /* Adaptor.cpp in Sources */,
-				B65090651333006900FBA318 /* SDKImage.cpp in Sources */,
-				B65090661333006900FBA318 /* Exception.cpp in Sources */,
-				B65090671333006900FBA318 /* Exception.cpp in Sources */,
-				B65090681333006900FBA318 /* Exception.cpp in Sources */,
-				B65090691333006900FBA318 /* Exception.cpp in Sources */,
-				B650906A1333006900FBA318 /* Lock.cpp in Sources */,
-				B65090771333009400FBA318 /* DateTime.cpp in Sources */,
-				B650907D133300BA00FBA318 /* File.cpp in Sources */,
-				B650907E133300BA00FBA318 /* Disk.cpp in Sources */,
-				B6509080133300DD00FBA318 /* profuse.cpp in Sources */,
-				B6509086133300FB00FBA318 /* profuse_xattr.cpp in Sources */,
-				B6509087133300FB00FBA318 /* profuse_stat.cpp in Sources */,
-				B6509088133300FB00FBA318 /* profuse_file.cpp in Sources */,
-				B6509089133300FB00FBA318 /* profuse_dirent.cpp in Sources */,
+				B650908C133304C800FBA318 /* Endian.cpp in Sources */,
+				B650908D133304C800FBA318 /* BlockDevice.cpp in Sources */,
+				B650908E133304C800FBA318 /* DavexDiskImage.cpp in Sources */,
+				B650908F133304C800FBA318 /* DiskCopy42Image.cpp in Sources */,
+				B6509090133304C800FBA318 /* DiskImage.cpp in Sources */,
+				B6509091133304C800FBA318 /* RawDevice.cpp in Sources */,
+				B6509092133304C800FBA318 /* UniversalDiskImage.cpp in Sources */,
+				B6509093133304C800FBA318 /* BlockCache.cpp in Sources */,
+				B6509094133304C800FBA318 /* ConcreteBlockCache.cpp in Sources */,
+				B6509095133304C800FBA318 /* MappedBlockCache.cpp in Sources */,
+				B6509096133304C800FBA318 /* File.cpp in Sources */,
+				B6509097133304C800FBA318 /* MappedFile.cpp in Sources */,
+				B6509098133304C800FBA318 /* Adaptor.cpp in Sources */,
+				B6509099133304C800FBA318 /* SDKImage.cpp in Sources */,
+				B650909A133304C800FBA318 /* Exception.cpp in Sources */,
+				B650909B133304C800FBA318 /* Exception.cpp in Sources */,
+				B650909C133304C800FBA318 /* Exception.cpp in Sources */,
+				B650909D133304C800FBA318 /* Exception.cpp in Sources */,
+				B650909E133304C800FBA318 /* Lock.cpp in Sources */,
+				B650909F133304C800FBA318 /* DateTime.cpp in Sources */,
+				B65090A0133304C800FBA318 /* File.cpp in Sources */,
+				B65090A1133304C800FBA318 /* Disk.cpp in Sources */,
+				B65090A2133304C800FBA318 /* profuse.cpp in Sources */,
+				B65090A3133304C800FBA318 /* profuse_xattr.cpp in Sources */,
+				B65090A4133304C800FBA318 /* profuse_stat.cpp in Sources */,
+				B65090A5133304C800FBA318 /* profuse_file.cpp in Sources */,
+				B65090A6133304C800FBA318 /* profuse_dirent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -893,7 +894,7 @@
 				);
 				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
-				PRODUCT_NAME = apfpm;
+				PRODUCT_NAME = apfm;
 			};
 			name = Debug;
 		};
@@ -912,7 +913,7 @@
 				);
 				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
-				PRODUCT_NAME = apfpm;
+				PRODUCT_NAME = apfm;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -949,7 +950,7 @@
 			};
 			name = Release;
 		};
-		B65090711333006900FBA318 /* Debug */ = {
+		B65090AD133304C800FBA318 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -969,7 +970,7 @@
 			};
 			name = Debug;
 		};
-		B65090721333006900FBA318 /* Debug Universal */ = {
+		B65090AE133304C800FBA318 /* Debug Universal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -989,7 +990,7 @@
 			};
 			name = "Debug Universal";
 		};
-		B65090731333006900FBA318 /* Debug fuse */ = {
+		B65090AF133304C800FBA318 /* Debug fuse */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1006,7 +1007,7 @@
 			};
 			name = "Debug fuse";
 		};
-		B65090741333006900FBA318 /* Release */ = {
+		B65090B0133304C800FBA318 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1061,7 +1062,7 @@
 				);
 				OTHER_CFLAGS = "-DHAVE_NUFX";
 				PREBINDING = NO;
-				PRODUCT_NAME = apfpm;
+				PRODUCT_NAME = apfm;
 			};
 			name = "Debug fuse";
 		};
@@ -1420,13 +1421,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B65090701333006900FBA318 /* Build configuration list for PBXNativeTarget "profuse" */ = {
+		B65090AC133304C800FBA318 /* Build configuration list for PBXNativeTarget "profuse" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B65090711333006900FBA318 /* Debug */,
-				B65090721333006900FBA318 /* Debug Universal */,
-				B65090731333006900FBA318 /* Debug fuse */,
-				B65090741333006900FBA318 /* Release */,
+				B65090AD133304C800FBA318 /* Debug */,
+				B65090AE133304C800FBA318 /* Debug Universal */,
+				B65090AF133304C800FBA318 /* Debug fuse */,
+				B65090B0133304C800FBA318 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
