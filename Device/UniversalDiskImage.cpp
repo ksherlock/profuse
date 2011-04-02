@@ -107,6 +107,7 @@ bool UniversalDiskImage::Validate(MappedFile *file, const std::nothrow_t &)
 
     unsigned blocks = 0;
     unsigned offset = 0;
+    unsigned fileSize = 0;
     
 
     if (size < 64) return false;
@@ -121,8 +122,11 @@ bool UniversalDiskImage::Validate(MappedFile *file, const std::nothrow_t &)
     offset = Read32(data, 0x18);
     
     // file size == blocks * 512
-    if (Read32(data, 0x1c) != blocks * 512) return false;
-    
+    // file size blank in some cases.
+    //if (Read32(data, 0x1c) != blocks * 512) return false;
+    fileSize = Read32(data, 0x1c);
+    if (fileSize != 0 && fileSize != blocks * 512) return false;
+        
     if (offset + blocks * 512 > size) return false;
     
     return true;
