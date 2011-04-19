@@ -92,11 +92,20 @@ EXCEPTION_OBJECTS += POSIX/Exception.o
 all: $(TARGETS) 
 
 
-#apfm: o/apfm
-#fuse_pascal: o/fuse_pascal
-#newfs_pascal: o/newfs_pascal
-#profuse: o/profuse
-#xattr: o/xattr
+apfm: o/apfm
+	@true
+
+fuse_pascal: o/fuse_pascal
+	@true
+
+newfs_pascal: o/newfs_pascal
+	@true
+
+profuse: o/profuse
+	@true
+
+xattr: o/xattr
+	@true
 
 
 
