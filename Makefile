@@ -4,7 +4,8 @@ LIBS += -lpthread
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
-    FUSE_LIBS += -lfuse_ino64
+    FUSE_LIBS += -losxfuse
+    CPPFLAGS += -I/usr/local/include/osxfuse/fuse
 else
     FUSE_LIBS += -lfuse
 endif
