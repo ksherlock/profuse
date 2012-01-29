@@ -70,7 +70,7 @@ static record_thread FindDiskImageThread(NuArchive *archive)
         {
             const NuThread *thread = NuGetThread(record, i);
             
-            if (NuGetThreadID(thread) == kNuThreadIDDiskImage)
+            if (thread && NuGetThreadID(thread) == kNuThreadIDDiskImage)
             {
                 rt.thread_index = thread->threadIdx;
                 rt.record_index = record->recordIdx;

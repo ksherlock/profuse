@@ -17,6 +17,19 @@
 
 typedef std::vector<std::string>::iterator vsiter;
 
+// prototypes to shut up clang.
+
+void hexdump(const uint8_t *data, ssize_t size);
+ssize_t get_attr_list(const char * fname, std::vector<std::string> &out);
+void dumpxattr(const char *file, const char *attr);
+int op_list(int argc, char **argv);
+int op_dump(int argc, char **argv);
+int op_read(int argc, char **argv);
+ssize_t read_all(int fd, std::vector<uint8_t> &out);
+int op_write(int argc, char **argv);
+void usage(const char *name);
+
+
 #ifdef __APPLE__
 // apple has additional parameter for position and options.
 
@@ -165,7 +178,7 @@ char *buffer;
  * list a file's attributes (and size)
  *
  */
-int list(int argc, char **argv)
+int op_list(int argc, char **argv)
 {
 
     const char *fname = *argv;
@@ -217,7 +230,7 @@ int list(int argc, char **argv)
  * hexdump a file's attributes.
  *
  */
-int dump(int argc, char **argv)
+int op_dump(int argc, char **argv)
 {
 
     const char *fname = *argv;
@@ -250,7 +263,7 @@ int dump(int argc, char **argv)
 
 
 // must specify the xattr name.
-int read(int argc, char **argv)
+int op_read(int argc, char **argv)
 {
 
     if (argc != 2)
@@ -339,7 +352,7 @@ ssize_t read_all(int fd, std::vector<uint8_t> &out)
 
 // xattr write filename attrname
 // stdin -> filename:attrname 
-int write(int argc, char **argv)
+int op_write(int argc, char **argv)
 {
 
     std::vector<uint8_t> buffer;
@@ -401,11 +414,11 @@ int main(int argc, char **argv)
 {
     if (argc < 3) usage(*argv);
     
-    if (std::strcmp(argv[1], "list") == 0) return list(argc - 2, argv + 2);
-    if (std::strcmp(argv[1], "dump") == 0) return dump(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "list") == 0) return op_list(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "dump") == 0) return op_dump(argc - 2, argv + 2);
     
-    if (std::strcmp(argv[1], "read") == 0) return read(argc - 2, argv + 2);
-    if (std::strcmp(argv[1], "write") == 0) return write(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "read") == 0) return op_read(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "write") == 0) return op_write(argc - 2, argv + 2);
     
     
     usage(*argv);

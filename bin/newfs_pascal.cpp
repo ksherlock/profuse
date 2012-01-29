@@ -212,7 +212,7 @@ int main(int argc, char **argv)
     {
         
         struct stat st;
-        bool rawDevice;
+        bool rawDevice = false;
         
         BlockDevicePointer device;
         VolumeEntryPointer volume;
