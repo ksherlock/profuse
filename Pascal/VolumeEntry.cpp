@@ -600,7 +600,7 @@ FileEntryPointer VolumeEntry::create(const char *name, unsigned blocks)
     {
         FileEntryPointer e = *iter;
         
-        unsigned freeSpace = e->_firstBlock - _lastBlock;
+        unsigned freeSpace = e->_firstBlock - lastBlock;
         // this could do something stupid like selecting a slot with only 1 free block but too bad.
         
         if (freeSpace < blocks)
