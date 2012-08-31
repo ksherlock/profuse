@@ -14,7 +14,7 @@ public:
     
     virtual ~Exception() throw ();
     
-    virtual const char *what();
+    virtual const char *what() const throw();
     virtual const char *errorString();
     
     int error() const { return _error; }

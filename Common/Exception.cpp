@@ -33,7 +33,7 @@ Exception::~Exception() throw()
 {
 }
 
-const char *Exception::what()
+const char *Exception::what() const throw()
 {
     return _string.c_str();
 }
