@@ -1,0 +1,32 @@
+Version 2 Goals
+
+Version 2 is a more or less complete rewrite with the following goals:
+
+- better code modularity (disk image code should be usable for dos, pascal, cpm, stand alone utlities, etc)
+
+- better c++ coding
+
+
+- sdk (shrinkit) support
+- nibblized disk image support
+- raw device support
+
+ 
+- write support.
+
+Other utilites:
+- fsck - verify and fix image integrity
+- newfs - create a new disk image 
+
+
+inodes:
+
+Unix (and fuse) expect every file to have an inode, a unique integer file identifier.  ProDOS does not use inodes (or anything like them).
+
+v1 used the file entry address as an inode, reloading the file entry every time.
+
+Since file entries are stored in the parent directory, moving a file changes the address, so this won't work with write support.
+
+(A file may be moved or deleted while it's open without affecting open references to it.)
+
+To handle inodes, perhaps I should use the key pointer (which would require a hash to convert it back to the entry) or generate one on the fly and maintain it until necessary
