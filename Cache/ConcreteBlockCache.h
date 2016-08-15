@@ -22,11 +22,13 @@ public:
     virtual void release(unsigned block, int flags);
     virtual void markDirty(unsigned block);
 
+
+    // public so make_shared can access it. 
+    ConcreteBlockCache(BlockDevicePointer device, unsigned size);
     
 private:
     
     
-    ConcreteBlockCache(BlockDevicePointer device, unsigned size);
     
     struct Entry {
         unsigned block;

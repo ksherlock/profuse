@@ -56,6 +56,8 @@ namespace Pascal {
         
         int krunch();
 
+        VolumeEntry(Device::BlockDevicePointer, const char *name);
+        VolumeEntry(Device::BlockDevicePointer);
         
     protected:
         virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
@@ -66,8 +68,7 @@ namespace Pascal {
 
         
         VolumeEntry();
-        VolumeEntry(Device::BlockDevicePointer, const char *name);
-        VolumeEntry(Device::BlockDevicePointer);
+
 
         VolumeEntryPointer thisPointer() 
         {

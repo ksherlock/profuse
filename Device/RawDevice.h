@@ -33,13 +33,11 @@ public:
     virtual void sync();
     
     virtual unsigned blocks();
-    
-private:
 
-    
-    RawDevice(const char *name, File::FileFlags flags);
-    
+
+    RawDevice(const char *name, File::FileFlags flags);    
     RawDevice(File& file, File::FileFlags flags);
+private:
     
     void devSize(int fd);
 

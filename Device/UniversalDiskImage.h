@@ -26,11 +26,10 @@ public:
     static bool Validate(MappedFile *);
 
     
+    UniversalDiskImage(MappedFile *);
 private:
 
     UniversalDiskImage();
-
-    UniversalDiskImage(MappedFile *);
     
     uint32_t _format;
     uint32_t _flags;

@@ -1,5 +1,5 @@
-CC = g++
-CPPFLAGS += -Wall -W -Wno-multichar -I. -O2 -g 
+CC = c++
+CPPFLAGS += -Wall -W -Wno-multichar -Wno-c++11-narrowing -I. -O2 -g  -std=c++11
 LIBS += -lpthread
 UNAME = $(shell uname -s)
 
@@ -92,7 +92,6 @@ EXCEPTION_OBJECTS += POSIX/Exception.o
 
 all: $(TARGETS) 
 
-
 apfm: o/apfm
 	@true
 
@@ -108,9 +107,10 @@ profuse: o/profuse
 xattr: o/xattr
 	@true
 
+o:
+	mkdir $@
 
-
-o/xattr: bin/xattr.o
+o/xattr: bin/xattr.o | o
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 o/newfs_pascal: bin/newfs_pascal.o \
@@ -120,7 +120,7 @@ o/newfs_pascal: bin/newfs_pascal.o \
   ${FILE_OBJECTS} \
   ${COMMON_OBJECTS} \
   ${EXCEPTION_OBJECTS} \
-  ${PASCAL_OBJECTS}
+  ${PASCAL_OBJECTS} | o
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 o/apfm: bin/apfm.o \
@@ -130,7 +130,7 @@ o/apfm: bin/apfm.o \
   ${FILE_OBJECTS} \
   ${COMMON_OBJECTS} \
   ${EXCEPTION_OBJECTS} \
-  ${PASCAL_OBJECTS}
+  ${PASCAL_OBJECTS} | o
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 
@@ -141,7 +141,7 @@ o/fuse_pascal: bin/fuse_pascal.o bin/fuse_pascal_ops.o \
   ${FILE_OBJECTS} \
   ${COMMON_OBJECTS} \
   ${EXCEPTION_OBJECTS} \
-  ${PASCAL_OBJECTS} 
+  ${PASCAL_OBJECTS} | o
 	$(CC) $(LDFLAGS) $^ $(LIBS) $(FUSE_LIBS) -o $@
 
 
@@ -153,7 +153,7 @@ o/profuse: bin/profuse.o bin/profuse_dirent.o bin/profuse_file.o \
   ${FILE_OBJECTS} \
   ${COMMON_OBJECTS} \
   ${EXCEPTION_OBJECTS} \
-  ${PRODOS_OBJECTS} 
+  ${PRODOS_OBJECTS} | o
 	$(CC) $(LDFLAGS) $^ $(LIBS) $(FUSE_LIBS) -o $@
 
 

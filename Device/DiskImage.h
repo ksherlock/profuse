@@ -64,10 +64,11 @@ public:
     static bool Validate(MappedFile *, const std::nothrow_t &);
     static bool Validate(MappedFile *);
 
+
+    ProDOSOrderDiskImage(MappedFile *);
 private:
     ProDOSOrderDiskImage();
     
-    ProDOSOrderDiskImage(MappedFile *);
 };
 
 class DOSOrderDiskImage : public DiskImage {
@@ -79,11 +80,12 @@ public:
 
     static bool Validate(MappedFile *, const std::nothrow_t &);
     static bool Validate(MappedFile *);
-    
+
+
+    DOSOrderDiskImage(MappedFile *);    
 private:
     DOSOrderDiskImage();
 
-    DOSOrderDiskImage(MappedFile *);
 };
 
 

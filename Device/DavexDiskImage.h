@@ -25,13 +25,11 @@ public:
 
     static bool Validate(MappedFile *, const std::nothrow_t &);
     static bool Validate(MappedFile *);
-    
-private:
 
-    DavexDiskImage();
-    
+
     DavexDiskImage(MappedFile *);
-    
+private:
+    DavexDiskImage();
 
     bool _changed;
     std::string _volumeName;    

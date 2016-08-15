@@ -1,6 +1,5 @@
 
 #ifdef __APPLE__
-#define __FreeBSD__ 10 
 #define __DARWIN_64_BIT_INO_T 1 
 #endif
 

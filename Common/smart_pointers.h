@@ -2,7 +2,7 @@
 #ifndef __COMMON_SMART_POINTERS_H__
 #define __COMMON_SMART_POINTERS_H__
 
-#ifdef CPP0X
+#if 1
 //C++0x
 #include <memory>
 

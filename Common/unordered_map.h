@@ -1,7 +1,7 @@
 #ifndef __COMMON_UNORDERED_MAP_H__
 #define __COMMON_UNORDERED_MAP_H__
 
-#ifdef CPP0X
+#if 1
 //c++0x
 #include <unordered_map>
 #define UNORDERED_MAP(...) std::unordered_map(__VA_ARGS__)

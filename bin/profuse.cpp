@@ -22,8 +22,6 @@
 #include <vector>
 #include <string>
 
-#include <tr1/memory>
-
 #include <Device/BlockDevice.h>
 
 
@@ -33,7 +31,6 @@
 
 using std::vector;
 using std::string;
-using std::tr1::shared_ptr;
 
 
 /*

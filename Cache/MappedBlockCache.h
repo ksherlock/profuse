@@ -22,9 +22,11 @@ class MappedBlockCache : public BlockCache {
     virtual void release(unsigned block, int flags);
     virtual void markDirty(unsigned block);
 
-    private:
 
+    // public so make_shared can access it. 
     MappedBlockCache(BlockDevicePointer device, void *data);
+
+    private:
 
     void sync(unsigned block);
         

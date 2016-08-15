@@ -16,7 +16,8 @@
 #include <ProDOS/File.h>
 #include <Device/BlockDevice.h>
 
-#include <tr1/memory>
+#include <memory>
+#include <Common/smart_pointers.h>
 
 
 enum {
@@ -44,7 +45,7 @@ enum {
 };
 
 class Disk;
-typedef std::tr1::shared_ptr<Disk> DiskPointer;
+typedef SHARED_PTR(Disk) DiskPointer;
 
 class Disk {
 

@@ -28,12 +28,13 @@ public:
     
 
     virtual BlockCachePointer createBlockCache();    
-    
-private:
+
 
     DiskCopy42Image();
+    DiskCopy42Image(MappedFile *);    
 
-    DiskCopy42Image(MappedFile *);
+private:
+
     bool _changed;
 };
 

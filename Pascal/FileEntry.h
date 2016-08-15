@@ -47,7 +47,10 @@ namespace Pascal {
         
         int truncate(unsigned newSize);
         
-        
+
+        FileEntry(const char *name, unsigned fileKind);
+        FileEntry(void *vp);
+                
     protected:
         
         virtual void writeDirectoryEntry(LittleEndian::IOBuffer *);
@@ -57,9 +60,7 @@ namespace Pascal {
         
         friend class VolumeEntry;
         
-        FileEntry(const char *name, unsigned fileKind);
-        FileEntry(void *vp);
-        
+
         FileEntryPointer thisPointer() 
         {
             return STATIC_POINTER_CAST(FileEntry, shared_from_this()); 
