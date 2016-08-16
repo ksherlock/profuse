@@ -1,9 +1,4 @@
 
-#ifdef __APPLE__
-#define __DARWIN_64_BIT_INO_T 1 
-#endif
-
-#define _FILE_OFFSET_BITS 64 
 #define FUSE_USE_VERSION 27
 
 #include <string>
@@ -19,8 +14,8 @@
 
 
 
-#include <fuse/fuse_opt.h>
-#include <fuse/fuse_lowlevel.h>
+#include <fuse_opt.h>
+#include <fuse_lowlevel.h>
 
 
 

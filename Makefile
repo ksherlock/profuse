@@ -1,13 +1,14 @@
 CC = c++
 CPPFLAGS += -Wall -W -Wno-multichar -Wno-c++11-narrowing -I. -O2 -g  -std=c++11
-LIBS += -lpthread
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
-    FUSE_LIBS += -losxfuse
-    CPPFLAGS += -I/usr/local/include/osxfuse/fuse
+	# should use pkg-config but it may not be installed.
+    FUSE_LIBS += -losxfuse -pthread  -liconv
+    CPPFLAGS += -I/usr/local/include/osxfuse/fuse -D_FILE_OFFSET_BITS=64 -D_DARWIN_USE_64_BIT_INODE
 else
-    FUSE_LIBS += -lfuse
+	CPPFLAGS += $(shell pkg-config --cflags fuse)
+    FUSE_LIBS += $(shell pkg-config --libs fuse)
 endif
 
 ifdef HAVE_NUFX
