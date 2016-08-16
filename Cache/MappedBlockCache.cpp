@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
+#include <cstddef>
 
 #include <sys/types.h>
 #include <sys/mman.h>

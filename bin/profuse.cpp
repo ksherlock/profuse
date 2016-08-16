@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cctype>
+#include <cstddef>
 
 #include <vector>
 #include <string>

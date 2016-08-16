@@ -742,7 +742,7 @@ int action_get(int argc, char **argv, Pascal::VolumeEntry *volume)
     
 
     
-    File::File file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    File file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     
     unsigned fileSize = entry->fileSize();
     unsigned offset = 0;

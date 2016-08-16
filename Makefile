@@ -1,5 +1,6 @@
 CC = c++
-CPPFLAGS += -Wall -W -Wno-multichar -Wno-c++11-narrowing -I. -O2 -g  -std=c++11
+CPPFLAGS += -Wall -W -Wno-multichar -Wno-unused-parameter -Wno-unknown-pragmas -Wno-narrowing -I. -O2 -g  -std=c++11
+LDFLAGS += -pthread
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
