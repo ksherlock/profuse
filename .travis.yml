@@ -1,4 +1,7 @@
 language: cpp
+# trusty has gcc 4.8
+sudo: required
+dist: trusty
 compiler:
   - clang++
   - g++
