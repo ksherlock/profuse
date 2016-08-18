@@ -18,10 +18,6 @@ ifdef HAVE_NUFX
   LDFLAGS += -L/usr/local/lib/
   LIBS += -lnufx -lz 
   
-  ifeq ($(UNAME),Darwin)
-    LIBS += -framework carbon
-  endif
-  
   CPPFLAGS += -DHAVE_NUFX=1
 endif
 
