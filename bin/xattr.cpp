@@ -423,7 +423,6 @@ int op_rm(int argc, char **argv)
             warn("removexattr(\"%s\", \"%s\")", fname, attr_name);
             rv = 1;
         }
-
     }
     
     return rv;
@@ -451,8 +450,8 @@ int op_cp(int argc, char **argv)
  
     std::vector<uint8_t> buffer;
     if (read_xattr(fname, src_attr_name, buffer) < 0) {
-            warn("getxattr(\"%s\", \"%s\")", fname, src_attr_name);
-
+        warn("getxattr(\"%s\", \"%s\")", fname, src_attr_name);
+        return -1;
     }
 
     ssize_t asize = setxattr(fname, dest_attr_name, buffer.data(), buffer.size(), 0);
@@ -489,8 +488,8 @@ int op_mv(int argc, char **argv)
  
     std::vector<uint8_t> buffer;
     if (read_xattr(fname, src_attr_name, buffer) < 0) {
-            warn("getxattr(\"%s\", \"%s\")", fname, src_attr_name);
-
+        warn("getxattr(\"%s\", \"%s\")", fname, src_attr_name);
+        return -1;
     }
 
     ssize_t asize = setxattr(fname, dest_attr_name, buffer.data(), buffer.size(), 0);
