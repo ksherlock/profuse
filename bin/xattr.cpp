@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/xattr.h>
+#include <err.h>
 
 
 typedef std::vector<std::string>::iterator vsiter;
@@ -25,6 +26,9 @@ void dumpxattr(const char *file, const char *attr);
 int op_list(int argc, char **argv);
 int op_dump(int argc, char **argv);
 int op_read(int argc, char **argv);
+int op_rm(int argc, char **argv);
+int op_mv(int argc, char **argv);
+int op_cp(int argc, char **argv);
 ssize_t read_all(int fd, std::vector<uint8_t> &out);
 int op_write(int argc, char **argv);
 void usage(const char *name);
@@ -49,6 +53,11 @@ inline int setxattr(const char *path, const char *name, void *value, size_t size
 {
     return setxattr(path, name, value, size, 0, flags);
 }
+
+inline int removexattr(const char *path, const char *name) {
+    return removexattr(path, name, 0);
+}
+
 #endif
 
 void hexdump(const uint8_t *data, ssize_t size)
@@ -137,40 +146,48 @@ ssize_t get_attr_list(const char * fname, std::vector<std::string> &out)
 }
 
 
+/*
+ * safely read the entire xattr into buffer.
+ *
+ */ 
+int read_xattr(const char *fname, const char *attr_name, std::vector<uint8_t> &buffer) {
 
+
+
+    for(;;) {
+
+        ssize_t asize = getxattr(fname, attr_name, NULL, 0);
+        if (asize < 0) {
+            if (errno == EINTR) continue;
+            return -1;
+        }
+
+        buffer.resize(asize);
+        asize = getxattr(fname, attr_name, buffer.data(), asize);
+        if (asize < 0) {
+            // ERANGE -- buffer is not large enough.
+            if (errno == EINTR || errno == ERANGE) continue;
+            return -1;
+        }
+        buffer.resize(asize);
+        return 0;
+    }
+}
 
 
 /*
  * hexdump an individual attribute.
  */
-void dumpxattr(const char *file, const char *attr)
+void dumpxattr(const char *fname, const char *attr_name)
 {
-ssize_t asize;
-char *buffer;
+    std::vector<uint8_t> buffer;
+    if (read_xattr(fname, attr_name, buffer) < 0) {
+        warn("getxattr(\"%s\", \"%s\")", fname, attr_name);
+        return;        
+    }
 
-    asize = getxattr(file, attr, NULL, 0);
-    if (asize < 0)
-    {
-        std::perror(attr);
-        return;
-    }
-    
-    std::printf("%s: %u\n", attr, (unsigned)asize);
-
-    buffer = new char[asize];
-    //if (!buffer) return;
-    
-    asize = getxattr(file, attr, buffer, asize);
-    if (asize >= 0)
-    {
-        hexdump((uint8_t *)buffer, asize);
-    }
-    else
-    {
-        std::perror(attr);
-    }
-    
-    delete []buffer;
+    std::printf("%s: %u\n", attr_name, (unsigned)buffer.size());
+    hexdump(buffer.data(), buffer.size());    
 }
 
 
@@ -218,7 +235,7 @@ int op_list(int argc, char **argv)
         }
         else
         {
-            std::perror(attr_name);
+            warn("getxattr(\"%s\", \"%s\")", fname, attr_name);
         }
     }
     
@@ -274,37 +291,22 @@ int op_read(int argc, char **argv)
     
     const char *fname = argv[0];
     const char *attr_name = argv[1];
-    
-    // get the attribute size and read it in.
-    ssize_t asize = getxattr(fname, attr_name, NULL, 0);
-    if (asize < 0)
-    {
-        std::perror(attr_name);
-        return -1;
-    }
-    if (asize == 0) return 0;
-    
-    uint8_t *buffer = new uint8_t[asize];
-    asize = getxattr(fname, attr_name, buffer, asize);
 
-    if (asize < 0)
-    {
-        std::perror(attr_name);
-        return -1;
+    std::vector<uint8_t> buffer;
+    if (read_xattr(fname, attr_name, buffer) < 0 ) {
+        warn("getxattr(\"%s\", \"%s\")", fname, attr_name);
+        return -1;        
     }
+    if (buffer.size() == 0) return 0;
     
-    if (::write(STDOUT_FILENO, buffer, asize) != asize)
+    if (::write(STDOUT_FILENO, buffer.data(), buffer.size()) < 0)
     {
-        perror(NULL);
-        delete []buffer;
+        warn("write");
         return -1;
     }
 
     
-    delete []buffer;
     return 0;
-    
-
 }
 
 
@@ -316,36 +318,36 @@ ssize_t read_all(int fd, std::vector<uint8_t> &out)
     // stdin could be a file, a pipe, or a tty.
     if (fstat(fd, &st) < 0)
     {
-        std::perror("stdin");
+        warn("fstat stdin");
         return -1;
     }
     
 
+
+
     bsize = std::max(st.st_blksize, (blksize_t)512);
     out.reserve(std::max(st.st_size, (off_t)512));
 
-    uint8_t *buffer = new uint8_t[bsize];
+    std::vector<uint8_t> buffer;
+    buffer.resize(bsize);
     
     for(;;)
     {
-        ssize_t size = ::read(fd, buffer, bsize);
+        ssize_t size = ::read(fd, buffer.data(), bsize);
                 
         if (size == 0) break;
         if (size == -1)
         {
             if (errno == EINTR) continue;
-            delete[] buffer;
-            std::perror(NULL);
+            warn("read");
             return -1;
         }
         
         // force reserve?
-        out.insert(out.end(), buffer, buffer + size);
+        out.insert(out.end(), buffer.data(), buffer.data() + size);
     }
     
     
-    delete []buffer;
-
     return out.size();
 }
 
@@ -356,11 +358,10 @@ int op_write(int argc, char **argv)
 {
 
     std::vector<uint8_t> buffer;
-    int flags = 0;
         
     if (argc != 2)
     {
-        std::fprintf(stderr, "Must specify attribute to be read.\n");
+        std::fprintf(stderr, "Must specify attribute to be written.\n");
         return -1;
     }
     
@@ -378,18 +379,135 @@ int op_write(int argc, char **argv)
     // if neither of the above is specified, will create and replace.
     // XATTR_NOFOLLOW : do not follow symbolic links (Apple only)
 
-    #ifdef __APPLE__
-    flags = XATTR_NOFOLLOW;
-    #endif
-
-    ssize_t asize = setxattr(fname, attr_name, &buffer[0], buffer.size(), flags);
+    ssize_t asize = setxattr(fname, attr_name, buffer.data(), buffer.size(), 0);
     
     if (asize < 0)
     {
-        std::perror(attr_name);
+        warn("setxattr(\"%s\", \"%s\")", fname, attr_name);
         return -1;
     }
     
+    return 0;
+}
+
+
+/*
+ * remove an attribute
+ * 
+ */
+int op_rm(int argc, char **argv)
+{
+    int rv = 0;
+    const char *fname = *argv;
+    
+    std::vector<std::string>attr;
+    
+    if (argc == 1)
+    {
+        std::fprintf(stderr, "Must specify attribute to be removed.\n");
+        return -1;
+    }
+
+    for (int i = 1; i < argc; ++i)
+    {
+        attr.push_back(argv[i]);
+    }
+ 
+    
+    for (vsiter i = attr.begin(); i != attr.end() ; ++i)
+    {
+        const char *attr_name = i->c_str();
+        int ok = removexattr(fname, attr_name);
+        
+        if (ok < 0) {
+            warn("removexattr(\"%s\", \"%s\")", fname, attr_name);
+            rv = 1;
+        }
+
+    }
+    
+    return rv;
+}
+
+/*
+ * copy an attribute
+ * 
+ */
+
+int op_cp(int argc, char **argv)
+{
+    const char *fname = *argv;
+    
+    std::vector<std::string>attr;
+    
+    if (argc != 3)
+    {
+        std::fprintf(stderr, "Must specify source and destination.\n");
+        return -1;
+    }
+
+    const char *src_attr_name = argv[1];
+    const char *dest_attr_name = argv[2];
+ 
+    std::vector<uint8_t> buffer;
+    if (read_xattr(fname, src_attr_name, buffer) < 0) {
+            warn("getxattr(\"%s\", \"%s\")", fname, src_attr_name);
+
+    }
+
+    ssize_t asize = setxattr(fname, dest_attr_name, buffer.data(), buffer.size(), 0);
+    
+    if (asize < 0)
+    {
+        warn("setxattr(\"%s\", \"%s\")", fname, dest_attr_name);
+        return -1;
+    }
+
+    return 0;
+}
+
+
+/*
+ * move an attribute
+ * 
+ */
+
+int op_mv(int argc, char **argv)
+{
+    const char *fname = *argv;
+    
+    std::vector<std::string>attr;
+    
+    if (argc != 3)
+    {
+        std::fprintf(stderr, "Must specify source and destination.\n");
+        return -1;
+    }
+
+    const char *src_attr_name = argv[1];
+    const char *dest_attr_name = argv[2];
+ 
+    std::vector<uint8_t> buffer;
+    if (read_xattr(fname, src_attr_name, buffer) < 0) {
+            warn("getxattr(\"%s\", \"%s\")", fname, src_attr_name);
+
+    }
+
+    ssize_t asize = setxattr(fname, dest_attr_name, buffer.data(), buffer.size(), 0);
+    
+    if (asize < 0)
+    {
+        warn("setxattr(\"%s\", \"%s\")", fname, dest_attr_name);
+        return -1;
+    }
+
+    int ok = removexattr(fname, src_attr_name);
+    if (ok < 0) {
+        warn("removexattr(\"%s\", \"%s\")", fname, dest_attr_name);
+        return -1;
+
+    }
+
     return 0;
 }
 
@@ -414,12 +532,20 @@ int main(int argc, char **argv)
 {
     if (argc < 3) usage(*argv);
     
-    if (std::strcmp(argv[1], "list") == 0) return op_list(argc - 2, argv + 2);
-    if (std::strcmp(argv[1], "dump") == 0) return op_dump(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "list") == 0 || std::strcmp(argv[1], "ls") == 0)
+        return op_list(argc - 2, argv + 2);
+
+    if (std::strcmp(argv[1], "dump") == 0 || std::strcmp(argv[1], "hd") == 0)
+        return op_dump(argc - 2, argv + 2);
     
     if (std::strcmp(argv[1], "read") == 0) return op_read(argc - 2, argv + 2);
     if (std::strcmp(argv[1], "write") == 0) return op_write(argc - 2, argv + 2);
     
+
+    if (std::strcmp(argv[1], "rm") == 0) return op_rm(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "mv") == 0) return op_mv(argc - 2, argv + 2);
+    if (std::strcmp(argv[1], "cp") == 0) return op_cp(argc - 2, argv + 2);
+
     
     usage(*argv);
 
